@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Gesundheit">
 <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="noindex, nofollow">
 <title>Gesundheits-Tracker</title>
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='white'/><path d='M50 88 C22 88 8 70 8 52 C8 34 21 18 40 18 C46 18 49 22 50 22 C51 22 54 18 60 18 C79 18 92 34 92 52 C92 70 78 88 50 88Z' fill='%23FFB300' stroke='%23F57F17' stroke-width='3'/><path d='M48 18 Q51 8 58 10' stroke='%236D4C41' stroke-width='3' fill='none' stroke-linecap='round'/><path d='M57 11 Q76 3 71 20 Q57 21 57 11Z' fill='%2343A047' stroke='%232E7D32' stroke-width='2'/><path d='M70 5 Q80 1 78 13' stroke='%23C62828' stroke-width='2' fill='none' stroke-linecap='round'/><path d='M43 85 Q50 90 57 85' stroke='%23F57F17' stroke-width='2' fill='none' stroke-linecap='round'/></svg>">
@@ -67,17 +68,20 @@
   .app-wrap {
     max-width: 680px;
     margin: 0 auto;
-    padding: 0 16px calc(60px + env(safe-area-inset-bottom));
+    padding-top: calc(57px + env(safe-area-inset-top, 0px) + 24px);
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
   }
 
   /* ── Top Nav Bar ── */
   .nav-bar {
-    position: sticky;
-    top: calc(-1 * env(safe-area-inset-top, 0px));
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 100;
-    background: rgba(242,242,247,0.85);
+    background: rgba(242,242,247,0.92);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 0.5px solid var(--border);
@@ -85,11 +89,10 @@
     padding-bottom: 0;
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
-    margin: 0 -16px 24px;
   }
 
   @media (prefers-color-scheme: dark) {
-    .nav-bar { background: rgba(28,28,30,0.85); }
+    .nav-bar { background: rgba(28,28,30,0.92); }
   }
 
   .nav-inner {
@@ -542,8 +545,10 @@
 
   /* ── Stats Grid ── */
   .stats-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 10px; margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
   }
 
   .stat-card {
@@ -591,13 +596,16 @@
 
   @media (max-height: 500px) and (orientation: landscape) {
     .nav-inner { padding: 8px 0; }
-    .app-wrap { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+    .app-wrap {
+      padding-top: calc(46px + env(safe-area-inset-top, 0px) + 16px);
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
   }
 
   /* ── Habit Tracker ── */
   .habit-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 1px;
     background: var(--sep);
   }
