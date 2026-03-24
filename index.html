@@ -578,6 +578,220 @@
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
+  /* ── Planung ── */
+  .day-tab-btn {
+    flex: 0 0 auto;
+    min-width: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 10px 6px 8px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(.25,.8,.25,1);
+    position: relative;
+    box-shadow: var(--shadow);
+  }
+  .day-tab-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .day-tab-btn.selected {
+    border-color: var(--blue);
+    background: rgba(0,122,255,0.07);
+    box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
+  }
+  .day-tab-btn.today-btn { border-color: var(--green); }
+  .day-tab-btn.today-btn.selected { border-color: var(--blue); }
+  .day-tab-btn .day-name { font-size: 10px; font-weight: 700; color: var(--text-ter); text-transform: uppercase; letter-spacing: 0.5px; }
+  .day-tab-btn .day-num  { font-size: 22px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+  .day-tab-btn .day-type-badge {
+    font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 6px;
+    background: rgba(118,118,128,0.12); color: var(--text-sec); letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .day-tab-btn.selected .day-type-badge { background: rgba(0,122,255,0.14); color: var(--blue); }
+  .day-today-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--green);
+    position: absolute; top: 6px; right: 8px;
+  }
+
+  .type-selector-row {
+    display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 14px;
+  }
+  .type-chip {
+    padding: 6px 13px; border-radius: 20px; font-size: 13px; font-weight: 500;
+    border: 1.5px solid var(--border); background: var(--card-bg);
+    cursor: pointer; transition: all 0.15s; color: var(--text-primary);
+  }
+  .type-chip:hover { border-color: rgba(118,118,128,0.4); }
+  .type-chip.active { color: #fff; border-color: transparent; }
+  .type-chip[data-type="HO"].active   { background: var(--blue); }
+  .type-chip[data-type="O"].active    { background: var(--orange); }
+  .type-chip[data-type="GLZ"].active  { background: var(--purple); }
+  .type-chip[data-type="WE"].active   { background: var(--green); }
+  .type-chip[data-type="U"].active    { background: var(--teal); }
+
+  /* ── Schedule / Stundenplan ── */
+  .schedule-container {
+    position: relative;
+  }
+  .schedule-row {
+    display: flex; align-items: stretch;
+    border-bottom: 0.5px solid var(--sep);
+    position: relative;
+  }
+  .schedule-row.hour-mark { border-bottom-color: var(--border); }
+  .schedule-row:last-child { border-bottom: none; }
+  .schedule-row.current-time-row::before {
+    content: ''; position: absolute; left: 52px; right: 0; top: 0;
+    height: 2px; background: var(--red); z-index: 10;
+    box-shadow: 0 0 4px rgba(255,59,48,0.4);
+  }
+  .schedule-time {
+    width: 52px; flex: 0 0 52px;
+    font-size: 11px; color: var(--text-ter); font-weight: 500;
+    padding: 5px 0 0 12px; line-height: 1; user-select: none;
+  }
+  .schedule-cell {
+    flex: 1; position: relative;
+    border-left: 0.5px solid var(--sep);
+  }
+  .sched-block {
+    position: absolute; left: 4px; right: 4px;
+    border-radius: 8px;
+    padding: 0 8px; font-size: 12px; font-weight: 500;
+    display: flex; align-items: center; gap: 5px;
+    overflow: hidden; z-index: 2;
+    transition: filter 0.15s, transform 0.1s;
+  }
+  .sched-block:hover { filter: brightness(1.06); }
+  .sched-block .sched-label { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sched-block .sched-dur { font-size: 10px; opacity: 0.65; flex-shrink: 0; }
+  .sched-block.is-free {
+    background: transparent !important;
+    border: 1px dashed rgba(118,118,128,0.2) !important;
+    color: var(--text-ter) !important;
+    cursor: pointer; justify-content: center;
+    font-size: 11px;
+  }
+  .sched-block.is-free:hover {
+    border-color: var(--blue) !important;
+    color: var(--blue) !important;
+    background: rgba(0,122,255,0.05) !important;
+  }
+  .sched-block.is-auto {
+    border-style: dashed !important;
+    border-width: 1.5px !important;
+    background: transparent !important;
+    cursor: pointer;
+  }
+  .sched-block.is-auto:hover { transform: translateX(1px); }
+  .sched-block .delete-btn {
+    opacity: 0; font-size: 13px; cursor: pointer; flex-shrink: 0;
+    transition: opacity 0.15s; padding: 0 2px;
+  }
+  .sched-block:hover .delete-btn { opacity: 0.6; }
+  .sched-block .delete-btn:hover { opacity: 1 !important; }
+
+  /* Sport-Auswahl Modal */
+  .sport-picker-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px); z-index: 200;
+    display: flex; align-items: flex-end; justify-content: center;
+    animation: fadeIn 0.15s;
+  }
+  .sport-picker-sheet {
+    background: var(--card-bg); border-radius: 20px 20px 0 0;
+    width: 100%; max-width: 680px; padding: 0 0 env(safe-area-inset-bottom,16px);
+    max-height: 70vh; overflow-y: auto;
+    animation: slideUp 0.22s cubic-bezier(.25,.8,.25,1);
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+  .sport-picker-header {
+    padding: 16px 20px 10px;
+    font-size: 16px; font-weight: 700;
+    border-bottom: 0.5px solid var(--sep);
+    position: sticky; top: 0; background: var(--card-bg);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sport-picker-close {
+    width: 28px; height: 28px; border-radius: 50%; background: rgba(118,118,128,0.15);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-sec);
+  }
+  .sport-picker-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; padding: 12px 16px;
+  }
+  .sport-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 12px;
+    border: 1.5px solid var(--border); cursor: pointer;
+    transition: all 0.15s; background: var(--card-bg);
+  }
+  .sport-option:hover { border-color: var(--blue); background: rgba(0,122,255,0.05); }
+  .sport-option-emoji { font-size: 20px; }
+  .sport-option-info { flex: 1; }
+  .sport-option-name { font-size: 13px; font-weight: 600; }
+  .sport-option-zone { font-size: 11px; color: var(--text-sec); }
+  .dur-btn-row {
+    display: flex; gap: 8px; padding: 4px 16px 14px; flex-wrap: wrap;
+  }
+  .dur-btn {
+    padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
+    border: 1.5px solid var(--border); cursor: pointer; transition: all 0.15s;
+    background: var(--card-bg); color: var(--text-primary);
+  }
+  .dur-btn:hover, .dur-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* Sport Goals */
+  .sport-goal-row {
+    display: flex; align-items: center; padding: 12px 16px;
+    border-bottom: 0.5px solid var(--sep);
+  }
+  .sport-goal-row:last-child { border-bottom: none; }
+  .sport-goal-icon { font-size: 20px; margin-right: 12px; }
+  .sport-goal-label { flex: 1; font-size: 14px; font-weight: 600; }
+  .sport-goal-sub { font-size: 11px; color: var(--text-sec); margin-top: 1px; }
+  .sport-goal-right { text-align: right; min-width: 90px; }
+  .sport-goal-nums { font-size: 15px; font-weight: 700; }
+  .sport-goal-nums .done-num { color: var(--green); }
+  .sport-goal-nums .plan-num { color: var(--blue); }
+  .sport-goal-nums .target  { font-size: 11px; font-weight: 400; color: var(--text-ter); }
+  .sport-goal-bar-wrap { margin-top: 6px; }
+  .sport-goal-bar { height: 5px; background: var(--sep); border-radius: 3px; overflow: hidden; position: relative; }
+  .sport-goal-bar-done { height: 100%; border-radius: 3px; transition: width 0.5s; position: absolute; left: 0; }
+  .sport-goal-bar-plan { height: 100%; border-radius: 3px; position: absolute; left: 0; opacity: 0.35; }
+
+  /* Task overview */
+  .task-overview-row {
+    display: flex; align-items: center; padding: 10px 16px;
+    border-bottom: 0.5px solid var(--sep);
+  }
+  .task-overview-row:last-child { border-bottom: none; }
+  .task-ov-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; flex: 0 0 10px; }
+  .task-ov-days { display: flex; gap: 3px; }
+  .task-ov-day { width: 24px; height: 24px; border-radius: 7px; font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(118,118,128,0.1); color: var(--text-ter); flex-direction: column; gap: 1px; }
+  .task-ov-day.done    { background: var(--green); color: #fff; }
+  .task-ov-day.planned { background: rgba(0,122,255,0.18); color: var(--blue); }
+
+  .icon-purple { background: rgba(175,82,222,0.12); color: var(--purple); }
+
+  /* Legend */
+  .sched-legend {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    padding: 10px 16px; border-top: 0.5px solid var(--sep);
+    font-size: 11px; color: var(--text-sec);
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .legend-dot.fixed { opacity: 0.85; }
+  .legend-dot.auto  { border: 1.5px dashed; background: transparent; }
+
   .mood-label { font-size: 12px; color: var(--blue); font-weight: 500; min-width: 80px; text-align: right; }
 
   @media (max-width: 430px) {
@@ -669,6 +883,7 @@
   <div class="seg-ctrl">
     <button class="seg-btn active" onclick="switchTab('tracking')">Eintragen</button>
     <button class="seg-btn" onclick="switchTab('verlauf')">Verlauf</button>
+    <button class="seg-btn" onclick="switchTab('planung')">Planung</button>
     <button class="seg-btn" onclick="switchTab('export')">Export</button>
   </div>
 
@@ -937,6 +1152,55 @@
       <div id="history-area"></div>
     </div>
   </div>
+
+  <!-- ═══════════════ TAB: PLANUNG ═══════════════ -->
+  <div class="tab-panel" id="tab-planung">
+
+    <!-- Wochenübersicht -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="padding:14px 16px 10px; border-bottom:0.5px solid var(--sep);">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="card-icon icon-purple" style="width:30px;height:30px;font-size:16px;">📅</div>
+            <div style="font-size:16px;font-weight:600;">Wochenplanung</div>
+          </div>
+          <div id="planung-week-label" style="font-size:13px;color:var(--text-sec);"></div>
+        </div>
+      </div>
+      <!-- 7-Tage Typ-Auswahl -->
+      <div id="planung-day-tabs" style="display:flex;overflow-x:auto;padding:12px 16px;gap:8px;scrollbar-width:none;"></div>
+    </div>
+
+    <!-- Sport-Wochenziele -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-green">🏃</div>
+        <div class="card-title">Wochenziele Sport</div>
+      </div>
+      <div id="planung-sport-goals" style="padding:0 0 4px;"></div>
+    </div>
+
+    <!-- Tages-Stundenplan -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="padding:14px 16px 10px; border-bottom:0.5px solid var(--sep);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="card-icon icon-blue" style="width:30px;height:30px;font-size:16px;">🕐</div>
+          <div id="planung-schedule-title" style="font-size:16px;font-weight:600;">Tagesplan</div>
+        </div>
+      </div>
+      <div id="planung-schedule" style="padding:0;"></div>
+    </div>
+
+    <!-- Wochenübersicht Aufgaben -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-orange">✅</div>
+        <div class="card-title">Pflichtaufgaben diese Woche</div>
+      </div>
+      <div id="planung-tasks-overview" style="padding:0 0 4px;"></div>
+    </div>
+
+  </div><!-- end tab-planung -->
 
   <!-- ═══════════════ TAB: EXPORT ═══════════════ -->
   <div class="tab-panel" id="tab-export">
@@ -1236,13 +1500,14 @@ function showToast(msg, icon='✓'){
 
 // ── Tab switching ─────────────────────────────────────────────
 function switchTab(name){
-  const tabs = ['tracking','verlauf','export'];
+  const tabs = ['tracking','verlauf','planung','export'];
   tabs.forEach((t,i)=>{
     document.querySelectorAll('.seg-btn')[i].classList.toggle('active', t===name);
     document.getElementById('tab-'+t).classList.toggle('active', t===name);
   });
   if(name==='verlauf') renderHistory();
   if(name==='export'){ renderExportCount(); updateReminderUI(); }
+  if(name==='planung') renderPlanung();
 }
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -1492,6 +1757,603 @@ function startReminderLoop(){
       } catch(e){}
     }
   }, 15000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PLANUNGSMODUL v2
+// ═══════════════════════════════════════════════════════════════
+
+const PLANUNG_KEY = 'ght_planung_v1';
+
+const DAY_TYPES = {
+  HO:  { label: 'Homeoffice', short: 'HO',  color: '#007aff', emoji: '🏠' },
+  O:   { label: 'Office',     short: 'O',   color: '#ff9500', emoji: '🏢' },
+  GLZ: { label: 'Gleittag',   short: 'GLZ', color: '#af52de', emoji: '⏰' },
+  WE:  { label: 'Wochenende', short: 'WE',  color: '#34c759', emoji: '🌿' },
+  U:   { label: 'Urlaub',     short: 'U',   color: '#5ac8fa', emoji: '✈️' },
+};
+
+// Sportarten aus der Projektliste mit Zone + Emoji
+const SPORTARTEN = [
+  { id: 'wandern',    label: 'Wandern',              emoji: '🥾', zone: 'ausdauer', color: '#34c759', defaultSlots: 3 },
+  { id: 'gehen',      label: 'Gehen',                emoji: '🚶', zone: 'ausdauer', color: '#34c759', defaultSlots: 1 },
+  { id: 'schwimmen',  label: 'Schwimmen',            emoji: '🏊', zone: 'ausdauer', color: '#007aff', defaultSlots: 2 },
+  { id: 'langlaufen', label: 'Langlaufen',           emoji: '⛷️',  zone: 'ausdauer', color: '#5ac8fa', defaultSlots: 3 },
+  { id: 'joggen',     label: 'Joggen',               emoji: '🏃', zone: 'ausdauer', color: '#34c759', defaultSlots: 2 },
+  { id: 'laufband',   label: 'Laufband',             emoji: '🏃', zone: 'ausdauer', color: '#34c759', defaultSlots: 1 },
+  { id: 'fahrrad_o',  label: 'Fahrrad outdoor',      emoji: '🚴', zone: 'ausdauer', color: '#ff9500', defaultSlots: 2 },
+  { id: 'fahrrad_i',  label: 'Fahrrad indoor',       emoji: '🚴', zone: 'ausdauer', color: '#ff9500', defaultSlots: 2 },
+  { id: 'yoga',       label: 'Yoga',                 emoji: '🧘', zone: 'beweglichkeit', color: '#af52de', defaultSlots: 2 },
+  { id: 'pilates',    label: 'Pilates',              emoji: '🤸', zone: 'beweglichkeit', color: '#af52de', defaultSlots: 2 },
+  { id: 'geraete',    label: 'Gerätetraining',       emoji: '🏋️', zone: 'kraft',    color: '#ff9500', defaultSlots: 2 },
+  { id: 'stretching', label: 'Stretching',           emoji: '🤸', zone: 'beweglichkeit', color: '#af52de', defaultSlots: 1 },
+  { id: 'meditation', label: 'Meditation',           emoji: '🧘', zone: 'entspannung', color: '#5856d6', defaultSlots: 1 },
+  { id: 'theraband',  label: 'Theraband',            emoji: '💪', zone: 'kraft',    color: '#ff9500', defaultSlots: 1 },
+  { id: 'koerper',    label: 'Krafttraining Körper', emoji: '💪', zone: 'kraft',    color: '#ff9500', defaultSlots: 2 },
+];
+
+const ZONE_COLORS = { ausdauer: '#34c759', kraft: '#ff9500', beweglichkeit: '#af52de', entspannung: '#5856d6' };
+const ZONE_LABELS = { ausdauer: 'Ausdauer', kraft: 'Kraft', beweglichkeit: 'Beweglichkeit', entspannung: 'Entspannung' };
+
+// Pflichtblöcke je Tagestyp (slot = 30min-Einheit ab 0:00; slot 12 = 6:00)
+const FIXED_BLOCKS = {
+  HO: [
+    { start: 12, end: 14, label: 'Morgen-Routine', color: '#34c759', emoji: '🌅' },
+    { start: 18, end: 24, label: 'Homeoffice',     color: '#007aff', emoji: '💻' },
+    { start: 24, end: 26, label: 'Mittagspause',   color: '#ff9500', emoji: '🥗' },
+    { start: 26, end: 34, label: 'Homeoffice',     color: '#007aff', emoji: '💻' },
+    { start: 38, end: 40, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },
+    { start: 44, end: 48, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },
+  ],
+  O: [
+    { start: 12, end: 14, label: 'Morgen-Routine', color: '#34c759', emoji: '🌅' },
+    { start: 14, end: 16, label: 'Fahrt Büro',     color: '#ff9500', emoji: '🚗' },
+    { start: 16, end: 24, label: 'Office',         color: '#ff9500', emoji: '🏢' },
+    { start: 24, end: 26, label: 'Mittagspause',   color: '#ff9500', emoji: '🥗' },
+    { start: 26, end: 34, label: 'Office',         color: '#ff9500', emoji: '🏢' },
+    { start: 34, end: 36, label: 'Fahrt Heim',     color: '#ff9500', emoji: '🚗' },
+    { start: 38, end: 40, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },
+    { start: 44, end: 48, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },
+  ],
+  GLZ: [
+    { start: 14, end: 16, label: 'Morgen-Routine', color: '#34c759', emoji: '🌅' },
+    { start: 38, end: 40, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },
+    { start: 44, end: 48, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },
+  ],
+  WE: [
+    { start: 14, end: 17, label: 'Morgen-Routine', color: '#34c759', emoji: '🌅' },
+    { start: 26, end: 28, label: 'Mittagessen',    color: '#ff9500', emoji: '🥗' },
+    { start: 38, end: 40, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },
+    { start: 44, end: 48, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },
+  ],
+  U: [
+    { start: 14, end: 17, label: 'Morgen-Routine', color: '#34c759', emoji: '🌅' },
+    { start: 38, end: 40, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },
+  ],
+};
+
+// Pflichtaufgaben
+const REQUIRED_TASKS = [
+  { id: 'klavier',  label: 'Klavier üben',  emoji: '🎹', color: '#af52de', minMin: 15, perWeek: 7, slotSize: 1 },
+  { id: 'lesen',    label: 'Lesen',          emoji: '📚', color: '#007aff', minMin: 15, perWeek: 7, slotSize: 1 },
+  { id: 'ausdauer', label: 'Ausdauer Sport', emoji: '🏃', color: '#34c759', minMin: 60, perWeek: 1, weekTotal: 150, slotSize: 2 },
+  { id: 'kraft',    label: 'Krafttraining',  emoji: '💪', color: '#ff9500', minMin: 45, perWeek: 1, weekTotal: 45,  slotSize: 2 },
+];
+
+const PREFERRED_SLOTS = {
+  klavier:  [34, 36, 38, 40, 42, 30, 28, 44],
+  lesen:    [42, 44, 40, 38, 36, 34, 32],
+  ausdauer: [14, 16, 18, 20, 22, 26, 28],
+  kraft:    [14, 16, 18, 20, 22, 28, 30],
+};
+
+// ── Storage helpers ────────────────────────────────────────────
+function loadPlanung() {
+  try { return JSON.parse(localStorage.getItem(PLANUNG_KEY)) || {}; } catch(e){ return {}; }
+}
+function savePlanung(data) { localStorage.setItem(PLANUNG_KEY, JSON.stringify(data)); }
+
+function getDayType(dateStr) {
+  const data = loadPlanung();
+  if (data.types && data.types[dateStr]) return data.types[dateStr];
+  const dow = new Date(dateStr).getDay();
+  return (dow === 0 || dow === 6) ? 'WE' : 'HO';
+}
+function setDayType(dateStr, type) {
+  const data = loadPlanung();
+  if (!data.types) data.types = {};
+  data.types[dateStr] = type;
+  savePlanung(data);
+}
+function getCustomBlocks(dateStr) {
+  const data = loadPlanung();
+  return (data.custom && data.custom[dateStr]) || [];
+}
+function saveCustomBlocks(dateStr, blocks) {
+  const data = loadPlanung();
+  if (!data.custom) data.custom = {};
+  data.custom[dateStr] = blocks;
+  savePlanung(data);
+}
+
+// ── Verlauf-Minuten aus dem Tracking lesen ────────────────────
+function getTrackedSportMinutesThisWeek() {
+  // Liest ght_v4 (oder ght_desktop_v1 für ältere Einträge) und summiert
+  // Ausdauer- und Kraft-Minuten der laufenden Woche
+  const result = { ausdauer: 0, kraft: 0 };
+  const AUSDAUER_SPORTS = ['Ausdauer'];
+  const KRAFT_SPORTS    = ['Kraft & Kondition'];
+
+  const weekDays = getWeekDays();
+  const weekDks  = new Set(weekDays.map(d => dateKey(d)));
+
+  let entries = [];
+  try { entries = JSON.parse(localStorage.getItem('ght_v4')) || []; } catch(e){}
+  // Auch alte Keys versuchen
+  if (!entries.length) {
+    try { entries = JSON.parse(localStorage.getItem('ght_desktop_v1')) || []; } catch(e){}
+  }
+
+  entries.forEach(e => {
+    if (!weekDks.has(e.datum)) return;
+    const min = parseInt(e.aktivitaet) || 0;
+    if (!min) return;
+    const sport = (e.sport || e.sportart || '');
+    if (sport === 'Ausdauer') result.ausdauer += min;
+    if (sport === 'Kraft & Kondition') result.kraft += min;
+  });
+  return result;
+}
+
+// ── Week helpers ───────────────────────────────────────────────
+let planungState = { selectedDay: 0 };
+
+function getWeekDays() {
+  const days = [];
+  const now = new Date(); now.setHours(0,0,0,0);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now); d.setDate(now.getDate() + i); days.push(d);
+  }
+  return days;
+}
+function dateKey(d) { return d.toISOString().split('T')[0]; }
+
+// ── Auto-Scheduling ────────────────────────────────────────────
+function autoScheduleTasks(dateStr, fixedBlocks) {
+  const data    = loadPlanung();
+  const weekDays = getWeekDays();
+
+  // Welche Aufgaben sind diese Woche schon eingeplant (custom)?
+  const planned = {};
+  REQUIRED_TASKS.forEach(t => { planned[t.id] = []; });
+  weekDays.forEach(wd => {
+    const dk = dateKey(wd);
+    (data.custom && data.custom[dk] || []).forEach(b => {
+      if (b.taskId && planned[b.taskId]) planned[b.taskId].push(dk);
+    });
+  });
+
+  const busy = new Set();
+  fixedBlocks.forEach(b => { for (let s = b.start; s < b.end; s++) busy.add(s); });
+
+  const SLOT_START = 12, SLOT_END = 46;
+  const autoBlocks = [];
+  const usedSlots  = new Set(busy);
+
+  REQUIRED_TASKS.forEach(task => {
+    const alreadyToday = planned[task.id].includes(dateStr);
+    const totalPlanned = planned[task.id].length;
+    let shouldSchedule = false;
+    if (task.perWeek === 7 && !alreadyToday) shouldSchedule = true;
+    if (task.perWeek === 1 && totalPlanned === 0 && !alreadyToday) shouldSchedule = true;
+    if (!shouldSchedule) return;
+
+    const slots = PREFERRED_SLOTS[task.id] || [];
+    for (let si = 0; si < slots.length; si++) {
+      const s = slots[si];
+      if (s < SLOT_START || s + task.slotSize > SLOT_END) continue;
+      let free = true;
+      for (let x = s; x < s + task.slotSize; x++) { if (usedSlots.has(x)) { free = false; break; } }
+      if (free) {
+        autoBlocks.push({ start: s, end: s + task.slotSize, taskId: task.id,
+          label: task.label, color: task.color, emoji: task.emoji, auto: true });
+        for (let x = s; x < s + task.slotSize; x++) usedSlots.add(x);
+        break;
+      }
+    }
+  });
+  return autoBlocks;
+}
+
+// ── Render Planung (main entry) ────────────────────────────────
+function renderPlanung() {
+  const weekDays = getWeekDays();
+
+  // Week label
+  const wl = document.getElementById('planung-week-label');
+  const first = weekDays[0], last = weekDays[6];
+  wl.textContent = first.toLocaleDateString('de-DE',{day:'numeric',month:'short'}) + ' – ' +
+                   last.toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'});
+
+  // Day tabs
+  const tabsEl = document.getElementById('planung-day-tabs');
+  tabsEl.innerHTML = '';
+  const DN = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  weekDays.forEach((d, i) => {
+    const dk   = dateKey(d);
+    const type = getDayType(dk);
+    const t    = DAY_TYPES[type];
+    const isToday = i === 0;
+    const btn  = document.createElement('div');
+    btn.className = 'day-tab-btn' + (i === planungState.selectedDay ? ' selected' : '') + (isToday ? ' today-btn' : '');
+    btn.innerHTML = `
+      ${isToday ? '<div class="day-today-dot"></div>' : ''}
+      <span class="day-name">${isToday ? 'Heute' : DN[d.getDay()]}</span>
+      <span class="day-num">${d.getDate()}</span>
+      <span class="day-type-badge">${t.emoji} ${t.short}</span>
+    `;
+    btn.onclick = () => { planungState.selectedDay = i; renderPlanung(); };
+    tabsEl.appendChild(btn);
+  });
+
+  // Type selector
+  const selDay = weekDays[planungState.selectedDay];
+  const selDk  = dateKey(selDay);
+  const selType = getDayType(selDk);
+  let existing = document.getElementById('planung-type-selector');
+  if (existing) existing.remove();
+
+  const selectorDiv = document.createElement('div');
+  selectorDiv.id = 'planung-type-selector';
+  selectorDiv.className = 'type-selector-row';
+  Object.entries(DAY_TYPES).forEach(([key, t]) => {
+    const chip = document.createElement('span');
+    chip.className = 'type-chip' + (selType === key ? ' active' : '');
+    chip.dataset.type = key;
+    chip.textContent = t.emoji + ' ' + t.label;
+    chip.onclick = () => { setDayType(selDk, key); renderPlanung(); };
+    selectorDiv.appendChild(chip);
+  });
+  tabsEl.after(selectorDiv);
+
+  renderSchedule(selDay);
+  renderSportGoals();
+  renderTasksOverview(weekDays);
+}
+
+// ── Render Schedule ────────────────────────────────────────────
+function renderSchedule(day) {
+  const dk   = dateKey(day);
+  const type = getDayType(dk);
+  const t    = DAY_TYPES[type];
+
+  document.getElementById('planung-schedule-title').textContent =
+    day.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'}) + ' · ' + t.emoji + ' ' + t.label;
+
+  const fixedBlocks  = (FIXED_BLOCKS[type] || []).map(b => ({...b, fixed: true}));
+  const autoBlocks   = autoScheduleTasks(dk, fixedBlocks);
+  const customBlocks = getCustomBlocks(dk).filter(b => !b.auto);
+  const allBlocks    = [...fixedBlocks, ...autoBlocks, ...customBlocks];
+
+  const SLOT_START = 12, SLOT_END = 48, SLOT_H = 30;
+  const schedEl = document.getElementById('planung-schedule');
+  schedEl.innerHTML = '';
+
+  // Occupancy map
+  const occupancy = {};
+  allBlocks.forEach(b => { for (let s = b.start; s < b.end; s++) occupancy[s] = b; });
+
+  // Current time marker
+  const now = new Date();
+  const currentSlot = now.getHours() * 2 + (now.getMinutes() >= 30 ? 1 : 0);
+  const isToday = dateKey(day) === dateKey(new Date());
+
+  const rendered = new Set();
+  for (let slot = SLOT_START; slot < SLOT_END; slot++) {
+    const isHourMark = slot % 2 === 0;
+    const timeLabel  = isHourMark ? `${String(Math.floor(slot/2)).padStart(2,'0')}:00` : '';
+
+    const row = document.createElement('div');
+    row.className = 'schedule-row' + (isHourMark ? ' hour-mark' : '');
+    if (isToday && slot === currentSlot) row.classList.add('current-time-row');
+    row.style.height = SLOT_H + 'px';
+
+    // Time label
+    const timeEl = document.createElement('div');
+    timeEl.className = 'schedule-time';
+    timeEl.textContent = timeLabel;
+    row.appendChild(timeEl);
+
+    // Cell
+    const cell = document.createElement('div');
+    cell.className = 'schedule-cell';
+
+    const block = occupancy[slot];
+    if (block && !rendered.has(block)) {
+      rendered.add(block);
+      const blockH   = (block.end - block.start) * SLOT_H - 5;
+      const blockEl  = document.createElement('div');
+      blockEl.className = 'sched-block' + (block.auto ? ' is-auto' : '');
+
+      const bgColor = block.color + (block.fixed ? '20' : '14');
+      const bdColor = block.color + (block.fixed ? 'cc' : '99');
+      blockEl.style.cssText = `
+        top: 2px; height: ${blockH}px;
+        background: ${bgColor};
+        color: ${block.color};
+        border-left: 3px solid ${bdColor};
+        ${block.auto ? `border: 1.5px dashed ${bdColor};` : ''}
+      `;
+      const duration = (block.end - block.start) * 30;
+      const canDelete = !block.fixed;
+      blockEl.innerHTML = `
+        <span>${block.emoji || ''}</span>
+        <span class="sched-label">${block.label}</span>
+        <span class="sched-dur">${duration}min</span>
+        ${canDelete ? `<span class="delete-btn" title="Entfernen">✕</span>` : ''}
+      `;
+      if (canDelete) {
+        blockEl.querySelector('.delete-btn').addEventListener('click', e => {
+          e.stopPropagation();
+          const custom = getCustomBlocks(dk).filter(b => !b.auto);
+          if (block.auto) {
+            // Mark task as skipped for this day
+            const data = loadPlanung();
+            if (!data.skipped) data.skipped = {};
+            if (!data.skipped[dk]) data.skipped[dk] = [];
+            if (!data.skipped[dk].includes(block.taskId)) data.skipped[dk].push(block.taskId);
+            savePlanung(data);
+          } else {
+            const updated = custom.filter(b => !(b.start === block.start && b.label === block.label));
+            saveCustomBlocks(dk, updated);
+          }
+          renderSchedule(day);
+          renderSportGoals();
+        });
+      }
+      if (block.auto) {
+        blockEl.title = '✏️ Automatisch eingeplant – tippen zum Ändern';
+      }
+      cell.appendChild(blockEl);
+    } else if (!block) {
+      const freeEl = document.createElement('div');
+      freeEl.className = 'sched-block is-free';
+      freeEl.style.cssText = `top: 2px; height: ${SLOT_H - 6}px;`;
+      const hStr = String(Math.floor(slot/2)).padStart(2,'0') + ':' + (slot%2===0?'00':'30');
+      freeEl.textContent = '+ ' + hStr;
+      freeEl.onclick = () => openSportPicker(dk, slot, day);
+      cell.appendChild(freeEl);
+    }
+
+    row.appendChild(cell);
+    schedEl.appendChild(row);
+  }
+
+  // Legend
+  const legend = document.createElement('div');
+  legend.className = 'sched-legend';
+  legend.innerHTML = `
+    <div class="legend-item"><div class="legend-dot fixed" style="background:#34c75920;border-left:3px solid #34c759;border-radius:3px;"></div> Fixer Block</div>
+    <div class="legend-item"><div class="legend-dot auto"  style="border-color:#007aff;border-radius:3px;width:10px;height:10px;"></div> Aufgabe (auto)</div>
+    <div class="legend-item"><div class="legend-dot fixed" style="background:#5856d620;border-left:3px solid #5856d6;border-radius:3px;"></div> Eigenes Event</div>
+    <div class="legend-item" style="margin-left:auto;">✕ = entfernen</div>
+  `;
+  schedEl.appendChild(legend);
+}
+
+// ── Sport Picker (Bottom Sheet) ────────────────────────────────
+let pickerState = { dk: null, slot: null, day: null, sport: null, slots: 2 };
+
+function openSportPicker(dk, slot, day) {
+  pickerState = { dk, slot, day, sport: null, slots: 2 };
+
+  const overlay = document.createElement('div');
+  overlay.className = 'sport-picker-overlay';
+  overlay.id = 'sport-picker-overlay';
+  overlay.onclick = e => { if (e.target === overlay) closeSportPicker(); };
+
+  overlay.innerHTML = `
+    <div class="sport-picker-sheet">
+      <div class="sport-picker-header">
+        <span>Sport oder Ereignis hinzufügen</span>
+        <div class="sport-picker-close" onclick="closeSportPicker()">✕</div>
+      </div>
+      <div style="padding:10px 16px 4px;">
+        <div style="font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">⏰ Zeit: ${String(Math.floor(slot/2)).padStart(2,'0')}:${slot%2===0?'00':'30'} Uhr · Dauer:</div>
+        <div class="dur-btn-row" id="dur-btn-row">
+          ${[1,2,3,4,6].map(s=>`<div class="dur-btn ${s===2?'active':''}" onclick="setPlanDur(${s})">${s*30} min</div>`).join('')}
+        </div>
+      </div>
+      <div style="padding:4px 16px 6px;font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">🏃 Sportart wählen</div>
+      <div class="sport-picker-grid" id="sport-picker-grid">
+        ${SPORTARTEN.map(sp => `
+          <div class="sport-option" id="spopt-${sp.id}" onclick="selectSport('${sp.id}')">
+            <span class="sport-option-emoji">${sp.emoji}</span>
+            <div class="sport-option-info">
+              <div class="sport-option-name">${sp.label}</div>
+              <div class="sport-option-zone" style="color:${ZONE_COLORS[sp.zone]}">● ${ZONE_LABELS[sp.zone]}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div style="padding:4px 16px 6px;font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📌 Eigenes Ereignis</div>
+      <div style="padding:0 16px 16px;display:flex;gap:8px;align-items:center;">
+        <input id="custom-event-input" type="text" placeholder="Ereignis eingeben…" maxlength="40"
+          style="flex:1;background:rgba(118,118,128,0.1);border:none;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text-primary);outline:none;">
+        <button onclick="addCustomEventFromPicker()" style="background:var(--blue);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;">+ Hinzufügen</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function closeSportPicker() {
+  const el = document.getElementById('sport-picker-overlay');
+  if (el) el.remove();
+}
+
+function setPlanDur(slots) {
+  pickerState.slots = slots;
+  document.querySelectorAll('.dur-btn').forEach((b,i) => {
+    b.classList.toggle('active', [1,2,3,4,6][i] === slots);
+  });
+}
+
+function selectSport(sportId) {
+  pickerState.sport = sportId;
+  document.querySelectorAll('.sport-option').forEach(el => {
+    el.style.borderColor = '';
+    el.style.background = '';
+  });
+  const sel = document.getElementById('spopt-' + sportId);
+  if (sel) {
+    const sp = SPORTARTEN.find(s => s.id === sportId);
+    sel.style.borderColor = sp ? sp.color : 'var(--blue)';
+    sel.style.background  = sp ? sp.color + '10' : 'rgba(0,122,255,0.05)';
+  }
+  // Auto-confirm after short delay
+  setTimeout(() => addSportBlock(), 200);
+}
+
+function addSportBlock() {
+  const { dk, slot, day, sport, slots } = pickerState;
+  if (!sport) return;
+  const sp = SPORTARTEN.find(s => s.id === sport);
+  if (!sp) return;
+
+  const taskId = (sp.zone === 'ausdauer') ? 'ausdauer' : (sp.zone === 'kraft' ? 'kraft' : null);
+  const blocks = getCustomBlocks(dk).filter(b => !b.auto);
+  blocks.push({
+    start: slot, end: slot + slots,
+    label: sp.label, color: sp.color, emoji: sp.emoji,
+    taskId, custom: true,
+  });
+  saveCustomBlocks(dk, blocks);
+  closeSportPicker();
+  renderSchedule(day);
+  renderSportGoals();
+  renderTasksOverview(getWeekDays());
+}
+
+function addCustomEventFromPicker() {
+  const { dk, slot, day, slots } = pickerState;
+  const label = document.getElementById('custom-event-input')?.value?.trim();
+  if (!label) return;
+  const blocks = getCustomBlocks(dk).filter(b => !b.auto);
+  blocks.push({ start: slot, end: slot + slots, label, color: '#5856d6', emoji: '📌', custom: true });
+  saveCustomBlocks(dk, blocks);
+  closeSportPicker();
+  renderSchedule(day);
+}
+
+// ── Render Sport Goals ─────────────────────────────────────────
+function renderSportGoals() {
+  const weekDays = getWeekDays();
+  const el = document.getElementById('planung-sport-goals');
+
+  // 1) Bereits absolvierte Minuten aus dem Verlauf
+  const tracked = getTrackedSportMinutesThisWeek();
+
+  // 2) Geplante Minuten aus dem Planungsmodul
+  let plannedAusdauer = 0, plannedKraft = 0;
+  weekDays.forEach(d => {
+    const dk    = dateKey(d);
+    const type  = getDayType(dk);
+    const fixed = FIXED_BLOCKS[type] || [];
+    const auto  = autoScheduleTasks(dk, fixed);
+    [...auto, ...getCustomBlocks(dk).filter(b => !b.auto)].forEach(b => {
+      if (b.taskId === 'ausdauer') plannedAusdauer += (b.end - b.start) * 30;
+      if (b.taskId === 'kraft')    plannedKraft    += (b.end - b.start) * 30;
+    });
+  });
+
+  const goals = [
+    { emoji: '🏃', label: 'Ausdauer Sport', done: tracked.ausdauer, planned: plannedAusdauer, target: 150, color: '#34c759' },
+    { emoji: '💪', label: 'Krafttraining',  done: tracked.kraft,    planned: plannedKraft,    target: 45,  color: '#ff9500' },
+  ];
+
+  el.innerHTML = goals.map(g => {
+    const donePct    = Math.min(100, Math.round(g.done    / g.target * 100));
+    const plannedPct = Math.min(100, Math.round((g.done + g.planned) / g.target * 100));
+    const complete   = g.done >= g.target;
+    return `
+      <div class="sport-goal-row">
+        <span class="sport-goal-icon">${g.emoji}</span>
+        <div style="flex:1;">
+          <div class="sport-goal-label">${g.label}</div>
+          <div class="sport-goal-sub">
+            ${g.done > 0 ? `<span style="color:var(--green);">✓ ${g.done} min absolviert</span>` : ''}
+            ${g.planned > 0 ? `${g.done > 0 ? ' · ' : ''}<span style="color:var(--blue);">${g.planned} min geplant</span>` : ''}
+            ${g.done === 0 && g.planned === 0 ? 'Noch nichts eingeplant' : ''}
+          </div>
+          <div class="sport-goal-bar-wrap" style="margin-top:7px;">
+            <div class="sport-goal-bar" style="width:140px;">
+              <div class="sport-goal-bar-plan"  style="width:${plannedPct}%;background:${g.color};"></div>
+              <div class="sport-goal-bar-done"  style="width:${donePct}%;background:${g.color};"></div>
+            </div>
+          </div>
+        </div>
+        <div class="sport-goal-right">
+          <div class="sport-goal-nums">
+            ${g.done > 0 ? `<span class="done-num">${g.done}</span>` : ''}
+            ${g.done > 0 && g.planned > 0 ? '+' : ''}
+            ${g.planned > 0 ? `<span class="plan-num">${g.planned}</span>` : ''}
+            ${g.done === 0 && g.planned === 0 ? '<span style="color:var(--text-ter)">0</span>' : ''}
+            <span class="target"> / ${g.target} min</span>
+          </div>
+          ${complete ? '<div style="font-size:11px;color:var(--green);margin-top:3px;font-weight:700;">✓ Ziel erreicht</div>' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Render Tasks Overview ─────────────────────────────────────
+function renderTasksOverview(weekDays) {
+  const el = document.getElementById('planung-tasks-overview');
+  const DN = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+
+  const taskPlanned = {};
+  REQUIRED_TASKS.forEach(t => { taskPlanned[t.id] = new Set(); });
+
+  weekDays.forEach(d => {
+    const dk   = dateKey(d);
+    const type = getDayType(dk);
+    const fixed = FIXED_BLOCKS[type] || [];
+    const auto  = autoScheduleTasks(dk, fixed);
+    [...auto, ...getCustomBlocks(dk).filter(b => !b.auto)].forEach(b => {
+      if (b.taskId) taskPlanned[b.taskId].add(dk);
+    });
+  });
+
+  el.innerHTML = REQUIRED_TASKS.map(task => {
+    const days = weekDays.map((d, i) => {
+      const dk = dateKey(d);
+      const isPlanned = taskPlanned[task.id].has(dk);
+      const dayName = i === 0 ? 'H' : DN[d.getDay()].charAt(0);
+      const dayNum  = d.getDate();
+      return `<div class="task-ov-day ${isPlanned ? 'planned' : ''}" title="${d.toLocaleDateString('de-DE',{weekday:'long'})}">
+        <span>${dayName}</span><span style="font-size:8px;opacity:0.7">${dayNum}</span>
+      </div>`;
+    }).join('');
+    const count  = taskPlanned[task.id].size;
+    const target = task.perWeek === 7 ? 7 : 1;
+    const badge  = count >= target
+      ? `<span style="font-size:11px;color:var(--green);font-weight:700;">✓ ${count}/${target}</span>`
+      : `<span style="font-size:11px;color:var(--text-ter);">${count}/${target}</span>`;
+    return `
+      <div class="task-overview-row">
+        <div class="task-ov-dot" style="background:${task.color};"></div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:600;">${task.emoji} ${task.label}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:1px;">${badge}
+            <span style="font-size:11px;color:var(--text-sec);">${task.minMin} Min · ${task.perWeek === 7 ? 'täglich' : task.weekTotal + ' Min/Woche'}</span>
+          </div>
+        </div>
+        <div class="task-ov-days">${days}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 // ── Init ──────────────────────────────────────────────────────
