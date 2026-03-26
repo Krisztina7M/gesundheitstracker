@@ -6,14 +6,25 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Gesundheit">
-<meta name="theme-color" content="#e91e8c" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#c0186e" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="robots" content="noindex, nofollow">
-<link rel="manifest" href="manifest.json">
 <title>Gesundheits-Tracker</title>
 
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='white'/><path d='M50 88 C22 88 8 70 8 52 C8 34 21 18 40 18 C46 18 49 22 50 22 C51 22 54 18 60 18 C79 18 92 34 92 52 C92 70 78 88 50 88Z' fill='%23FFB300' stroke='%23F57F17' stroke-width='3'/><path d='M48 18 Q51 8 58 10' stroke='%236D4C41' stroke-width='3' fill='none' stroke-linecap='round'/><path d='M57 11 Q76 3 71 20 Q57 21 57 11Z' fill='%2343A047' stroke='%232E7D32' stroke-width='2'/><path d='M70 5 Q80 1 78 13' stroke='%23C62828' stroke-width='2' fill='none' stroke-linecap='round'/><path d='M43 85 Q50 90 57 85' stroke='%23F57F17' stroke-width='2' fill='none' stroke-linecap='round'/></svg>">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23e91e8c'/><text x='50' y='62' font-family='system-ui,sans-serif' font-size='54' font-weight='700' fill='white' text-anchor='middle'>H</text><circle cx='72' cy='28' r='16' fill='%23c41578'/><text x='72' y='34' font-family='system-ui,sans-serif' font-size='20' font-weight='700' fill='white' text-anchor='middle'>+</text></svg>">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+<script>
+  // ── Service Worker registrieren (PWA / GitHub Pages) ──
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log('[PWA] Service Worker registriert:', reg.scope))
+        .catch(err => console.warn('[PWA] SW-Registrierung fehlgeschlagen:', err));
+    });
+  }
+</script>
 
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,9 +37,12 @@
     --text-primary: #1c1c1e;
     --text-sec:     #6e6e73;
     --text-ter:     #aeaeb2;
+    --brand:        #e91e8c;
+    --brand-dark:   #c41578;
+    --brand-soft:   rgba(233,30,140,0.12);
     --blue:         #007aff;
-    --green:        #e91e8c;
-    --green-dark:   #c0186e;
+    --green:        #34c759;
+    --green-dark:   #248a3d;
     --orange:       #ff9500;
     --purple:       #af52de;
     --red:          #ff3b30;
@@ -177,7 +191,7 @@
   }
 
   .icon-blue   { background: rgba(0,122,255,0.12); }
-  .icon-green  { background: rgba(233,30,140,0.12); }
+  .icon-green  { background: rgba(52,199,89,0.12); }
   .icon-orange { background: rgba(255,149,0,0.12); }
   .icon-purple { background: rgba(175,82,222,0.12); }
 
@@ -395,12 +409,14 @@
   }
 
   .btn:active { transform: scale(0.97); opacity: 0.85; }
-  .btn-primary { background: var(--blue); color: #fff; }
-  .btn-primary:hover { background: #0066d6; }
+  .btn-primary { background: var(--brand); color: #fff; }
+  .btn-primary:hover { background: var(--brand-dark); }
   .btn-neutral { background: rgba(118,118,128,0.12); color: var(--text-primary); }
   .btn-neutral:hover { background: rgba(118,118,128,0.18); }
   .btn-green  { background: var(--green); color: #fff; }
   .btn-green:hover { background: var(--green-dark); }
+  .btn-brand  { background: var(--brand); color: #fff; }
+  .btn-brand:hover { background: var(--brand-dark); }
   .btn-danger { background: rgba(255,59,48,0.1); color: var(--red); }
 
   /* ── Toast ── */
@@ -519,12 +535,12 @@
   }
   .type-chip:hover { border-color: rgba(118,118,128,0.4); }
   .type-chip.active { color: #fff; border-color: transparent; }
-  .type-chip[data-type="HO"].active      { background: var(--blue); }
-  .type-chip[data-type="O"].active       { background: var(--orange); }
-  .type-chip[data-type="GLZ"].active     { background: var(--purple); }
-  .type-chip[data-type="WE"].active      { background: var(--green); }
-  .type-chip[data-type="U"].active       { background: var(--teal); }
-  .type-chip[data-type="CAMPING"].active { background: #ff6b35; }
+  .type-chip[data-type="HO"].active      { background: var(--brand); }
+  .type-chip[data-type="O"].active       { background: var(--brand); }
+  .type-chip[data-type="GLZ"].active     { background: var(--brand); }
+  .type-chip[data-type="WE"].active      { background: var(--brand); }
+  .type-chip[data-type="U"].active       { background: var(--brand); }
+  .type-chip[data-type="CAMPING"].active { background: var(--brand); }
 
   /* ── Schedule ── */
   .schedule-container { position: relative; }
@@ -629,7 +645,7 @@
     border: 1.5px solid var(--border); cursor: pointer; transition: all 0.15s;
     background: var(--card-bg); color: var(--text-primary);
   }
-  .dur-btn:hover, .dur-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .dur-btn:hover, .dur-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
 
   /* Sport Goals */
   .sport-goal-row {
@@ -744,11 +760,10 @@
   <div class="nav-inner">
     <div class="nav-brand">
       <svg class="nav-apple" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 88 C22 88 8 70 8 52 C8 34 21 18 40 18 C46 18 49 22 50 22 C51 22 54 18 60 18 C79 18 92 34 92 52 C92 70 78 88 50 88Z" fill="#FFB300" stroke="#F57F17" stroke-width="3" stroke-linejoin="round"/>
-        <path d="M48 18 Q51 8 58 10" stroke="#6D4C41" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M57 11 Q76 3 71 20 Q57 21 57 11Z" fill="#43A047" stroke="#2E7D32" stroke-width="2" stroke-linejoin="round"/>
-        <path d="M70 5 Q80 1 78 13" stroke="#C62828" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <path d="M43 85 Q50 90 57 85" stroke="#F57F17" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <rect width="100" height="100" rx="22" fill="#e91e8c"/>
+        <text x="50" y="62" font-family="system-ui,sans-serif" font-size="54" font-weight="700" fill="white" text-anchor="middle">H</text>
+        <circle cx="72" cy="28" r="16" fill="#c41578"/>
+        <text x="72" y="34" font-family="system-ui,sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">+</text>
       </svg>
       <div class="nav-title">Gesundheits-Tracker</div>
     </div>
@@ -1084,7 +1099,7 @@
       <div style="padding:0 16px 14px;">
         <div id="reminder-status" style="font-size:13px;color:var(--text-sec);margin-bottom:10px;min-height:18px;"></div>
         <div class="action-row" style="margin-top:0;">
-          <button class="btn btn-primary" id="reminder-btn" onclick="toggleReminder()">🔔 Erinnerung aktivieren</button>
+          <button class="btn btn-brand" id="reminder-btn" onclick="toggleReminder()">🔔 Erinnerung aktivieren</button>
         </div>
         <p style="font-size:12px;color:var(--text-ter);margin-top:10px;line-height:1.6;">
           Benötigt Browser-Benachrichtigungen. Die Seite muss im Browser geöffnet sein, damit die Erinnerung funktioniert.
@@ -1100,7 +1115,7 @@
     </div>
     <div id="export-count"></div>
     <div class="action-row">
-      <button class="btn btn-green" onclick="exportCSV()">CSV herunterladen</button>
+      <button class="btn btn-brand" onclick="exportCSV()">CSV herunterladen</button>
       <button class="btn btn-danger" onclick="clearAll()">Alle Daten löschen</button>
     </div>
   </div>
@@ -1556,7 +1571,7 @@ const DAY_TYPES = {
   HO:      { label: 'Homeoffice', short: 'HO',   color: '#007aff', emoji: '🏠' },
   O:       { label: 'Office',     short: 'O',    color: '#ff9500', emoji: '🏢' },
   GLZ:     { label: 'Gleittag',   short: 'GLZ',  color: '#af52de', emoji: '⏰' },
-  WE:      { label: 'Wochenende', short: 'WE',   color: '#e91e8c', emoji: '🌿' },
+  WE:      { label: 'Wochenende', short: 'WE',   color: '#34c759', emoji: '🌿' },
   U:       { label: 'Urlaub',     short: 'U',    color: '#5ac8fa', emoji: '✈️' },
   CAMPING: { label: 'Camping',    short: 'Camp', color: '#ff6b35', emoji: '⛺' },
 };
@@ -1577,65 +1592,75 @@ const SPORTARTEN = [
   { id: 'geraete',    label: 'Gerätetraining',       emoji: '🏋️', zone: 'kraft',         color: '#ff9500', defaultSlots: 2 },
   { id: 'theraband',  label: 'Theraband',            emoji: '💪', zone: 'kraft',         color: '#ff9500', defaultSlots: 1 },
   { id: 'koerper',    label: 'Krafttraining Körper', emoji: '💪', zone: 'kraft',         color: '#ff9500', defaultSlots: 2 },
+  // Freizeitaktivitäten – nur zur Planung, kein Sport-Tracking
+  { id: 'lesen',      label: 'Lesen',                emoji: '📚', zone: 'freizeit',      color: '#007aff', defaultSlots: 1 },
+  { id: 'klavier',    label: 'Klavier üben',         emoji: '🎹', zone: 'freizeit',      color: '#af52de', defaultSlots: 1 },
+  { id: 'ki_projekt', label: 'KI-Projekt',           emoji: '🤖', zone: 'freizeit',      color: '#34c759', defaultSlots: 1 },
+  { id: 'stricken',   label: 'Stricken',             emoji: '🧶', zone: 'freizeit',      color: '#ff6b35', defaultSlots: 1 },
 ];
 
-const ZONE_COLORS = { ausdauer: '#34c759', kraft: '#ff9500', beweglichkeit: '#af52de', entspannung: '#5856d6' };
-const ZONE_LABELS = { ausdauer: 'Ausdauer', kraft: 'Kraft', beweglichkeit: 'Beweglichkeit', entspannung: 'Entspannung' };
+const ZONE_COLORS = { ausdauer: '#34c759', kraft: '#ff9500', beweglichkeit: '#af52de', entspannung: '#5856d6', freizeit: '#007aff' };
+const ZONE_LABELS = { ausdauer: 'Ausdauer', kraft: 'Kraft', beweglichkeit: 'Beweglichkeit', entspannung: 'Entspannung', freizeit: 'Freizeit' };
 
 const FIXED_BLOCKS = {
-  HO: [
-    { start: 12, end: 14, label: 'Morgen-Routine', color: '#e91e8c', emoji: '🌅' },
-    { start: 18, end: 24, label: 'Homeoffice',     color: '#007aff', emoji: '💻' },
-    { start: 24, end: 26, label: 'Mittagspause',   color: '#ff9500', emoji: '🥗' },
-    { start: 26, end: 34, label: 'Homeoffice',     color: '#007aff', emoji: '💻' },
-    { start: 38, end: 40, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },
-    { start: 44, end: 48, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },
-  ],
+  // Slot-Referenz: slot = Stunde×2 + (30min?1:0), z.B. 05:00=10, 06:00=12, 07:00=14, 12:00=24, 21:00=42
+  // Einheitliche Farben je Aufgabentyp:
+  //   🌅 Morgen-Routine  #34c759  Grün
+  //   🚗 Fahrt / 🏢 Office  #ff9500  Orange
+  //   💻 Homeoffice  #007aff  Blau
+  //   🥗 Frühstück / Mittag  #f5a623  Amber
+  //   🍽️ Abendessen  #ff6b35  Rot-Orange
+  //   😴 Abend-Routine  #5856d6  Indigo
   O: [
-    { start: 12, end: 14, label: 'Morgen-Routine', color: '#e91e8c', emoji: '🌅' },
-    { start: 14, end: 16, label: 'Fahrt Büro',     color: '#ff9500', emoji: '🚗' },
-    { start: 16, end: 24, label: 'Office',         color: '#ff9500', emoji: '🏢' },
-    { start: 24, end: 26, label: 'Mittagspause',   color: '#ff9500', emoji: '🥗' },
-    { start: 26, end: 34, label: 'Office',         color: '#ff9500', emoji: '🏢' },
-    { start: 34, end: 36, label: 'Fahrt Heim',     color: '#ff9500', emoji: '🚗' },
-    { start: 38, end: 40, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },
-    { start: 44, end: 48, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },
+    { start: 10, end: 11, label: 'Morgen-Routine', color: '#34c759', emoji: '🌅' },  // 05:00–05:30
+    { start: 11, end: 13, label: 'Fahrt Büro',     color: '#ff9500', emoji: '🚗' },  // 05:30–06:30
+    { start: 13, end: 24, label: 'Office',         color: '#ff9500', emoji: '🏢' },  // 06:30–12:00
+    { start: 24, end: 26, label: 'Mittagspause',   color: '#f5a623', emoji: '🥗' },  // 12:00–13:00
+    { start: 26, end: 33, label: 'Office',         color: '#ff9500', emoji: '🏢' },  // 13:00–16:30
+    { start: 33, end: 36, label: 'Fahrt Heim',     color: '#ff9500', emoji: '🚗' },  // 16:30–18:00
+    { start: 37, end: 39, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },  // 18:30–19:30
+    { start: 42, end: 44, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },  // 21:00–22:00
+  ],
+  HO: [
+    { start: 12, end: 14, label: 'Morgen-Routine', color: '#34c759', emoji: '🌅' },  // 06:00–07:00
+    { start: 14, end: 24, label: 'Homeoffice',     color: '#007aff', emoji: '💻' },  // 07:00–12:00
+    { start: 24, end: 26, label: 'Mittagspause',   color: '#f5a623', emoji: '🥗' },  // 12:00–13:00
+    { start: 26, end: 34, label: 'Homeoffice',     color: '#007aff', emoji: '💻' },  // 13:00–17:00
+    { start: 35, end: 37, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },  // 17:30–18:30
+    { start: 42, end: 44, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },  // 21:00–22:00
   ],
   GLZ: [
-    { start: 14, end: 16, label: 'Morgen-Routine', color: '#e91e8c', emoji: '🌅' },
-    { start: 38, end: 40, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },
-    { start: 44, end: 48, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },
+    { start: 12, end: 14, label: 'Morgen-Routine', color: '#34c759', emoji: '🌅' },  // 06:00–07:00
+    { start: 14, end: 15, label: 'Frühstück',      color: '#f5a623', emoji: '🥗' },  // 07:00–07:30
+    { start: 25, end: 27, label: 'Mittagessen',    color: '#f5a623', emoji: '🥗' },  // 12:30–13:30
+    { start: 35, end: 37, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },  // 17:30–18:30
+    { start: 42, end: 44, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },  // 21:00–22:00
   ],
   WE: [
-    { start: 14, end: 17, label: 'Morgen-Routine', color: '#e91e8c', emoji: '🌅' },
-    { start: 26, end: 28, label: 'Mittagessen',    color: '#ff9500', emoji: '🥗' },
-    { start: 38, end: 40, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },
-    { start: 44, end: 48, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },
+    { start: 15, end: 18, label: 'Morgen-Routine', color: '#34c759', emoji: '🌅' },  // 07:30–09:00
+    { start: 18, end: 19, label: 'Frühstück',      color: '#f5a623', emoji: '🥗' },  // 09:00–09:30
+    { start: 25, end: 27, label: 'Mittagessen',    color: '#f5a623', emoji: '🥗' },  // 12:30–13:30
+    { start: 36, end: 38, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },  // 18:00–19:00
+    { start: 42, end: 45, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },  // 21:00–22:30
   ],
   U: [
-    { start: 14, end: 17, label: 'Morgen-Routine', color: '#e91e8c', emoji: '🌅' },
-    { start: 38, end: 40, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },
+    { start: 15, end: 18, label: 'Morgen-Routine', color: '#34c759', emoji: '🌅' },  // 07:30–09:00
+    { start: 18, end: 19, label: 'Frühstück',      color: '#f5a623', emoji: '🥗' },  // 09:00–09:30
+    { start: 25, end: 27, label: 'Mittagessen',    color: '#f5a623', emoji: '🥗' },  // 12:30–13:30
+    { start: 36, end: 38, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },  // 18:00–19:00
+    { start: 42, end: 45, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },  // 21:00–22:30
   ],
   CAMPING: [
-    { start: 14, end: 17, label: 'Morgen-Routine', color: '#e91e8c', emoji: '🌅' },
-    { start: 26, end: 28, label: 'Mittagessen',    color: '#ff9500', emoji: '🥗' },
-    { start: 38, end: 40, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },
+    { start: 15, end: 18, label: 'Morgen-Routine', color: '#34c759', emoji: '🌅' },  // 07:30–09:00
+    { start: 18, end: 19, label: 'Frühstück',      color: '#f5a623', emoji: '🥗' },  // 09:00–09:30
+    { start: 25, end: 27, label: 'Mittagessen',    color: '#f5a623', emoji: '🥗' },  // 12:30–13:30
+    { start: 36, end: 38, label: 'Abendessen',     color: '#ff6b35', emoji: '🍽️' },  // 18:00–19:00
+    { start: 42, end: 45, label: 'Abend-Routine',  color: '#5856d6', emoji: '😴' },  // 21:00–22:30
   ],
 };
 
-const REQUIRED_TASKS = [
-  { id: 'klavier',  label: 'Klavier üben',  emoji: '🎹', color: '#af52de', minMin: 15, perWeek: 7, slotSize: 1 },
-  { id: 'lesen',    label: 'Lesen',          emoji: '📚', color: '#007aff', minMin: 15, perWeek: 7, slotSize: 1 },
-  { id: 'ausdauer', label: 'Ausdauer Sport', emoji: '🏃', color: '#34c759', minMin: 60, perWeek: 1, weekTotal: 150, slotSize: 2 },
-  { id: 'kraft',    label: 'Krafttraining',  emoji: '💪', color: '#ff9500', minMin: 45, perWeek: 1, weekTotal: 45,  slotSize: 2 },
-];
-
-const PREFERRED_SLOTS = {
-  klavier:  [34, 36, 38, 40, 42, 30, 28, 44],
-  lesen:    [42, 44, 40, 38, 36, 34, 32],
-  ausdauer: [14, 16, 18, 20, 22, 26, 28],
-  kraft:    [14, 16, 18, 20, 22, 28, 30],
-};
+const REQUIRED_TASKS = [];
+const PREFERRED_SLOTS = {};
 
 function loadPlanung() { try { return JSON.parse(localStorage.getItem(PLANUNG_KEY)) || {}; } catch(e){ return {}; } }
 function savePlanung(data) { localStorage.setItem(PLANUNG_KEY, JSON.stringify(data)); }
@@ -1710,7 +1735,7 @@ function autoScheduleTasks(dateStr, fixedBlocks) {
   });
   const busy = new Set();
   fixedBlocks.forEach(b => { for (let s = b.start; s < b.end; s++) busy.add(s); });
-  const SLOT_START = 12, SLOT_END = 46;
+  const SLOT_START = 10, SLOT_END = 46;
   const autoBlocks = [];
   const usedSlots  = new Set(busy);
   REQUIRED_TASKS.forEach(task => {
@@ -1793,7 +1818,7 @@ function renderSchedule(day) {
   const autoBlocks   = autoScheduleTasks(dk, fixedBlocks);
   const customBlocks = getCustomBlocks(dk).filter(b => !b.auto);
   const allBlocks    = [...fixedBlocks, ...autoBlocks, ...customBlocks];
-  const SLOT_START = 12, SLOT_END = 48, SLOT_H = 30;
+  const SLOT_START = 10, SLOT_END = 48, SLOT_H = 30;
   const schedEl = document.getElementById('planung-schedule');
   schedEl.innerHTML = '';
   const occupancy = {};
@@ -1879,32 +1904,54 @@ function renderSchedule(day) {
   schedEl.appendChild(legend);
 }
 
-let pickerState = { dk: null, slot: null, day: null, sport: null, slots: 2 };
+let pickerState = { dk: null, slot: null, day: null, sport: null, slots: 2, intensitaet: 'Mittel' };
 
 function openSportPicker(dk, slot, day) {
-  pickerState = { dk, slot, day, sport: null, slots: 2 };
+  pickerState = { dk, slot, day, sport: null, slots: 2, intensitaet: 'Mittel' };
   const overlay = document.createElement('div');
   overlay.className = 'sport-picker-overlay';
   overlay.id = 'sport-picker-overlay';
   overlay.onclick = e => { if (e.target === overlay) closeSportPicker(); };
+  const startStr = String(Math.floor(slot/2)).padStart(2,'0') + ':' + (slot%2===0?'00':'30');
   overlay.innerHTML = `
     <div class="sport-picker-sheet">
       <div class="sport-picker-header">
         <span>Sport oder Ereignis hinzufügen</span>
         <div class="sport-picker-close" onclick="closeSportPicker()">✕</div>
       </div>
+
       <div style="padding:10px 16px 4px;">
-        <div style="font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">⏰ Zeit: ${String(Math.floor(slot/2)).padStart(2,'0')}:${slot%2===0?'00':'30'} Uhr · Dauer:</div>
+        <div style="font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">⏰ Start: ${startStr} Uhr · Dauer:</div>
         <div class="dur-btn-row" id="dur-btn-row">
           ${[1,2,3,4,6].map(s=>`<div class="dur-btn ${s===2?'active':''}" onclick="setPlanDur(${s})">${s*30} min</div>`).join('')}
         </div>
       </div>
+
+      <div style="padding:2px 16px 6px;">
+        <div style="font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🔥 Intensität:</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${['Leicht','Mittel','Hart','Sehr Hart'].map(i=>`
+            <div class="dur-btn ${i==='Mittel'?'active':''}" id="int-btn-${i.replace(' ','-')}" onclick="setPlanIntensitaet('${i}')">${i}</div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div id="zone-preview" style="display:none;margin:4px 16px 8px;padding:10px 12px;background:rgba(118,118,128,0.07);border-radius:12px;">
+        <div style="font-size:11px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Trainings-Zonen Vorschau</div>
+        <div id="zone-preview-bars"></div>
+      </div>
+
+      <div id="sport-confirm-row" style="display:none;padding:0 16px 14px;">
+        <button onclick="addSportBlock()" style="width:100%;background:var(--brand);color:#fff;border:none;border-radius:12px;padding:13px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;">✓ Einheit hinzufügen</button>
+      </div>
+
       <div style="padding:4px 16px 6px;font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📌 Eigenes Ereignis</div>
       <div style="padding:0 16px 12px;display:flex;gap:8px;align-items:center;">
         <input id="custom-event-input" type="text" placeholder="Ereignis eingeben…" maxlength="40"
           style="flex:1;background:rgba(118,118,128,0.1);border:none;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text-primary);outline:none;height:auto;">
-        <button onclick="addCustomEventFromPicker()" style="background:var(--blue);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;">+ Hinzufügen</button>
+        <button onclick="addCustomEventFromPicker()" style="background:var(--brand);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;">+ Hinzufügen</button>
       </div>
+
       <div style="padding:4px 16px 6px;font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">🏃 Sportart wählen</div>
       <div class="sport-picker-grid" id="sport-picker-grid">
         ${(() => {
@@ -1913,6 +1960,7 @@ function openSportPicker(dk, slot, day) {
             { key: 'beweglichkeit', label: '🟢 Beweglichkeit' },
             { key: 'entspannung',   label: '🟣 Entspannung' },
             { key: 'kraft',         label: '🟠 Kraft' },
+            { key: 'freizeit',      label: '🎯 Freizeit' },
           ];
           return zones.map(z => {
             const sports = SPORTARTEN.filter(s => s.zone === z.key);
@@ -1943,8 +1991,57 @@ function closeSportPicker() {
 function setPlanDur(slots) {
   pickerState.slots = slots;
   document.querySelectorAll('.dur-btn').forEach((b,i) => {
-    b.classList.toggle('active', [1,2,3,4,6][i] === slots);
+    if ([1,2,3,4,6][i] !== undefined) b.classList.toggle('active', [1,2,3,4,6][i] === slots);
   });
+  updateZonePreview();
+}
+
+function setPlanIntensitaet(ints) {
+  pickerState.intensitaet = ints;
+  ['Leicht','Mittel','Hart','Sehr Hart'].forEach(i => {
+    const btn = document.getElementById('int-btn-' + i.replace(' ','-'));
+    if (btn) btn.classList.toggle('active', i === ints);
+  });
+  updateZonePreview();
+}
+
+function updateZonePreview() {
+  const { sport, slots, intensitaet } = pickerState;
+  const previewEl  = document.getElementById('zone-preview');
+  const barsEl     = document.getElementById('zone-preview-bars');
+  const confirmRow = document.getElementById('sport-confirm-row');
+  if (!previewEl || !barsEl) return;
+  if (!sport) { previewEl.style.display = 'none'; return; }
+  const sp = SPORTARTEN.find(s => s.id === sport);
+  if (!sp || sp.zone === 'freizeit') { previewEl.style.display = 'none'; return; }
+  const mins = slots * 30;
+  const z    = calcZones(sp.label, intensitaet);
+  const defs = [
+    { k:'a', label:'Ausdauer',      color:'#34c759' },
+    { k:'k', label:'Kraft',         color:'#ff9500' },
+    { k:'b', label:'Beweglichkeit', color:'#af52de' },
+    { k:'e', label:'Entspannung',   color:'#5856d6' },
+  ];
+  previewEl.style.display = 'block';
+  barsEl.innerHTML = defs.map(d => {
+    const pct = z[d.k];
+    const m   = Math.round(pct / 100 * mins);
+    if (pct === 0) return '';
+    return `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="width:90px;font-size:11px;color:var(--text-primary);">${d.label}</div>
+        <div style="flex:1;height:6px;background:rgba(118,118,128,0.12);border-radius:3px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${d.color};border-radius:3px;"></div>
+        </div>
+        <div style="font-size:11px;font-weight:600;color:${d.color};min-width:44px;text-align:right;">${m} min</div>
+      </div>`;
+  }).join('');
+  // Bestätigungs-Button aktualisieren
+  if (confirmRow) {
+    confirmRow.style.display = 'flex';
+    const btn = confirmRow.querySelector('button');
+    if (btn) btn.textContent = `✓ ${sp.emoji} ${sp.label} · ${mins} min · ${intensitaet} hinzufügen`;
+  }
 }
 
 function selectSport(sportId) {
@@ -1956,17 +2053,44 @@ function selectSport(sportId) {
     sel.style.borderColor = sp ? sp.color : 'var(--blue)';
     sel.style.background  = sp ? sp.color + '10' : 'rgba(0,122,255,0.05)';
   }
-  setTimeout(() => addSportBlock(), 200);
+  updateZonePreview();
+  const sp = SPORTARTEN.find(s => s.id === sportId);
+  if (sp && sp.zone === 'freizeit') {
+    // Freizeit sofort hinzufügen (keine Zonen, keine Bestätigung nötig)
+    setTimeout(() => addSportBlock(), 200);
+  } else {
+    // Bestätigungs-Button einblenden
+    const confirmEl = document.getElementById('sport-confirm-row');
+    if (confirmEl) confirmEl.style.display = 'flex';
+  }
 }
 
 function addSportBlock() {
-  const { dk, slot, day, sport, slots } = pickerState;
+  const { dk, slot, day, sport, slots, intensitaet } = pickerState;
   if (!sport) return;
   const sp = SPORTARTEN.find(s => s.id === sport);
   if (!sp) return;
-  const taskId = (sp.zone === 'ausdauer') ? 'ausdauer' : (sp.zone === 'kraft' ? 'kraft' : null);
+  const mins = slots * 30;
+  let zonen = null;
+  if (sp.zone !== 'freizeit') {
+    const z = calcZones(sp.label, intensitaet);
+    zonen = {
+      ap: z.a, kp: z.k, bp: z.b, ep: z.e,
+      am: Math.round(z.a / 100 * mins),
+      km: Math.round(z.k / 100 * mins),
+      bm: Math.round(z.b / 100 * mins),
+      em: Math.round(z.e / 100 * mins),
+    };
+  }
+  const intensLabel = (sp.zone !== 'freizeit') ? ` · ${intensitaet}` : '';
   const blocks = getCustomBlocks(dk).filter(b => !b.auto);
-  blocks.push({ start: slot, end: slot + slots, label: sp.label, color: sp.color, emoji: sp.emoji, taskId, custom: true });
+  blocks.push({
+    start: slot, end: slot + slots,
+    label: sp.label + intensLabel,
+    color: sp.color, emoji: sp.emoji,
+    sportId: sport, intensitaet,
+    zonen, custom: true,
+  });
   saveCustomBlocks(dk, blocks);
   closeSportPicker();
   renderSchedule(day);
@@ -1988,24 +2112,32 @@ function renderSportGoals() {
   const weekDays = getWeekDays();
   const el = document.getElementById('planung-sport-goals');
   const tracked = getTrackedSportMinutesThisWeek();
-  let plannedAusdauer = 0, plannedKraft = 0, plannedBeweglichkeit = 0, plannedEntspannung = 0;
+  let plannedA = 0, plannedK = 0, plannedB = 0, plannedE = 0;
   weekDays.forEach(d => {
-    const dk    = dateKey(d);
-    const type  = getDayType(dk);
+    const dk   = dateKey(d);
+    const type = getDayType(dk);
     const fixed = FIXED_BLOCKS[type] || [];
     const auto  = autoScheduleTasks(dk, fixed);
     [...auto, ...getCustomBlocks(dk).filter(b => !b.auto)].forEach(b => {
-      if (b.taskId === 'ausdauer')      plannedAusdauer      += (b.end - b.start) * 30;
-      if (b.taskId === 'kraft')         plannedKraft         += (b.end - b.start) * 30;
-      if (b.taskId === 'beweglichkeit') plannedBeweglichkeit += (b.end - b.start) * 30;
-      if (b.taskId === 'entspannung')   plannedEntspannung   += (b.end - b.start) * 30;
+      if (b.zonen) {
+        plannedA += b.zonen.am || 0;
+        plannedK += b.zonen.km || 0;
+        plannedB += b.zonen.bm || 0;
+        plannedE += b.zonen.em || 0;
+      } else {
+        // Fallback für alte Blöcke ohne Zonenberechnung
+        if (b.taskId === 'ausdauer')      plannedA += (b.end - b.start) * 30;
+        if (b.taskId === 'kraft')         plannedK += (b.end - b.start) * 30;
+        if (b.taskId === 'beweglichkeit') plannedB += (b.end - b.start) * 30;
+        if (b.taskId === 'entspannung')   plannedE += (b.end - b.start) * 30;
+      }
     });
   });
   const goals = [
-    { emoji: '🔵', label: 'Ausdauer Sport',   done: tracked.ausdauer,      planned: plannedAusdauer,      target: 150, color: '#34c759' },
-    { emoji: '🟢', label: 'Beweglichkeit',     done: tracked.beweglichkeit, planned: plannedBeweglichkeit, target: 60,  color: '#af52de' },
-    { emoji: '🟣', label: 'Entspannung',        done: tracked.entspannung,   planned: plannedEntspannung,   target: 30,  color: '#5856d6' },
-    { emoji: '🟠', label: 'Krafttraining',      done: tracked.kraft,         planned: plannedKraft,         target: 45,  color: '#ff9500' },
+    { emoji: '🔵', label: 'Ausdauer',      done: tracked.ausdauer,      planned: plannedA, target: 150, color: '#34c759' },
+    { emoji: '🟠', label: 'Kraft',          done: tracked.kraft,         planned: plannedK, target: 45,  color: '#ff9500' },
+    { emoji: '🟢', label: 'Beweglichkeit',  done: tracked.beweglichkeit, planned: plannedB, target: 35,  color: '#af52de' },
+    { emoji: '🟣', label: 'Entspannung',    done: tracked.entspannung,   planned: plannedE, target: 35,  color: '#5856d6' },
   ];
   el.innerHTML = goals.map(g => {
     const donePct    = Math.min(100, Math.round(g.done    / g.target * 100));
@@ -2041,29 +2173,6 @@ function renderSportGoals() {
       </div>
     `;
   }).join('');
-}
-
-// ── Service Worker Registration ──────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js', { scope: './' })
-      .then(reg => {
-        console.log('[App] Service Worker registriert ✓ Scope:', reg.scope);
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          if (!newWorker) return;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('[App] Neue Version verfügbar.');
-              if (typeof showToast === 'function') {
-                showToast('🔄 App aktualisiert – bitte Seite neu laden');
-              }
-            }
-          });
-        });
-      })
-      .catch(err => console.error('[App] Service Worker Fehler:', err));
-  });
 }
 
 // ── Init ──────────────────────────────────────────────────────
