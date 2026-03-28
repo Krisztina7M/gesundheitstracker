@@ -216,7 +216,7 @@
     align-items: center;
     gap: 6px;
     flex-shrink: 0;
-    width: 140px;          /* fixed → input + unit always same total width */
+    width: 168px;          /* fixed → input + unit + thumb always same total width */
     justify-content: flex-end;
   }
 
@@ -496,6 +496,17 @@
 
   .empty { text-align: center; padding: 40px 20px; color: var(--text-sec); font-size: var(--fs-label); line-height: 1.6; }
   .empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+  /* ── Goal thumb indicator ── */
+  .goal-thumb {
+    font-size: 18px;
+    flex-shrink: 0;
+    min-width: 22px;
+    text-align: center;
+    line-height: 1;
+    transition: opacity 0.2s;
+  }
+  .goal-thumb:empty { opacity: 0; }
 
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
@@ -800,7 +811,8 @@
         <div class="field-icon">⚖️</div>
         <div class="field-label">Gewicht</div>
         <div class="field-right">
-          <input type="number" id="gewicht" step="0.1" min="30" max="300" placeholder="0.0">
+          <span id="thumb-gewicht" class="goal-thumb" title="Ziel-Indikator"></span>
+          <input type="number" id="gewicht" step="0.1" min="30" max="300" placeholder="0.0" oninput="updateThumb('gewicht')">
           <span class="unit">kg</span>
         </div>
       </div>
@@ -808,7 +820,8 @@
         <div class="field-icon">📏</div>
         <div class="field-label">Bauchumfang</div>
         <div class="field-right">
-          <input type="number" id="bauch" step="0.5" min="50" max="200" placeholder="0">
+          <span id="thumb-bauch" class="goal-thumb" title="Ziel-Indikator"></span>
+          <input type="number" id="bauch" step="0.5" min="50" max="200" placeholder="0" oninput="updateThumb('bauch')">
           <span class="unit">cm</span>
         </div>
       </div>
@@ -826,14 +839,15 @@
         <div class="field-icon">😴</div>
         <div class="field-label">Schlaf<small>Stunden letzte Nacht</small></div>
         <div class="field-right">
+          <span id="thumb-schlaf" class="goal-thumb" title="Ziel-Indikator"></span>
           <input type="number" id="schlaf-direct"
-            min="2" max="12" step="0.5" value="7"
-            oninput="directInputSlider('slider-schlaf','schlaf-direct',2,12,0.5,'schlaf-v')">
+            min="2" max="12" step="0.5" placeholder="0"
+            oninput="directInputSlider('slider-schlaf','schlaf-direct',2,12,0.5,'schlaf-v');updateThumb('schlaf')">
           <span class="unit">Std</span>
         </div>
-        <span id="schlaf-v" style="display:none">7</span>
+        <span id="schlaf-v" style="display:none"></span>
         <div id="slider-schlaf" class="ios-slider"
-             data-min="2" data-max="12" data-step="0.5" data-val="7"
+             data-min="2" data-max="12" data-step="0.5" data-val=""
              data-out="schlaf-v" data-direct="schlaf-direct">
           <div class="ios-slider-track"><div class="ios-slider-fill"></div></div>
           <div class="ios-slider-thumb"></div>
@@ -845,14 +859,15 @@
         <div class="field-icon">💧</div>
         <div class="field-label">Trinkmenge<small>Liter heute</small></div>
         <div class="field-right">
+          <span id="thumb-trinken" class="goal-thumb" title="Ziel-Indikator"></span>
           <input type="number" id="trinken-direct"
-            min="0" max="5" step="0.25" value="2"
-            oninput="directInputSlider('slider-trinken','trinken-direct',0,5,0.25,'trinken-v')">
+            min="0" max="5" step="0.25" placeholder="0"
+            oninput="directInputSlider('slider-trinken','trinken-direct',0,5,0.25,'trinken-v');updateThumb('trinken')">
           <span class="unit">L</span>
         </div>
-        <span id="trinken-v" style="display:none">2</span>
+        <span id="trinken-v" style="display:none"></span>
         <div id="slider-trinken" class="ios-slider"
-             data-min="0" data-max="5" data-step="0.25" data-val="2"
+             data-min="0" data-max="5" data-step="0.25" data-val=""
              data-out="trinken-v" data-direct="trinken-direct">
           <div class="ios-slider-track"><div class="ios-slider-fill"></div></div>
           <div class="ios-slider-thumb"></div>
@@ -870,7 +885,8 @@
         <div class="field-icon">👟</div>
         <div class="field-label">Schritte</div>
         <div class="field-right">
-          <input type="number" id="schritte" step="100" min="0" max="100000" placeholder="0">
+          <span id="thumb-schritte" class="goal-thumb" title="Ziel-Indikator"></span>
+          <input type="number" id="schritte" step="100" min="0" max="100000" placeholder="0" oninput="updateThumb('schritte')">
           <span class="unit">Schr.</span>
         </div>
       </div>
@@ -878,7 +894,8 @@
         <div class="field-icon">⏱️</div>
         <div class="field-label">Aktivität<small>Trainingszeit</small></div>
         <div class="field-right">
-          <input type="number" id="aktivitaet" step="5" min="0" max="480" placeholder="0" oninput="updateZones()">
+          <span id="thumb-aktivitaet" class="goal-thumb" title="Ziel-Indikator"></span>
+          <input type="number" id="aktivitaet" step="5" min="0" max="480" placeholder="0" oninput="updateZones();updateThumbAktivitaet()">
           <span class="unit">Min</span>
         </div>
       </div>
@@ -1029,12 +1046,29 @@
   <!-- ═══════════════ TAB: VERLAUF ═══════════════ -->
   <div class="tab-panel" id="tab-verlauf">
     <div id="stats-area"></div>
+    <!-- Sportziele letzte 7 Tage -->
+    <div class="card" id="verlauf-sport-goals-card">
+      <div class="card-header">
+        <div class="card-icon icon-green">🏃</div>
+        <div class="card-title">Sportziele – letzte 7 Tage</div>
+      </div>
+      <div id="verlauf-sport-goals"></div>
+    </div>
     <div class="card">
       <div class="card-header">
         <div class="card-icon icon-blue">📋</div>
         <div class="card-title">Alle Einträge</div>
       </div>
       <div id="history-area"></div>
+      <!-- Stichtagsbezogenes Löschen -->
+      <div style="padding:14px 16px;border-top:0.5px solid var(--sep);">
+        <div style="font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🗑️ Einträge vor Datum löschen</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="date" id="delete-before-date" style="flex:1;min-width:130px;">
+          <button onclick="deleteBeforeDate()" style="background:var(--brand);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;">Löschen</button>
+        </div>
+        <p style="font-size:12px;color:var(--text-ter);margin-top:8px;line-height:1.5;">Alle Einträge älter als das gewählte Datum werden auf Bestätigung gelöscht.</p>
+      </div>
     </div>
   </div>
 
@@ -1076,6 +1110,89 @@
 
   <!-- ═══════════════ TAB: EXPORT ═══════════════ -->
   <div class="tab-panel" id="tab-export">
+
+    <!-- Zielwerte -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-green">🎯</div>
+        <div class="card-title">Zielwerte einstellen</div>
+      </div>
+      <div class="field-row">
+        <div class="field-icon">😴</div>
+        <div class="field-label">Schlaf<small>Ziel Stunden/Nacht</small></div>
+        <div class="field-right">
+          <input type="number" id="goal-schlaf" step="0.5" min="4" max="12" placeholder="8" oninput="saveGoals()">
+          <span class="unit">Std</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-icon">💧</div>
+        <div class="field-label">Trinken<small>Ziel Liter/Tag</small></div>
+        <div class="field-right">
+          <input type="number" id="goal-trinken" step="0.25" min="0.5" max="5" placeholder="2" oninput="saveGoals()">
+          <span class="unit">L</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-icon">👟</div>
+        <div class="field-label">Schritte<small>Ziel Schritte/Tag</small></div>
+        <div class="field-right">
+          <input type="number" id="goal-schritte" step="500" min="1000" max="50000" placeholder="10000" oninput="saveGoals()">
+          <span class="unit">Schr.</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-icon">⚖️</div>
+        <div class="field-label">Gewicht<small>Zielgewicht</small></div>
+        <div class="field-right">
+          <input type="number" id="goal-gewicht" step="0.1" min="30" max="300" placeholder="70" oninput="saveGoals()">
+          <span class="unit">kg</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-icon">📏</div>
+        <div class="field-label">Bauchumfang<small>Ziel Bauchumfang</small></div>
+        <div class="field-right">
+          <input type="number" id="goal-bauch" step="0.5" min="50" max="200" placeholder="80" oninput="saveGoals()">
+          <span class="unit">cm</span>
+        </div>
+      </div>
+      <div style="padding:8px 16px 4px;">
+        <div style="font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Wochenziele Sport (Minuten/Woche)</div>
+      </div>
+      <div class="field-row">
+        <div class="field-icon">🔵</div>
+        <div class="field-label">Ausdauer</div>
+        <div class="field-right">
+          <input type="number" id="goal-ausdauer" step="5" min="0" max="1000" placeholder="150" oninput="saveGoals()">
+          <span class="unit">Min</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-icon">🟠</div>
+        <div class="field-label">Kraft</div>
+        <div class="field-right">
+          <input type="number" id="goal-kraft" step="5" min="0" max="500" placeholder="45" oninput="saveGoals()">
+          <span class="unit">Min</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-icon">🟢</div>
+        <div class="field-label">Beweglichkeit</div>
+        <div class="field-right">
+          <input type="number" id="goal-beweglichkeit" step="5" min="0" max="500" placeholder="35" oninput="saveGoals()">
+          <span class="unit">Min</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-icon">🟣</div>
+        <div class="field-label">Entspannung</div>
+        <div class="field-right">
+          <input type="number" id="goal-entspannung" step="5" min="0" max="500" placeholder="35" oninput="saveGoals()">
+          <span class="unit">Min</span>
+        </div>
+      </div>
+    </div>
 
     <div class="card">
       <div class="card-header">
@@ -1334,8 +1451,8 @@ function switchTab(name){
     document.querySelectorAll('.seg-btn')[i].classList.toggle('active', t===name);
     document.getElementById('tab-'+t).classList.toggle('active', t===name);
   });
-  if(name==='verlauf') renderHistory();
-  if(name==='export'){ renderExportCount(); updateReminderUI(); }
+  if(name==='verlauf') { renderHistory(); renderVerlaufSportGoals(); }
+  if(name==='export'){ renderExportCount(); updateReminderUI(); loadGoalsUI(); }
   if(name==='planung') renderPlanung();
 }
 
@@ -1360,8 +1477,8 @@ function saveEntry(){
     datum,
     gewicht:     document.getElementById('gewicht').value||'',
     bauch:       document.getElementById('bauch').value||'',
-    schlaf:      sliderVal('slider-schlaf'),
-    trinken:     sliderVal('slider-trinken'),
+    schlaf:      document.getElementById('schlaf-direct').value !== '' ? sliderVal('slider-schlaf') : '',
+    trinken:     document.getElementById('trinken-direct').value !== '' ? sliderVal('slider-trinken') : '',
     schritte:    document.getElementById('schritte').value||'',
     aktivitaet:  mins||'',
     sport, intensitaet: ints,
@@ -1389,11 +1506,20 @@ function resetSlider(id, val) {
   updateSliderUI(id, val);
 }
 
+function clearSliderInput(sliderId, inputId, outId) {
+  const sliderEl = document.getElementById(sliderId);
+  const inputEl  = document.getElementById(inputId);
+  const outEl    = document.getElementById(outId);
+  if (sliderEl) sliderEl.dataset.val = '';
+  if (inputEl)  inputEl.value = '';
+  if (outEl)    outEl.textContent = '';
+}
+
 function resetForm(){
   document.getElementById('datum').value = today();
   ['gewicht','bauch','schritte','aktivitaet'].forEach(id=>document.getElementById(id).value='');
-  resetSlider('slider-schlaf', 7);
-  resetSlider('slider-trinken', 2);
+  clearSliderInput('slider-schlaf',  'schlaf-direct',  'schlaf-v');
+  clearSliderInput('slider-trinken', 'trinken-direct', 'trinken-v');
   document.getElementById('sport').value='';
   document.getElementById('intensitaet').value='';
   document.getElementById('notizen').value='';
@@ -1401,6 +1527,8 @@ function resetForm(){
   setMood(7);
   habitState = {lesen:false, stricken:false, klavier:false, ki:false};
   renderHabits();
+  ['gewicht','bauch','schlaf','trinken','schritte'].forEach(k => updateThumb(k));
+  updateThumbAktivitaet();
 }
 
 // ── Render History ────────────────────────────────────────────
@@ -1414,12 +1542,17 @@ function renderHistory(){
     return;
   }
   const nums = k => entries.map(e=>e[k]).filter(v=>v!==''&&!isNaN(v)).map(Number);
-  const avg  = k => { const a=nums(k); return a.length ? (a.reduce((x,y)=>x+y)/a.length).toFixed(1) : null; };
+  const avg  = k => { const a=nums(k); return a.length ? a.reduce((x,y)=>x+y)/a.length : null; };
+  // Deutsches Dezimalformat: Komma statt Punkt
+  const deAvg = (k, dec) => {
+    const v = avg(k);
+    return v != null ? v.toFixed(dec).replace('.',',') : null;
+  };
   const stats = [
-    {lbl:'Gewicht', val:avg('gewicht'), unit:'kg'},
-    {lbl:'Schlaf',  val:avg('schlaf'),  unit:'Std'},
-    {lbl:'Schritte',val:avg('schritte') ? Math.round(+avg('schritte')).toLocaleString('de-DE') : null, unit:'Ø/Tag'},
-    {lbl:'Wohlbef.',val:avg('wohlbefinden'), unit:'/ 10'},
+    {lbl:'Gewicht', val: deAvg('gewicht',1), unit:'kg'},
+    {lbl:'Schlaf',  val: deAvg('schlaf',1),  unit:'Std'},
+    {lbl:'Schritte',val: avg('schritte') != null ? Math.round(avg('schritte')).toLocaleString('de-DE') : null, unit:'Ø/Tag'},
+    {lbl:'Wohlbef.',val: deAvg('wohlbefinden',1), unit:'/ 10'},
   ].filter(s=>s.val);
   sa.innerHTML = `<div class="stats-grid">${stats.map(s=>`
     <div class="stat-card">
@@ -1428,12 +1561,15 @@ function renderHistory(){
       <div class="stat-lbl">${s.lbl}</div>
     </div>`).join('')}</div>`;
   ha.innerHTML = entries.map((e,i)=>{
+    const fmtNum = (v,dec) => v !== '' && v != null && !isNaN(v) ? (+v).toLocaleString('de-DE',{minimumFractionDigits:dec,maximumFractionDigits:dec}) : '';
     const chips = [
-      e.gewicht ? e.gewicht+' kg' : '',
-      e.schlaf  ? '😴 '+e.schlaf+'h' : '',
-      e.schritte ? '👟 '+(+e.schritte).toLocaleString('de-DE') : '',
-      e.sport||'',
-      e.wohlbefinden ? e.wohlbefinden+'/10' : '',
+      e.gewicht   ? '⚖️ '+fmtNum(e.gewicht,1)+' kg' : '',
+      e.bauch     ? '📏 '+fmtNum(e.bauch,1)+' cm' : '',
+      e.schlaf    ? '😴 '+fmtNum(e.schlaf,1)+' h' : '',
+      e.trinken   ? '💧 '+fmtNum(e.trinken,2)+' L' : '',
+      e.schritte  ? '👟 '+(+e.schritte).toLocaleString('de-DE') : '',
+      e.sport     ? '🏃 '+e.sport : '',
+      e.wohlbefinden ? '😊 '+e.wohlbefinden+'/10' : '',
       e.habits?.lesen    ? '📚' : '',
       e.habits?.stricken ? '🧶' : '',
       e.habits?.klavier  ? '🎹' : '',
@@ -1468,11 +1604,13 @@ function exportCSV(){
     'Ausdauer (%)','Kraft (%)','Beweglichkeit (%)','Entspannung (%)',
     'Ausdauer (Min)','Kraft (Min)','Beweglichkeit (Min)','Entspannung (Min)',
     'Habit: Lesen','Habit: Stricken','Habit: Klavier','Habit: KI-Projekt','Notizen'];
+  // Dezimalzahl mit Komma für deutsches Excel
+  const deNum = v => (v !== '' && v != null && !isNaN(v)) ? String(v).replace('.',',') : '';
   const rows = entries.map(e=>[
-    fmtDate(e.datum), e.gewicht, e.bauch, e.schlaf, e.trinken,
-    e.schritte, e.aktivitaet, e.sport, e.intensitaet, e.wohlbefinden,
-    e.zonen?.ap??'', e.zonen?.kp??'', e.zonen?.bp??'', e.zonen?.ep??'',
-    e.zonen?.am??'', e.zonen?.km??'', e.zonen?.bm??'', e.zonen?.em??'',
+    fmtDate(e.datum), deNum(e.gewicht), deNum(e.bauch), deNum(e.schlaf), deNum(e.trinken),
+    e.schritte||'', e.aktivitaet||'', e.sport||'', e.intensitaet||'', e.wohlbefinden||'',
+    deNum(e.zonen?.ap??''), deNum(e.zonen?.kp??''), deNum(e.zonen?.bp??''), deNum(e.zonen?.ep??''),
+    deNum(e.zonen?.am??''), deNum(e.zonen?.km??''), deNum(e.zonen?.bm??''), deNum(e.zonen?.em??''),
     e.habits?.lesen    ? 'ja' : 'nein',
     e.habits?.stricken ? 'ja' : 'nein',
     e.habits?.klavier  ? 'ja' : 'nein',
@@ -1923,8 +2061,15 @@ function openSportPicker(dk, slot, day) {
       <div style="padding:10px 16px 4px;">
         <div style="font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">⏰ Start: ${startStr} Uhr · Dauer:</div>
         <div class="dur-btn-row" id="dur-btn-row">
-          ${[1,2,3,4,6].map(s=>`<div class="dur-btn ${s===2?'active':''}" onclick="setPlanDur(${s})">${s*30} min</div>`).join('')}
+          ${[1,2,3,4,6,8].map(s=>`<div class="dur-btn ${s===2?'active':''}" onclick="setPlanDur(${s})">${s*30} min</div>`).join('')}
         </div>
+      </div>
+
+      <div style="padding:4px 16px 6px;font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📌 Eigenes Ereignis</div>
+      <div style="padding:0 16px 12px;display:flex;gap:8px;align-items:center;">
+        <input id="custom-event-input" type="text" placeholder="Ereignis eingeben…" maxlength="40"
+          style="flex:1;background:rgba(118,118,128,0.1);border:none;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text-primary);outline:none;height:auto;">
+        <button onclick="addCustomEventFromPicker()" style="background:var(--brand);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;">+ Hinzufügen</button>
       </div>
 
       <div style="padding:2px 16px 6px;">
@@ -1943,13 +2088,6 @@ function openSportPicker(dk, slot, day) {
 
       <div id="sport-confirm-row" style="display:none;padding:0 16px 14px;">
         <button onclick="addSportBlock()" style="width:100%;background:var(--brand);color:#fff;border:none;border-radius:12px;padding:13px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;">✓ Einheit hinzufügen</button>
-      </div>
-
-      <div style="padding:4px 16px 6px;font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📌 Eigenes Ereignis</div>
-      <div style="padding:0 16px 12px;display:flex;gap:8px;align-items:center;">
-        <input id="custom-event-input" type="text" placeholder="Ereignis eingeben…" maxlength="40"
-          style="flex:1;background:rgba(118,118,128,0.1);border:none;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text-primary);outline:none;height:auto;">
-        <button onclick="addCustomEventFromPicker()" style="background:var(--brand);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;">+ Hinzufügen</button>
       </div>
 
       <div style="padding:4px 16px 6px;font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">🏃 Sportart wählen</div>
@@ -1990,8 +2128,12 @@ function closeSportPicker() {
 
 function setPlanDur(slots) {
   pickerState.slots = slots;
-  document.querySelectorAll('.dur-btn').forEach((b,i) => {
-    if ([1,2,3,4,6][i] !== undefined) b.classList.toggle('active', [1,2,3,4,6][i] === slots);
+  document.querySelectorAll('.dur-btn').forEach(b => {
+    const match = b.getAttribute('onclick');
+    if (match && match.includes('setPlanDur(')) {
+      const s = parseInt(match.match(/setPlanDur\((\d+)\)/)?.[1]);
+      if (!isNaN(s)) b.classList.toggle('active', s === slots);
+    }
   });
   updateZonePreview();
 }
@@ -2133,24 +2275,28 @@ function renderSportGoals() {
       }
     });
   });
+  const g = loadGoals();
   const goals = [
-    { emoji: '🔵', label: 'Ausdauer',      done: tracked.ausdauer,      planned: plannedA, target: 150, color: '#34c759' },
-    { emoji: '🟠', label: 'Kraft',          done: tracked.kraft,         planned: plannedK, target: 45,  color: '#ff9500' },
-    { emoji: '🟢', label: 'Beweglichkeit',  done: tracked.beweglichkeit, planned: plannedB, target: 35,  color: '#af52de' },
-    { emoji: '🟣', label: 'Entspannung',    done: tracked.entspannung,   planned: plannedE, target: 35,  color: '#5856d6' },
+    { emoji: '🔵', label: 'Ausdauer',      done: tracked.ausdauer,      planned: plannedA, target: g.ausdauer||150,      color: '#34c759' },
+    { emoji: '🟠', label: 'Kraft',          done: tracked.kraft,         planned: plannedK, target: g.kraft||45,          color: '#ff9500' },
+    { emoji: '🟢', label: 'Beweglichkeit',  done: tracked.beweglichkeit, planned: plannedB, target: g.beweglichkeit||35,  color: '#af52de' },
+    { emoji: '🟣', label: 'Entspannung',    done: tracked.entspannung,   planned: plannedE, target: g.entspannung||35,    color: '#5856d6' },
   ];
   el.innerHTML = goals.map(g => {
     const donePct    = Math.min(100, Math.round(g.done    / g.target * 100));
     const plannedPct = Math.min(100, Math.round((g.done + g.planned) / g.target * 100));
     const complete   = g.done >= g.target;
+    const doneStr    = g.done.toLocaleString('de-DE');
+    const planStr    = g.planned.toLocaleString('de-DE');
+    const targetStr  = g.target.toLocaleString('de-DE');
     return `
       <div class="sport-goal-row">
         <span class="sport-goal-icon">${g.emoji}</span>
         <div style="flex:1;">
           <div class="sport-goal-label">${g.label}</div>
           <div class="sport-goal-sub">
-            ${g.done > 0 ? `<span style="color:var(--green);">✓ ${g.done} min absolviert</span>` : ''}
-            ${g.planned > 0 ? `${g.done > 0 ? ' · ' : ''}<span style="color:var(--blue);">${g.planned} min geplant</span>` : ''}
+            ${g.done > 0 ? `<span style="color:var(--green);">✓ ${doneStr} min absolviert</span>` : ''}
+            ${g.planned > 0 ? `${g.done > 0 ? ' · ' : ''}<span style="color:var(--blue);">${planStr} min geplant</span>` : ''}
             ${g.done === 0 && g.planned === 0 ? 'Noch nichts eingeplant' : ''}
           </div>
           <div class="sport-goal-bar-wrap" style="margin-top:7px;">
@@ -2162,16 +2308,156 @@ function renderSportGoals() {
         </div>
         <div class="sport-goal-right">
           <div class="sport-goal-nums">
-            ${g.done > 0 ? `<span class="done-num">${g.done}</span>` : ''}
+            ${g.done > 0 ? `<span class="done-num">${doneStr}</span>` : ''}
             ${g.done > 0 && g.planned > 0 ? '+' : ''}
-            ${g.planned > 0 ? `<span class="plan-num">${g.planned}</span>` : ''}
+            ${g.planned > 0 ? `<span class="plan-num">${planStr}</span>` : ''}
             ${g.done === 0 && g.planned === 0 ? '<span style="color:var(--text-ter)">0</span>' : ''}
-            <span class="target"> / ${g.target} min</span>
+            <span class="target"> / ${targetStr} min</span>
           </div>
           ${complete ? '<div style="font-size:11px;color:var(--green);margin-top:3px;font-weight:700;">✓ Ziel erreicht</div>' : ''}
         </div>
       </div>
     `;
+  }).join('');
+}
+
+// ── Zielwerte ─────────────────────────────────────────────────
+const GOALS_KEY = 'ght_goals_v1';
+const GOALS_DEFAULTS = {
+  schlaf: 8, trinken: 2, schritte: 10000, gewicht: null, bauch: null,
+  ausdauer: 150, kraft: 45, beweglichkeit: 35, entspannung: 35
+};
+
+function loadGoals() {
+  try { return Object.assign({}, GOALS_DEFAULTS, JSON.parse(localStorage.getItem(GOALS_KEY)||'{}')); }
+  catch { return {...GOALS_DEFAULTS}; }
+}
+
+function saveGoals() {
+  const g = loadGoals();
+  ['schlaf','trinken','schritte','gewicht','bauch','ausdauer','kraft','beweglichkeit','entspannung'].forEach(k => {
+    const el = document.getElementById('goal-'+k);
+    if (el) g[k] = el.value !== '' ? parseFloat(el.value) : null;
+  });
+  localStorage.setItem(GOALS_KEY, JSON.stringify(g));
+  // Thumbs im Tracking-Tab aktualisieren
+  ['gewicht','bauch','schlaf','trinken','schritte'].forEach(k => updateThumb(k));
+}
+
+function loadGoalsUI() {
+  const g = loadGoals();
+  ['schlaf','trinken','schritte','gewicht','bauch','ausdauer','kraft','beweglichkeit','entspannung'].forEach(k => {
+    const el = document.getElementById('goal-'+k);
+    if (el && g[k] != null) el.value = g[k];
+  });
+}
+
+// Daumen-Indikator: 👍 = Ziel erreicht/nah, 👊 = ok, 👎 = weit weg
+// Für Gewicht/Bauch: niedriger = besser (wenn Ziel gesetzt)
+function getThumbEmoji(value, goal, lowerIsBetter) {
+  if (!goal || isNaN(value)) return '';
+  let ratio;
+  if (lowerIsBetter) {
+    // gut: <= Ziel, mittel: <= Ziel*1.05, schlecht: darüber
+    if (value <= goal) return '👍';
+    const diff = (value - goal) / goal;
+    if (diff <= 0.05) return '👊';
+    return '👎';
+  } else {
+    // gut: >= Ziel, mittel: >= 80%, schlecht: darunter
+    ratio = value / goal;
+    if (ratio >= 1) return '👍';
+    if (ratio >= 0.8) return '👊';
+    return '👎';
+  }
+}
+
+function updateThumb(field) {
+  const el = document.getElementById('thumb-' + field);
+  if (!el) return;
+  const g = loadGoals();
+  const inputId = field === 'schlaf' ? 'schlaf-direct' : field === 'trinken' ? 'trinken-direct' : field;
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const val = parseFloat(input.value);
+  const goal = g[field];
+  const lowerIsBetter = (field === 'gewicht' || field === 'bauch');
+  el.textContent = getThumbEmoji(val, goal, lowerIsBetter);
+}
+
+function updateThumbAktivitaet() {
+  const el = document.getElementById('thumb-aktivitaet');
+  if (!el) return;
+  const val = parseInt(document.getElementById('aktivitaet').value) || 0;
+  el.textContent = val > 0 ? '👍' : '';
+}
+
+// ── Verlauf: Stichtagslöschung ────────────────────────────────
+function deleteBeforeDate() {
+  const dateEl = document.getElementById('delete-before-date');
+  const cutoff = dateEl?.value;
+  if (!cutoff) { showToast('Bitte Datum auswählen','⚠️'); return; }
+  const entries = getEntries();
+  const toDelete = entries.filter(e => e.datum < cutoff);
+  if (!toDelete.length) { showToast('Keine älteren Einträge gefunden','ℹ️'); return; }
+  const fmt = fmtDate(cutoff);
+  if (!confirm(`${toDelete.length} Einträge vor dem ${fmt} löschen?\nDas kann nicht rückgängig gemacht werden.`)) return;
+  const remaining = entries.filter(e => e.datum >= cutoff);
+  saveEntries(remaining);
+  renderHistory();
+  showToast(`${toDelete.length} Einträge gelöscht`, '🗑️');
+}
+
+// ── Verlauf: Sportziele letzte 7 Tage ────────────────────────
+function renderVerlaufSportGoals() {
+  const el = document.getElementById('verlauf-sport-goals');
+  if (!el) return;
+  const g = loadGoals();
+  const now = new Date(); now.setHours(0,0,0,0);
+  const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate() - 6);
+  const cutoff = sevenDaysAgo.toISOString().split('T')[0];
+  const entries = getEntries().filter(e => e.datum >= cutoff);
+
+  let totA = 0, totK = 0, totB = 0, totE = 0;
+  entries.forEach(e => {
+    const mins = parseInt(e.aktivitaet) || 0;
+    if (!mins) return;
+    if (e.zonen) {
+      totA += e.zonen.am || 0;
+      totK += e.zonen.km || 0;
+      totB += e.zonen.bm || 0;
+      totE += e.zonen.em || 0;
+    }
+  });
+
+  const goals = [
+    { emoji:'🔵', label:'Ausdauer',      done: totA, target: g.ausdauer||150,      color:'#34c759' },
+    { emoji:'🟠', label:'Kraft',          done: totK, target: g.kraft||45,          color:'#ff9500' },
+    { emoji:'🟢', label:'Beweglichkeit',  done: totB, target: g.beweglichkeit||35,  color:'#af52de' },
+    { emoji:'🟣', label:'Entspannung',    done: totE, target: g.entspannung||35,    color:'#5856d6' },
+  ];
+
+  el.innerHTML = goals.map(g2 => {
+    const pct = Math.min(100, Math.round(g2.done / g2.target * 100));
+    const complete = g2.done >= g2.target;
+    const doneStr   = g2.done.toLocaleString('de-DE');
+    const targetStr = g2.target.toLocaleString('de-DE');
+    return `
+      <div class="sport-goal-row">
+        <span class="sport-goal-icon">${g2.emoji}</span>
+        <div style="flex:1;">
+          <div class="sport-goal-label">${g2.label}</div>
+          <div class="sport-goal-sub">${doneStr} / ${targetStr} min</div>
+          <div style="margin-top:6px;height:6px;background:var(--sep);border-radius:3px;overflow:hidden;">
+            <div style="width:${pct}%;height:100%;background:${g2.color};border-radius:3px;transition:width 0.5s;"></div>
+          </div>
+        </div>
+        <div style="text-align:right;min-width:70px;padding-left:10px;">
+          <div style="font-size:13px;font-weight:700;color:${complete?'var(--green)':g2.color};white-space:nowrap;">${doneStr} / ${targetStr}</div>
+          <div style="font-size:10px;color:var(--text-sec);margin-top:1px;">min</div>
+          ${complete ? '<div style="font-size:10px;color:var(--green);font-weight:700;margin-top:2px;">✓ Ziel</div>' : ''}
+        </div>
+      </div>`;
   }).join('');
 }
 
@@ -2184,6 +2470,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
   setMood(7);
   initSliders();
   renderHabits();
+  loadGoalsUI();
+  // Daumen nach Laden initialisieren
+  ['gewicht','bauch','schlaf','trinken','schritte'].forEach(k => updateThumb(k));
+  updateThumbAktivitaet();
   const rs = loadReminderSettings();
   if(rs && rs.active && 'Notification' in window && Notification.permission === 'granted'){
     startReminderLoop();
