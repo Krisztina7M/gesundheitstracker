@@ -762,6 +762,299 @@
       padding-bottom: calc(20px + env(safe-area-inset-bottom));
     }
   }
+
+  /* ══════════════════════════════════════
+     ERNÄHRUNG MODULE
+  ══════════════════════════════════════ */
+
+  /* Sub-Nav */
+  .ern-subnav {
+    display: flex;
+    border-bottom: 1px solid var(--sep);
+  }
+  .ern-sub-btn {
+    flex: 1;
+    padding: 13px 6px;
+    border: none;
+    background: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-sec);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .2s, border-color .2s;
+  }
+  .ern-sub-btn.active {
+    color: var(--brand);
+    border-bottom-color: var(--brand);
+  }
+
+  /* Innenabstand für alle Ernährung-Panels */
+  .ern-panel-inner { padding: 0 16px; }
+
+  /* Wochenplan */
+  .wday-block {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--sep);
+  }
+  .wday-block:last-child { border-bottom: none; }
+  .wday-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .wday-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 8px;
+    letter-spacing: 0.3px;
+  }
+  .wday-date {
+    font-size: 12px;
+    color: var(--text-sec);
+    margin-left: 2px;
+  }
+  .wday-kcal {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-sec);
+    background: var(--sep);
+    padding: 2px 9px;
+    border-radius: 10px;
+  }
+  .wday-name {
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .meal-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+  }
+  .meal-icon {
+    font-size: 14px;
+    min-width: 20px;
+    text-align: center;
+  }
+  .meal-label {
+    font-size: 12px;
+    color: var(--text-sec);
+    min-width: 70px;
+  }
+  .meal-select {
+    flex: 1;
+    border: 1px solid var(--border-mid);
+    border-radius: 8px;
+    padding: 5px 8px;
+    font-size: 13px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .meal-recipe-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 0 2px;
+    opacity: 0.7;
+  }
+
+  /* Pyramide */
+  .pyr-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--sep);
+  }
+  .pyr-row:last-child { border-bottom: none; }
+  .pyr-emoji { font-size: 18px; min-width: 26px; text-align: center; }
+  .pyr-info  { flex: 1; }
+  .pyr-name  { font-size: 13px; font-weight: 600; }
+  .pyr-tgt   { font-size: 11px; color: var(--text-sec); margin-top: 1px; }
+  .pyr-amount {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brand);
+    text-align: right;
+    min-width: 60px;
+  }
+
+  /* Einkaufsliste */
+  .einkauf-cat-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-sec);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 12px 0 5px;
+  }
+  .einkauf-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--sep);
+  }
+  .einkauf-item:last-child { border-bottom: none; }
+  .einkauf-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 12px;
+    transition: background .15s, border-color .15s;
+  }
+  .einkauf-check.done {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+  }
+  .einkauf-name { flex: 1; font-size: 14px; }
+  .einkauf-name.done {
+    text-decoration: line-through;
+    color: var(--text-ter);
+  }
+  .einkauf-qty {
+    font-size: 12px;
+    color: var(--text-sec);
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 68px;
+    text-align: right;
+  }
+  .einkauf-source {
+    font-size: 10px;
+    color: var(--brand);
+    background: var(--brand-soft);
+    padding: 1px 6px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  /* Rezeptbuch */
+  .rezept-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--sep);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .rezept-card:last-child { border-bottom: none; }
+  .rezept-info   { flex: 1; min-width: 0; }
+  .rezept-name   { font-size: 14px; font-weight: 600; }
+  .rezept-meta   { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
+  .rezept-badge  {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .badge-fruehstueck { background: rgba(255,149,0,0.14); color: var(--orange); }
+  .badge-mittagessen { background: rgba(52,199,89,0.14);  color: var(--green-dark); }
+  .badge-abendessen  { background: rgba(0,122,255,0.14);  color: var(--blue); }
+  .badge-snack       { background: rgba(175,82,222,0.14); color: var(--purple); }
+  .badge-beilage     { background: rgba(90,200,250,0.14); color: var(--teal); }
+
+  /* Rezept-Filter Chips */
+  .ern-filter-row {
+    display: flex;
+    gap: 6px;
+    padding: 10px 0 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .ern-filter-row::-webkit-scrollbar { display: none; }
+  .ern-chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border-mid);
+    background: var(--card-bg);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-sec);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s;
+    flex-shrink: 0;
+  }
+  .ern-chip.active {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+  }
+
+  /* Modal */
+  .ern-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    background: rgba(0,0,0,0.5);
+    overflow-y: auto;
+    padding: 20px 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ern-modal-box {
+    background: var(--card-bg);
+    border-radius: 20px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px 20px 28px;
+  }
+  .nw-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 8px;
+    margin: 14px 0;
+  }
+  .nw-cell {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 9px 6px;
+    text-align: center;
+  }
+  .nw-val { font-size: 17px; font-weight: 700; }
+  .nw-lbl { font-size: 10px; color: var(--text-sec); margin-top: 2px; }
+  .kochanl { background: var(--bg); border-radius: 12px; padding: 14px; margin-top: 10px; }
+  .kochanl-step { display: flex; gap: 10px; margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
+  .kochanl-step:last-child { margin-bottom: 0; }
+  .step-num {
+    min-width: 22px; height: 22px; border-radius: 50%;
+    background: var(--brand); color: #fff;
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  /* Cookiedoo checkbox */
+  .cookiedoo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(233,30,140,0.06);
+    border-radius: 10px;
+    margin-top: 10px;
+  }
+  .cookiedoo-row label { font-size: 13px; color: var(--brand); font-weight: 600; cursor: pointer; flex:1; }
+  .cookiedoo-cb { accent-color: var(--brand); width: 16px; height: 16px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -788,6 +1081,7 @@
     <button class="seg-btn active" onclick="switchTab('tracking')">Eintragen</button>
     <button class="seg-btn" onclick="switchTab('verlauf')">Verlauf</button>
     <button class="seg-btn" onclick="switchTab('planung')">Planung</button>
+    <button class="seg-btn" onclick="switchTab('ernaehrung')">Ernährung</button>
     <button class="seg-btn" onclick="switchTab('export')">Export</button>
   </div>
 
@@ -1107,6 +1401,71 @@
     </div>
 
   </div><!-- end tab-planung -->
+
+  <!-- ═══════════════ TAB: ERNÄHRUNG ═══════════════ -->
+  <div class="tab-panel" id="tab-ernaehrung">
+
+    <!-- Sub-Navigation -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="ern-subnav">
+        <button class="ern-sub-btn active" onclick="switchErnTab('wochenplan')" id="esub-wochenplan">🗓 Wochenplan</button>
+        <button class="ern-sub-btn" onclick="switchErnTab('einkauf')" id="esub-einkauf">🛒 Einkauf</button>
+        <button class="ern-sub-btn" onclick="switchErnTab('rezepte')" id="esub-rezepte">📖 Rezepte</button>
+      </div>
+    </div>
+
+    <!-- ── Wochenplan Panel ── -->
+    <div id="esub-panel-wochenplan">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--brand-soft);color:var(--brand);font-size:18px;width:34px;height:34px;">🗓</div>
+          <div class="card-title">Wochenplan</div>
+          <button onclick="generateWochenplan()" style="margin-left:auto;background:var(--brand);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size:13px;font-weight:600;cursor:pointer;">✨ Zufällig</button>
+        </div>
+        <div class="ern-panel-inner" id="wochenplan-grid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(52,199,89,0.12);color:#34c759;font-size:18px;width:34px;height:34px;">🥗</div>
+          <div class="card-title">Wochenbedarf</div>
+        </div>
+        <div class="ern-panel-inner" id="pyramide-budget"></div>
+      </div>
+    </div>
+
+    <!-- ── Einkauf Panel ── -->
+    <div id="esub-panel-einkauf" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--brand-soft);color:var(--brand);font-size:18px;width:34px;height:34px;">🛒</div>
+          <div class="card-title">Einkaufsliste</div>
+          <button onclick="resetEinkauf()" style="margin-left:auto;background:var(--sep);color:var(--text-sec);border:none;border-radius:8px;padding:6px 13px;font-size:13px;font-weight:600;cursor:pointer;">↺ Reset</button>
+        </div>
+        <div class="ern-panel-inner" id="einkauf-list"></div>
+      </div>
+    </div>
+
+    <!-- ── Rezepte Panel ── -->
+    <div id="esub-panel-rezepte" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--brand-soft);color:var(--brand);font-size:18px;width:34px;height:34px;">📖</div>
+          <div class="card-title">Rezeptbuch</div>
+        </div>
+        <div style="padding:0 16px 0;">
+          <div class="ern-filter-row" id="rezept-filter-row"></div>
+        </div>
+        <div class="ern-panel-inner" id="rezepte-list"></div>
+      </div>
+    </div>
+
+    <!-- Rezept-Modal -->
+    <div class="ern-modal-overlay" id="rezept-modal" onclick="closeRezeptModal(event)">
+      <div class="ern-modal-box" id="rezept-modal-inner"></div>
+    </div>
+
+  </div><!-- end tab-ernaehrung -->
 
   <!-- ═══════════════ TAB: EXPORT ═══════════════ -->
   <div class="tab-panel" id="tab-export">
@@ -1446,7 +1805,7 @@ function showToast(msg, icon='✓'){
 
 // ── Tab switching ─────────────────────────────────────────────
 function switchTab(name){
-  const tabs = ['tracking','verlauf','planung','export'];
+  const tabs = ['tracking','verlauf','planung','ernaehrung','export'];
   tabs.forEach((t,i)=>{
     document.querySelectorAll('.seg-btn')[i].classList.toggle('active', t===name);
     document.getElementById('tab-'+t).classList.toggle('active', t===name);
@@ -1454,6 +1813,7 @@ function switchTab(name){
   if(name==='verlauf') { renderHistory(); renderVerlaufSportGoals(); }
   if(name==='export'){ renderExportCount(); updateReminderUI(); loadGoalsUI(); }
   if(name==='planung') renderPlanung();
+  if(name==='ernaehrung') renderErnaehrung();
 }
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -2459,6 +2819,497 @@ function renderVerlaufSportGoals() {
         </div>
       </div>`;
   }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// ── ERNÄHRUNG v5.1 ───────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
+const REZEPTE = [
+  { id:'r1', name:'Haferflocken mit Früchten', kategorie:'Frühstück', mahlzeit:'Frühstück',
+    zeit:10, portionen:2, kalorien:320, protein:12, kh:55, fett:6,
+    pyramide:'Getreide', zutaten:[
+      {name:'Haferflocken',menge:'50g p.P.'},
+      {name:'Milch',menge:'200ml p.P.'},
+      {name:'Banane',menge:'1 Stück'},
+      {name:'Beeren (TK)',menge:'100g'}
+    ], bewertung:5, cookiedoo:false, notiz:'Ideal nach Sport',
+    anleitung:['Haferflocken mit Milch in einen Topf geben.',
+      'Bei mittlerer Hitze ca. 5 Min köcheln, dabei rühren.',
+      'In Schüssel geben, mit Banane und Beeren toppen.',
+      'Optional mit etwas Honig süßen.'] },
+
+  { id:'r2', name:'Gegrilltes Hähnchen', kategorie:'Hauptgericht', mahlzeit:'Mittagessen',
+    zeit:30, portionen:2, kalorien:380, protein:45, kh:5, fett:12,
+    pyramide:'Fleisch/Fisch', zutaten:[
+      {name:'Hähnchenbrust',menge:'200g p.P.'},
+      {name:'Olivenöl',menge:'1 EL'},
+      {name:'Kräuter (Thymian, Rosmarin)',menge:'nach Geschmack'}
+    ], bewertung:5, cookiedoo:false, notiz:'Eiweißreich',
+    anleitung:['Hähnchenbrust mit Olivenöl, Salz, Pfeffer und Kräutern marinieren.',
+      'Grillpfanne auf mittlere-hohe Hitze vorheizen.',
+      'Je Seite 6–8 Min grillen (Kerntemperatur 75°C).',
+      'Kurz ruhen lassen, in Scheiben schneiden.'] },
+
+  { id:'r3', name:'Gemüse-Quinoa Bowl', kategorie:'Hauptgericht', mahlzeit:'Mittagessen',
+    zeit:25, portionen:2, kalorien:410, protein:18, kh:52, fett:14,
+    pyramide:'Getreide/Gemüse', zutaten:[
+      {name:'Quinoa',menge:'80g'},
+      {name:'Paprika',menge:'1 Stück'},
+      {name:'Zucchini',menge:'1 Stück'},
+      {name:'Kichererbsen (Dose)',menge:'½ Dose'}
+    ], bewertung:5, cookiedoo:false, notiz:'Vegan',
+    anleitung:['Quinoa in doppelter Menge Wasser 15 Min kochen.',
+      'Paprika und Zucchini würfeln, in Olivenöl 8 Min anbraten.',
+      'Kichererbsen abtropfen, 3 Min mitbraten.',
+      'Alles mischen, mit Zitronensaft und Cumin würzen.'] },
+
+  { id:'r4', name:'Lachsfilet mit Brokkoli', kategorie:'Hauptgericht', mahlzeit:'Abendessen',
+    zeit:20, portionen:2, kalorien:450, protein:42, kh:8, fett:22,
+    pyramide:'Fleisch/Fisch', zutaten:[
+      {name:'Lachsfilet',menge:'180g p.P.'},
+      {name:'Brokkoli',menge:'300g'},
+      {name:'Zitrone',menge:'½ Stück'},
+      {name:'Olivenöl',menge:'1 EL'}
+    ], bewertung:4, cookiedoo:false, notiz:'Omega-3 reich',
+    anleitung:['Brokkoli in Röschen teilen, 8 Min in Salzwasser garen.',
+      'Lachs salzen, pfeffern, in Olivenöl je Seite 4 Min braten.',
+      'Brokkoli abtropfen, mit Butter und Salz abschmecken.',
+      'Lachs mit Zitronensaft beträufeln, servieren.'] },
+
+  { id:'r5', name:'Griechischer Salat', kategorie:'Salat', mahlzeit:'Beilage',
+    zeit:10, portionen:2, kalorien:220, protein:8, kh:12, fett:15,
+    pyramide:'Gemüse', zutaten:[
+      {name:'Tomaten',menge:'3 Stück'},
+      {name:'Gurke',menge:'½ Stück'},
+      {name:'Feta',menge:'80g'},
+      {name:'Oliven',menge:'1 Handvoll'},
+      {name:'Rote Zwiebel',menge:'½ Stück'}
+    ], bewertung:4, cookiedoo:false, notiz:'Leicht & schnell',
+    anleitung:['Tomaten und Gurke würfeln, Zwiebel in Ringe schneiden.',
+      'Alles in Schüssel geben, Oliven und Feta dazugeben.',
+      'Mit Olivenöl, Oregano, Salz und Zitronensaft anmachen.',
+      'Kurz ziehen lassen und servieren.'] },
+
+  { id:'r6', name:'Avocado Toast', kategorie:'Frühstück', mahlzeit:'Frühstück',
+    zeit:10, portionen:1, kalorien:310, protein:9, kh:28, fett:18,
+    pyramide:'Gemüse/Getreide', zutaten:[
+      {name:'Vollkornbrot',menge:'2 Scheiben'},
+      {name:'Avocado',menge:'1 Stück'},
+      {name:'Ei',menge:'1 Stück'},
+      {name:'Tomate',menge:'1 Stück'}
+    ], bewertung:5, cookiedoo:false, notiz:'',
+    anleitung:['Vollkornbrot toasten.',
+      'Avocado zerdrücken, mit Salz und Zitrone würzen.',
+      'Spiegelei braten.',
+      'Avocadocreme auf Toast, Ei und Tomatenscheiben obendrauf.'] },
+
+  { id:'r7', name:'Linsensuppe', kategorie:'Suppe', mahlzeit:'Mittagessen',
+    zeit:40, portionen:4, kalorien:290, protein:16, kh:42, fett:5,
+    pyramide:'Hülsenfrüchte', zutaten:[
+      {name:'Rote Linsen',menge:'200g'},
+      {name:'Möhren',menge:'2 Stück'},
+      {name:'Zwiebel',menge:'1 Stück'},
+      {name:'Gemüsebrühe',menge:'1 L'},
+      {name:'Cumin, Kurkuma',menge:'je 1 TL'}
+    ], bewertung:4, cookiedoo:false, notiz:'Meal Prep geeignet',
+    anleitung:['Zwiebel und Möhren würfeln, in Olivenöl 5 Min andünsten.',
+      'Linsen, Brühe und Gewürze dazugeben.',
+      '25 Min köcheln bis Linsen weich sind.',
+      'Halb pürieren, mit Salz und Zitrone abschmecken.'] },
+
+  { id:'r8', name:'Joghurt mit Granola', kategorie:'Snack', mahlzeit:'Snack',
+    zeit:5, portionen:1, kalorien:250, protein:10, kh:35, fett:7,
+    pyramide:'Milch/Getreide', zutaten:[
+      {name:'Naturjoghurt',menge:'150g'},
+      {name:'Granola',menge:'40g'},
+      {name:'Honig',menge:'1 TL'},
+      {name:'Nüsse',menge:'1 Handvoll'}
+    ], bewertung:4, cookiedoo:false, notiz:'',
+    anleitung:['Joghurt in Schüssel geben.',
+      'Granola und Nüsse drüber streuen.',
+      'Mit Honig beträufeln und servieren.'] }
+];
+
+const PYRAMIDE_BEDARF = [
+  { emoji:'🥦', name:'Gemüse',            ziel:'4 kg',   farbe:'#34c759' },
+  { emoji:'🍎', name:'Obst',              ziel:'1,5 kg', farbe:'#ff9500' },
+  { emoji:'🍞', name:'Brot & Getreide',   ziel:'1,5 kg + 1 kg Kartoffeln', farbe:'#ffcc00' },
+  { emoji:'🥛', name:'Milch & Milchprod.',ziel:'3 L + 300 g Käse', farbe:'#5ac8fa' },
+  { emoji:'🥩', name:'Fleisch & Fisch',   ziel:'400g + 250g + 3 Eier', farbe:'#ff6b35' },
+  { emoji:'🫒', name:'Öl & Nüsse',        ziel:'150 ml + 150 g', farbe:'#af52de' },
+  { emoji:'🍫', name:'Süßes',             ziel:'1 kl. Packung', farbe:'#a2845e' }
+];
+
+// ── Wochenplan Storage ────────────────────────────────────────
+const ERN_WP_KEY = 'ern_wochenplan_v1';
+const ERN_EK_KEY = 'ern_einkauf_v1';
+const ERN_CD_KEY = 'ern_cookiedoo_v1';
+
+function loadWochenplan(){
+  try { return JSON.parse(localStorage.getItem(ERN_WP_KEY)) || {}; } catch(e){ return {}; }
+}
+function saveWochenplan(wp){ localStorage.setItem(ERN_WP_KEY, JSON.stringify(wp)); }
+function getWpDay(dk){ const wp=loadWochenplan(); return wp[dk]||{fruehstueck:'',mittagessen:'',abendessen:'',snack:''}; }
+function setWpMeal(dk,slot,val){ const wp=loadWochenplan(); if(!wp[dk]) wp[dk]={}; wp[dk][slot]=val; saveWochenplan(wp); }
+
+function loadEinkauf(){ try { return JSON.parse(localStorage.getItem(ERN_EK_KEY))||{}; } catch(e){ return {}; } }
+function saveEinkauf(e){ localStorage.setItem(ERN_EK_KEY, JSON.stringify(e)); }
+function loadCookiedoo(){ try { return JSON.parse(localStorage.getItem(ERN_CD_KEY))||{}; } catch(e){ return {}; } }
+function saveCookiedoo(d){ localStorage.setItem(ERN_CD_KEY, JSON.stringify(d)); }
+
+// ── Sub-tab switch ────────────────────────────────────────────
+function switchErnTab(name){
+  ['wochenplan','einkauf','rezepte'].forEach(t=>{
+    document.getElementById('esub-'+t).classList.toggle('active', t===name);
+    document.getElementById('esub-panel-'+t).style.display = t===name ? '' : 'none';
+  });
+  if(name==='einkauf')  renderEinkauf();
+  if(name==='rezepte')  renderRezepte();
+}
+
+// ── Main render entry ─────────────────────────────────────────
+function renderErnaehrung(){
+  renderWochenplanGrid();
+  renderPyramide();
+}
+
+// ── Week days helper (syncs with planung) ─────────────────────
+function getErnWeekDays(){
+  const days=[];
+  const now=new Date(); now.setHours(0,0,0,0);
+  for(let i=0;i<7;i++){
+    const d=new Date(now); d.setDate(now.getDate()+i); days.push(d);
+  }
+  return days;
+}
+function dateKey(d){ return d.toISOString().split('T')[0]; }
+function fmtDateDE(d){
+  return d.toLocaleDateString('de-DE',{day:'numeric',month:'numeric'});
+}
+const WOCHENTAGE_DE = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+const WOCHENTAGE_FULL = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+
+// ── Wochenplan Grid ───────────────────────────────────────────
+function renderWochenplanGrid(){
+  const days = getErnWeekDays();
+  const slots = [
+    {key:'fruehstueck', icon:'☀️', label:'Frühstück',  filter:'Frühstück'},
+    {key:'mittagessen', icon:'🍽',  label:'Mittag',     filter:'Mittagessen'},
+    {key:'abendessen',  icon:'🌙', label:'Abendessen', filter:'Abendessen'},
+    {key:'snack',       icon:'🍎', label:'Snack',       filter:'Snack'}
+  ];
+
+  const html = days.map((d,i)=>{
+    const dk = dateKey(d);
+    const dow = d.getDay();
+    const tagName = WOCHENTAGE_FULL[dow];
+    const tagShort = WOCHENTAGE_DE[dow];
+    const datumStr = fmtDateDE(d);
+    const dayData = getWpDay(dk);
+    const dayType = getDayType(dk);
+    const dt = DAY_TYPES[dayType] || {};
+    const isToday = (i===0);
+
+    // Kalorien summieren
+    const kcal = ['fruehstueck','mittagessen','abendessen','snack'].reduce((s,sl)=>{
+      const r=REZEPTE.find(r=>r.id===dayData[sl]);
+      return s+(r?r.kalorien:0);
+    },0);
+
+    const slotHtml = slots.map(sl=>{
+      const options = REZEPTE
+        .filter(r=>r.mahlzeit===sl.filter || (sl.key==='snack'&&r.mahlzeit==='Beilage'))
+        .map(r=>`<option value="${r.id}"${dayData[sl.key]===r.id?' selected':''}>${r.name}</option>`)
+        .join('');
+      const hasR = !!dayData[sl.key];
+      return `<div class="meal-row">
+        <span class="meal-icon">${sl.icon}</span>
+        <span class="meal-label">${sl.label}</span>
+        <select class="meal-select" onchange="ernUpdateMeal('${dk}','${sl.key}',this.value)">
+          <option value="">– wählen –</option>
+          ${options}
+        </select>
+        ${hasR?`<button class="meal-recipe-btn" onclick="showRezept('${dayData[sl.key]}')" title="Rezept anzeigen">📖</button>`:''}
+      </div>`;
+    }).join('');
+
+    return `<div class="wday-block">
+      <div class="wday-header">
+        <span style="font-size:16px">${dt.emoji||'📅'}</span>
+        <span class="wday-name">${isToday?'Heute ('+tagName+')':tagName}</span>
+        <span class="wday-date">${datumStr}</span>
+        <span class="wday-badge" style="background:${(dt.color||'#888')+'22'};color:${dt.color||'#888'}">${dt.short||dayType}</span>
+        ${kcal>0?`<span class="wday-kcal">~${kcal} kcal</span>`:''}
+      </div>
+      ${slotHtml}
+    </div>`;
+  }).join('');
+
+  document.getElementById('wochenplan-grid').innerHTML = html;
+}
+
+function ernUpdateMeal(dk, slot, val){
+  setWpMeal(dk, slot, val);
+  renderWochenplanGrid();
+  // Einkauf neu berechnen falls Panel sichtbar
+  if(document.getElementById('esub-panel-einkauf').style.display !== 'none') renderEinkauf();
+}
+
+function generateWochenplan(){
+  const days = getErnWeekDays();
+  const byMahlzeit = m => REZEPTE.filter(r=>r.mahlzeit===m);
+  const pick = arr => arr.length ? arr[Math.floor(Math.random()*arr.length)].id : '';
+  days.forEach(d=>{
+    const dk = dateKey(d);
+    setWpMeal(dk,'fruehstueck', pick(byMahlzeit('Frühstück')));
+    setWpMeal(dk,'mittagessen', pick(byMahlzeit('Mittagessen')));
+    setWpMeal(dk,'abendessen',  pick(byMahlzeit('Abendessen')));
+    setWpMeal(dk,'snack',       pick(byMahlzeit('Snack')));
+  });
+  renderWochenplanGrid();
+  renderPyramide();
+  showToast('Wochenplan generiert!','✨');
+}
+
+// ── Pyramide ──────────────────────────────────────────────────
+function renderPyramide(){
+  const html = PYRAMIDE_BEDARF.map(p=>`
+    <div class="pyr-row">
+      <span class="pyr-emoji">${p.emoji}</span>
+      <div class="pyr-info">
+        <div class="pyr-name">${p.name}</div>
+        <div class="pyr-tgt">Ziel: ${p.ziel}</div>
+      </div>
+      <span class="pyr-amount">${p.ziel.split(' ')[0]}</span>
+    </div>`).join('');
+  document.getElementById('pyramide-budget').innerHTML = html;
+}
+
+// ── Einkaufsliste (aus Wochenplan-Rezepten ableiten) ──────────
+function buildEinkaufListe(){
+  const days = getErnWeekDays();
+  // Sammle alle Zutaten aus geplanten Rezepten
+  const rezeptIds = new Set();
+  days.forEach(d=>{
+    const dk=dateKey(d);
+    const dp=getWpDay(dk);
+    ['fruehstueck','mittagessen','abendessen','snack'].forEach(sl=>{ if(dp[sl]) rezeptIds.add(dp[sl]); });
+  });
+
+  // Zutaten aus gewählten Rezepten aggregieren
+  const zutatenMap = {}; // name -> { menge, rezepte[] }
+  rezeptIds.forEach(id=>{
+    const r = REZEPTE.find(x=>x.id===id);
+    if(!r) return;
+    r.zutaten.forEach(z=>{
+      const key = z.name.toLowerCase();
+      if(!zutatenMap[key]) zutatenMap[key]={ name:z.name, mengen:[], rezepte:[] };
+      zutatenMap[key].mengen.push(z.menge);
+      if(!zutatenMap[key].rezepte.includes(r.name)) zutatenMap[key].rezepte.push(r.name);
+    });
+  });
+
+  // Zusatz-Grundbedarf (Pyramide-Pflichtartikel die ggf. nicht in Rezepten sind)
+  const EXTRAS = [
+    { kat:'🥛 Milch & Milchprodukte', items:[ {name:'Milch',menge:'3 Liter'},{name:'Käse',menge:'300 g'} ] },
+    { kat:'🫒 Öl & Nüsse', items:[ {name:'Olivenöl',menge:'150 ml'},{name:'Nussmix',menge:'150 g'} ] },
+    { kat:'🍫 Süßes',      items:[ {name:'Zartbitterschokolade',menge:'1 Tafel'} ] }
+  ];
+
+  // Kategorisieren
+  const CATS = {
+    '🥦 Gemüse':          ['brokkoli','paprika','zucchini','tomate','tomaten','gurke','möhren','spinat','salat','knoblauch','zwiebel','rote zwiebel'],
+    '🍎 Obst':            ['banane','beeren','äpfel','zitrone','avocado'],
+    '🍞 Brot & Getreide': ['haferflocken','vollkornbrot','quinoa','granola','kartoffeln'],
+    '🥛 Milch & Milchprodukte': ['milch','naturjoghurt','feta','käse','joghurt'],
+    '🥩 Protein':         ['hähnchenbrust','lachsfilet','lachs','eier','ei','rote linsen','linsen','kichererbsen'],
+    '🫒 Öl & Nüsse':      ['olivenöl','nüsse','nussmix','honig'],
+    '🍫 Sonstiges':       []
+  };
+
+  function getKat(name){
+    const n = name.toLowerCase();
+    for(const [kat, keys] of Object.entries(CATS)){
+      if(keys.some(k=>n.includes(k)||k.includes(n))) return kat;
+    }
+    return '🍫 Sonstiges';
+  }
+
+  // Rezept-Zutaten nach Kategorie
+  const catMap = {};
+  Object.values(zutatenMap).forEach(z=>{
+    const kat = getKat(z.name);
+    if(!catMap[kat]) catMap[kat]=[];
+    catMap[kat].push({ name:z.name, menge:z.mengen.join(', '), quelle:z.rezepte.join(', '), fromPlan:true });
+  });
+
+  // Extras hinzufügen falls Kategorie nicht schon belegt
+  EXTRAS.forEach(ex=>{
+    ex.items.forEach(item=>{
+      const kat = getKat(item.name);
+      if(!catMap[kat]) catMap[kat]=[];
+      const exists = catMap[kat].some(x=>x.name.toLowerCase()===item.name.toLowerCase());
+      if(!exists) catMap[kat].push({name:item.name, menge:item.menge, quelle:'Pyramide', fromPlan:false});
+    });
+  });
+
+  // Sortierung: fixed Reihenfolge
+  const ORDER = ['🥦 Gemüse','🍎 Obst','🍞 Brot & Getreide','🥛 Milch & Milchprodukte','🥩 Protein','🫒 Öl & Nüsse','🍫 Sonstiges'];
+  return ORDER.filter(k=>catMap[k]&&catMap[k].length).map(k=>({ kat:k, items:catMap[k] }));
+}
+
+function renderEinkauf(){
+  const done = loadEinkauf();
+  const liste = buildEinkaufListe();
+
+  if(liste.length===0){
+    document.getElementById('einkauf-list').innerHTML =
+      `<div style="padding:20px 0;text-align:center;color:var(--text-ter);font-size:14px;">
+        Noch keine Rezepte im Wochenplan.<br>Wähle zuerst Mahlzeiten im Wochenplan.
+      </div>`;
+    return;
+  }
+
+  const html = liste.map(cat=>`
+    <div>
+      <div class="einkauf-cat-title">${cat.kat}</div>
+      ${cat.items.map((item,idx)=>{
+        const key=cat.kat+'::'+idx+'::'+item.name;
+        const isDone=!!done[key];
+        return `<div class="einkauf-item">
+          <div class="einkauf-check ${isDone?'done':''}" onclick="toggleEinkauf('${CSS.escape(key)}',this)">
+            ${isDone?'✓':''}
+          </div>
+          <span class="einkauf-name ${isDone?'done':''}">${item.name}</span>
+          ${item.fromPlan?`<span class="einkauf-source" title="${item.quelle}">📋 ${item.quelle.split(',')[0]}</span>`:''}
+          <span class="einkauf-qty">${item.menge}</span>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+
+  document.getElementById('einkauf-list').innerHTML = html;
+}
+
+function toggleEinkauf(key, el){
+  const done = loadEinkauf();
+  done[key] = !done[key];
+  if(!done[key]) delete done[key];
+  saveEinkauf(done);
+  el.classList.toggle('done', !!done[key]);
+  el.innerHTML = done[key]?'✓':'';
+  const nameEl = el.nextElementSibling;
+  if(nameEl) nameEl.classList.toggle('done', !!done[key]);
+}
+
+function resetEinkauf(){
+  saveEinkauf({});
+  renderEinkauf();
+  showToast('Liste zurückgesetzt','🛒');
+}
+
+// ── Rezeptbuch ────────────────────────────────────────────────
+let ernFilter = 'Alle';
+
+function renderRezepte(){
+  // Filter-Chips
+  const typen = ['Alle','Frühstück','Mittagessen','Abendessen','Snack'];
+  document.getElementById('rezept-filter-row').innerHTML = typen.map(t=>
+    `<button class="ern-chip ${ernFilter===t?'active':''}" onclick="setErnFilter('${t}')">${t}</button>`
+  ).join('');
+
+  const filtered = ernFilter==='Alle' ? REZEPTE : REZEPTE.filter(r=>r.mahlzeit===ernFilter);
+  const cd = loadCookiedoo();
+
+  const badgeClass = m=>({
+    'Frühstück':'badge-fruehstueck','Mittagessen':'badge-mittagessen',
+    'Abendessen':'badge-abendessen','Snack':'badge-snack','Beilage':'badge-beilage'
+  }[m]||'');
+
+  const html = filtered.map(r=>`
+    <div class="rezept-card" onclick="showRezept('${r.id}')">
+      <div class="rezept-info">
+        <div class="rezept-name">${r.name}</div>
+        <div class="rezept-meta">⏱ ${r.zeit} Min &nbsp;·&nbsp; ${r.kalorien} kcal &nbsp;·&nbsp; 💪 ${r.protein}g Protein</div>
+      </div>
+      <span class="rezept-badge ${badgeClass(r.mahlzeit)}">${r.mahlzeit}</span>
+      <span style="color:var(--text-ter);font-size:18px;">›</span>
+    </div>`).join('');
+
+  document.getElementById('rezepte-list').innerHTML = html || `<div style="padding:20px 0;text-align:center;color:var(--text-ter);">Keine Rezepte in dieser Kategorie.</div>`;
+}
+
+function setErnFilter(f){
+  ernFilter=f;
+  renderRezepte();
+}
+
+// ── Rezept Modal ──────────────────────────────────────────────
+function showRezept(id){
+  const r = REZEPTE.find(x=>x.id===id);
+  if(!r) return;
+  const cd = loadCookiedoo();
+  const isCd = !!cd[id];
+
+  const zutatenHtml = r.zutaten.map(z=>
+    `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--sep);font-size:13px;">
+       <span>${z.name}</span><span style="color:var(--text-sec);font-weight:600;">${z.menge}</span>
+     </div>`).join('');
+
+  const stepsHtml = r.anleitung.map((s,i)=>
+    `<div class="kochanl-step">
+       <div class="step-num">${i+1}</div>
+       <div>${s}</div>
+     </div>`).join('');
+
+  document.getElementById('rezept-modal-inner').innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;">
+      <div style="flex:1;">
+        <div style="font-size:18px;font-weight:700;line-height:1.2;">${r.name}</div>
+        <div style="font-size:12px;color:var(--text-sec);margin-top:4px;">
+          ${r.kategorie} &nbsp;·&nbsp; ⏱ ${r.zeit} Min &nbsp;·&nbsp; 👥 ${r.portionen} Port.
+        </div>
+        ${r.notiz?`<div style="font-size:12px;color:var(--brand);margin-top:4px;font-style:italic;">💡 ${r.notiz}</div>`:''}
+      </div>
+      <button onclick="closeRezeptModal()" style="border:none;background:var(--sep);border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;color:var(--text-sec);flex-shrink:0;line-height:1;">×</button>
+    </div>
+
+    <div class="nw-grid">
+      <div class="nw-cell"><div class="nw-val" style="color:var(--orange)">${r.kalorien}</div><div class="nw-lbl">kcal</div></div>
+      <div class="nw-cell"><div class="nw-val" style="color:var(--blue)">${r.protein}g</div><div class="nw-lbl">Protein</div></div>
+      <div class="nw-cell"><div class="nw-val" style="color:var(--green)">${r.kh}g</div><div class="nw-lbl">Kohlenhydr.</div></div>
+      <div class="nw-cell"><div class="nw-val" style="color:var(--purple)">${r.fett}g</div><div class="nw-lbl">Fett</div></div>
+    </div>
+
+    <div style="font-size:13px;font-weight:700;margin:10px 0 6px;">🛒 Zutaten</div>
+    <div style="border-top:1px solid var(--sep);">${zutatenHtml}</div>
+
+    <div style="font-size:13px;font-weight:700;margin:14px 0 6px;">👩‍🍳 Kochanleitung</div>
+    <div class="kochanl">${stepsHtml}</div>
+
+    <div class="cookiedoo-row" style="margin-top:14px;">
+      <input type="checkbox" class="cookiedoo-cb" id="cd-cb-${id}" ${isCd?'checked':''}
+        onchange="toggleCookiedoo('${id}',this.checked)"
+        onclick="event.stopPropagation()">
+      <label for="cd-cb-${id}" onclick="event.stopPropagation()">
+        🔗 Rezept ist auf Cookiedoo verfügbar
+      </label>
+      ${isCd?`<span style="font-size:11px;color:var(--brand);opacity:.7;">Original in App öffnen ›</span>`:''}
+    </div>
+  `;
+
+  document.getElementById('rezept-modal').style.display = 'block';
+}
+
+function toggleCookiedoo(id, checked){
+  const cd = loadCookiedoo();
+  if(checked) cd[id]=true; else delete cd[id];
+  saveCookiedoo(cd);
+}
+
+function closeRezeptModal(event){
+  if(event && event.target !== document.getElementById('rezept-modal')) return;
+  document.getElementById('rezept-modal').style.display = 'none';
 }
 
 // ── Init ──────────────────────────────────────────────────────
