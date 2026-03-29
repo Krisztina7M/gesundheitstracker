@@ -972,14 +972,12 @@
   .badge-snack       { background: rgba(175,82,222,0.14); color: var(--purple); }
   .badge-beilage     { background: rgba(90,200,250,0.14); color: var(--teal); }
 
-  /* Rezept-Filter Chips */
+  /* Rezept-Filter Chips – alle sichtbar, kein Scrollen */
   .ern-filter-row {
     display: flex;
     gap: 6px;
     padding: 10px 0 6px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    flex-wrap: wrap;
   }
   .ern-filter-row::-webkit-scrollbar { display: none; }
   .ern-chip {
@@ -1055,6 +1053,78 @@
   }
   .cookiedoo-row label { font-size: 13px; color: var(--brand); font-weight: 600; cursor: pointer; flex:1; }
   .cookiedoo-cb { accent-color: var(--brand); width: 16px; height: 16px; cursor: pointer; }
+
+  /* ── Rezept-Typ Badges (Cookidoo / Camping / MealPrep) ── */
+  .rtyp-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+  .rtyp-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 6px;
+    border-radius: 6px; white-space: nowrap;
+  }
+  .rtyp-cookidoo  { background: rgba(233,30,140,0.14); color: var(--brand); }
+  .rtyp-camping   { background: rgba(255,107,53,0.14); color: #ff6b35; }
+  .rtyp-mealprep  { background: rgba(52,199,89,0.14);  color: var(--green-dark); }
+
+  /* ── Wochenbedarf Fortschrittsbalken ── */
+  .wbed-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 0; border-bottom: 1px solid var(--sep);
+  }
+  .wbed-row:last-child { border-bottom: none; }
+  .wbed-emoji { font-size: 18px; min-width: 26px; text-align: center; }
+  .wbed-info  { flex: 1; min-width: 0; }
+  .wbed-name  { font-size: 13px; font-weight: 600; }
+  .wbed-tgt   { font-size: 11px; color: var(--text-sec); margin-top: 1px; }
+  .wbed-track { flex: 2; display: flex; flex-direction: column; gap: 3px; }
+  .wbed-bar-bg { height: 7px; background: rgba(118,118,128,0.12); border-radius: 4px; overflow: hidden; }
+  .wbed-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+  .wbed-pct { font-size: 12px; font-weight: 700; min-width: 38px; text-align: right; }
+
+  /* ── Favoriten ── */
+  .fav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; border-bottom: 0.5px solid var(--sep);
+  }
+  .fav-item:last-child { border-bottom: none; }
+  .fav-emoji { font-size: 20px; flex-shrink: 0; }
+  .fav-info  { flex: 1; min-width: 0; }
+  .fav-name  { font-size: 14px; font-weight: 600; }
+  .fav-meta  { font-size: 11px; color: var(--text-sec); margin-top: 2px; }
+  .fav-season {
+    font-size: 10px; padding: 2px 7px; border-radius: 8px;
+    font-weight: 700; flex-shrink: 0;
+  }
+  .fav-del {
+    background: none; border: none; font-size: 16px;
+    color: var(--text-ter); cursor: pointer; padding: 0 4px;
+    line-height: 1; flex-shrink: 0;
+  }
+  .fav-del:hover { color: var(--red); }
+  .fav-add-row {
+    display: flex; gap: 8px; padding: 12px 16px;
+    border-top: 0.5px solid var(--sep); flex-wrap: wrap;
+  }
+  .fav-add-row input[type="text"] { flex: 1; min-width: 120px; }
+  .fav-add-row select { min-width: 110px; width: auto; }
+  .fav-add-btn {
+    background: var(--brand); color: #fff; border: none;
+    border-radius: var(--radius-el); padding: 0 16px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    height: 36px; flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── Meal-Typ Kenzeichnung im Wochenplan ── */
+  .meal-type-icons { display: flex; gap: 3px; flex-shrink: 0; }
+  .meal-type-icon {
+    font-size: 12px; padding: 1px 4px; border-radius: 5px;
+    font-weight: 700; line-height: 1.4;
+  }
+
+  /* ── Freies Kochen / Restaurant Option ── */
+  .meal-free-badge {
+    font-size: 10px; padding: 2px 6px; border-radius: 6px;
+    background: rgba(90,200,250,0.15); color: #007aff; font-weight: 600;
+  }
 </style>
 </head>
 <body>
@@ -1407,10 +1477,12 @@
 
     <!-- Sub-Navigation -->
     <div class="card" style="padding:0;overflow:hidden;">
-      <div class="ern-subnav">
-        <button class="ern-sub-btn active" onclick="switchErnTab('wochenplan')" id="esub-wochenplan">🗓 Wochenplan</button>
-        <button class="ern-sub-btn" onclick="switchErnTab('einkauf')" id="esub-einkauf">🛒 Einkauf</button>
-        <button class="ern-sub-btn" onclick="switchErnTab('rezepte')" id="esub-rezepte">📖 Rezepte</button>
+      <div class="ern-subnav" style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+        <button class="ern-sub-btn active" onclick="switchErnTab('wochenplan')" id="esub-wochenplan">Plan</button>
+        <button class="ern-sub-btn" onclick="switchErnTab('wochenbedarf')" id="esub-wochenbedarf">Bedarf</button>
+        <button class="ern-sub-btn" onclick="switchErnTab('favoriten')" id="esub-favoriten">Favoriten</button>
+        <button class="ern-sub-btn" onclick="switchErnTab('einkauf')" id="esub-einkauf">Einkauf</button>
+        <button class="ern-sub-btn" onclick="switchErnTab('rezepte')" id="esub-rezepte">Rezepte</button>
       </div>
     </div>
 
@@ -1424,13 +1496,51 @@
         </div>
         <div class="ern-panel-inner" id="wochenplan-grid"></div>
       </div>
+    </div>
 
+    <!-- ── Wochenbedarf Panel ── -->
+    <div id="esub-panel-wochenbedarf" style="display:none;">
       <div class="card">
         <div class="card-header">
-          <div class="card-icon" style="background:rgba(52,199,89,0.12);color:#34c759;font-size:18px;width:34px;height:34px;">🥗</div>
-          <div class="card-title">Wochenbedarf</div>
+          <div class="card-icon" style="background:rgba(52,199,89,0.12);color:#34c759;font-size:18px;width:34px;height:34px;">📊</div>
+          <div class="card-title">Wochenbedarf laut Ernährungspyramide</div>
         </div>
-        <div class="ern-panel-inner" id="pyramide-budget"></div>
+        <div style="padding:10px 16px 4px;font-size:12px;color:var(--text-sec);">
+          Fortschritt: Zutaten aus dem aktuellen Wochenplan im Vergleich zum wöchentlichen Bedarf (DGE-Empfehlung).
+        </div>
+        <div class="ern-panel-inner" id="wochenbedarf-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── Favoriten Panel ── -->
+    <div id="esub-panel-favoriten" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(255,149,0,0.12);color:var(--orange);font-size:18px;width:34px;height:34px;">⭐</div>
+          <div class="card-title">Favoriten</div>
+        </div>
+        <div id="favoriten-list"></div>
+        <div class="fav-add-row">
+          <input type="text" id="fav-name-input" placeholder="Lebensmittel hinzufügen…" maxlength="60">
+          <select id="fav-kat-input" style="width:auto;min-width:110px;">
+            <option value="🥦 Gemüse">🥦 Gemüse</option>
+            <option value="🍎 Obst">🍎 Obst</option>
+            <option value="🍞 Getreide">🍞 Getreide</option>
+            <option value="🥛 Milch">🥛 Milch</option>
+            <option value="🥩 Protein">🥩 Protein</option>
+            <option value="🫒 Öl & Nüsse">🫒 Öl & Nüsse</option>
+            <option value="🌿 Kräuter">🌿 Kräuter</option>
+            <option value="🍫 Sonstiges">🍫 Sonstiges</option>
+          </select>
+          <select id="fav-season-input" style="width:auto;min-width:100px;">
+            <option value="ganzjährig">🗓 Ganzjährig</option>
+            <option value="Frühling">🌸 Frühling</option>
+            <option value="Sommer">☀️ Sommer</option>
+            <option value="Herbst">🍂 Herbst</option>
+            <option value="Winter">❄️ Winter</option>
+          </select>
+          <button class="fav-add-btn" onclick="addFavorit()">+ Hinzufügen</button>
+        </div>
       </div>
     </div>
 
@@ -1440,6 +1550,7 @@
         <div class="card-header">
           <div class="card-icon" style="background:var(--brand-soft);color:var(--brand);font-size:18px;width:34px;height:34px;">🛒</div>
           <div class="card-title">Einkaufsliste</div>
+          <span style="font-size:11px;font-weight:600;color:var(--text-sec);background:rgba(0,122,255,0.1);padding:3px 8px;border-radius:8px;">2 Personen</span>
           <button onclick="resetEinkauf()" style="margin-left:auto;background:var(--sep);color:var(--text-sec);border:none;border-radius:8px;padding:6px 13px;font-size:13px;font-weight:600;cursor:pointer;">↺ Reset</button>
         </div>
         <div class="ern-panel-inner" id="einkauf-list"></div>
@@ -1454,7 +1565,7 @@
           <div class="card-title">Rezeptbuch</div>
         </div>
         <div style="padding:0 16px 0;">
-          <div class="ern-filter-row" id="rezept-filter-row"></div>
+          <div id="rezept-filter-row" style="flex-wrap:wrap;"></div>
         </div>
         <div class="ern-panel-inner" id="rezepte-list"></div>
       </div>
@@ -2826,14 +2937,12 @@ function renderVerlaufSportGoals() {
 // ══════════════════════════════════════════════════════════════
 
 const REZEPTE = [
-  { id:'r1', name:'Haferflocken mit Früchten', kategorie:'Frühstück', mahlzeit:'Frühstück',
+  { id:'r1', name:'Porridge mit Beeren', kategorie:'Frühstück', mahlzeit:'Frühstück',
     zeit:10, portionen:2, kalorien:320, protein:12, kh:55, fett:6,
     pyramide:'Getreide', zutaten:[
-      {name:'Haferflocken',menge:'50g p.P.'},
-      {name:'Milch',menge:'200ml p.P.'},
-      {name:'Banane',menge:'1 Stück'},
-      {name:'Beeren (TK)',menge:'100g'}
-    ], bewertung:5, cookiedoo:false, notiz:'Ideal nach Sport',
+      {name:'Haferflocken',menge:'50g p.P.'},{name:'Milch',menge:'200ml p.P.'},
+      {name:'Banane',menge:'1 Stück'},{name:'Beeren (TK)',menge:'100g'}
+    ], bewertung:5, cookidoo:false, camping:false, mealprep:true, notiz:'Ideal nach Sport',
     anleitung:['Haferflocken mit Milch in einen Topf geben.',
       'Bei mittlerer Hitze ca. 5 Min köcheln, dabei rühren.',
       'In Schüssel geben, mit Banane und Beeren toppen.',
@@ -2842,10 +2951,9 @@ const REZEPTE = [
   { id:'r2', name:'Gegrilltes Hähnchen', kategorie:'Hauptgericht', mahlzeit:'Mittagessen',
     zeit:30, portionen:2, kalorien:380, protein:45, kh:5, fett:12,
     pyramide:'Fleisch/Fisch', zutaten:[
-      {name:'Hähnchenbrust',menge:'200g p.P.'},
-      {name:'Olivenöl',menge:'1 EL'},
+      {name:'Hähnchenbrust',menge:'200g p.P.'},{name:'Olivenöl',menge:'1 EL'},
       {name:'Kräuter (Thymian, Rosmarin)',menge:'nach Geschmack'}
-    ], bewertung:5, cookiedoo:false, notiz:'Eiweißreich',
+    ], bewertung:5, cookidoo:true, camping:false, mealprep:true, notiz:'Eiweißreich',
     anleitung:['Hähnchenbrust mit Olivenöl, Salz, Pfeffer und Kräutern marinieren.',
       'Grillpfanne auf mittlere-hohe Hitze vorheizen.',
       'Je Seite 6–8 Min grillen (Kerntemperatur 75°C).',
@@ -2854,11 +2962,9 @@ const REZEPTE = [
   { id:'r3', name:'Gemüse-Quinoa Bowl', kategorie:'Hauptgericht', mahlzeit:'Mittagessen',
     zeit:25, portionen:2, kalorien:410, protein:18, kh:52, fett:14,
     pyramide:'Getreide/Gemüse', zutaten:[
-      {name:'Quinoa',menge:'80g'},
-      {name:'Paprika',menge:'1 Stück'},
-      {name:'Zucchini',menge:'1 Stück'},
-      {name:'Kichererbsen (Dose)',menge:'½ Dose'}
-    ], bewertung:5, cookiedoo:false, notiz:'Vegan',
+      {name:'Quinoa',menge:'80g'},{name:'Paprika',menge:'1 Stück'},
+      {name:'Zucchini',menge:'1 Stück'},{name:'Kichererbsen (Dose)',menge:'½ Dose'}
+    ], bewertung:5, cookidoo:false, camping:false, mealprep:true, notiz:'Vegan',
     anleitung:['Quinoa in doppelter Menge Wasser 15 Min kochen.',
       'Paprika und Zucchini würfeln, in Olivenöl 8 Min anbraten.',
       'Kichererbsen abtropfen, 3 Min mitbraten.',
@@ -2867,11 +2973,9 @@ const REZEPTE = [
   { id:'r4', name:'Lachsfilet mit Brokkoli', kategorie:'Hauptgericht', mahlzeit:'Abendessen',
     zeit:20, portionen:2, kalorien:450, protein:42, kh:8, fett:22,
     pyramide:'Fleisch/Fisch', zutaten:[
-      {name:'Lachsfilet',menge:'180g p.P.'},
-      {name:'Brokkoli',menge:'300g'},
-      {name:'Zitrone',menge:'½ Stück'},
-      {name:'Olivenöl',menge:'1 EL'}
-    ], bewertung:4, cookiedoo:false, notiz:'Omega-3 reich',
+      {name:'Lachsfilet',menge:'180g p.P.'},{name:'Brokkoli',menge:'300g'},
+      {name:'Zitrone',menge:'½ Stück'},{name:'Olivenöl',menge:'1 EL'}
+    ], bewertung:4, cookidoo:true, camping:false, mealprep:false, notiz:'Omega-3 reich',
     anleitung:['Brokkoli in Röschen teilen, 8 Min in Salzwasser garen.',
       'Lachs salzen, pfeffern, in Olivenöl je Seite 4 Min braten.',
       'Brokkoli abtropfen, mit Butter und Salz abschmecken.',
@@ -2880,12 +2984,9 @@ const REZEPTE = [
   { id:'r5', name:'Griechischer Salat', kategorie:'Salat', mahlzeit:'Beilage',
     zeit:10, portionen:2, kalorien:220, protein:8, kh:12, fett:15,
     pyramide:'Gemüse', zutaten:[
-      {name:'Tomaten',menge:'3 Stück'},
-      {name:'Gurke',menge:'½ Stück'},
-      {name:'Feta',menge:'80g'},
-      {name:'Oliven',menge:'1 Handvoll'},
-      {name:'Rote Zwiebel',menge:'½ Stück'}
-    ], bewertung:4, cookiedoo:false, notiz:'Leicht & schnell',
+      {name:'Tomaten',menge:'3 Stück'},{name:'Gurke',menge:'½ Stück'},
+      {name:'Feta',menge:'80g'},{name:'Oliven',menge:'1 Handvoll'},{name:'Rote Zwiebel',menge:'½ Stück'}
+    ], bewertung:4, cookidoo:false, camping:true, mealprep:false, notiz:'Leicht & schnell',
     anleitung:['Tomaten und Gurke würfeln, Zwiebel in Ringe schneiden.',
       'Alles in Schüssel geben, Oliven und Feta dazugeben.',
       'Mit Olivenöl, Oregano, Salz und Zitronensaft anmachen.',
@@ -2894,57 +2995,298 @@ const REZEPTE = [
   { id:'r6', name:'Avocado Toast', kategorie:'Frühstück', mahlzeit:'Frühstück',
     zeit:10, portionen:1, kalorien:310, protein:9, kh:28, fett:18,
     pyramide:'Gemüse/Getreide', zutaten:[
-      {name:'Vollkornbrot',menge:'2 Scheiben'},
-      {name:'Avocado',menge:'1 Stück'},
-      {name:'Ei',menge:'1 Stück'},
-      {name:'Tomate',menge:'1 Stück'}
-    ], bewertung:5, cookiedoo:false, notiz:'',
-    anleitung:['Vollkornbrot toasten.',
-      'Avocado zerdrücken, mit Salz und Zitrone würzen.',
-      'Spiegelei braten.',
-      'Avocadocreme auf Toast, Ei und Tomatenscheiben obendrauf.'] },
+      {name:'Vollkornbrot',menge:'2 Scheiben'},{name:'Avocado',menge:'1 Stück'},
+      {name:'Ei',menge:'1 Stück'},{name:'Tomate',menge:'1 Stück'}
+    ], bewertung:5, cookidoo:false, camping:false, mealprep:false, notiz:'',
+    anleitung:['Vollkornbrot toasten.','Avocado zerdrücken, mit Salz und Zitrone würzen.',
+      'Spiegelei braten.','Avocadocreme auf Toast, Ei und Tomatenscheiben obendrauf.'] },
 
   { id:'r7', name:'Linsensuppe', kategorie:'Suppe', mahlzeit:'Mittagessen',
     zeit:40, portionen:4, kalorien:290, protein:16, kh:42, fett:5,
     pyramide:'Hülsenfrüchte', zutaten:[
-      {name:'Rote Linsen',menge:'200g'},
-      {name:'Möhren',menge:'2 Stück'},
-      {name:'Zwiebel',menge:'1 Stück'},
-      {name:'Gemüsebrühe',menge:'1 L'},
+      {name:'Rote Linsen',menge:'200g'},{name:'Möhren',menge:'2 Stück'},
+      {name:'Zwiebel',menge:'1 Stück'},{name:'Gemüsebrühe',menge:'1 L'},
       {name:'Cumin, Kurkuma',menge:'je 1 TL'}
-    ], bewertung:4, cookiedoo:false, notiz:'Meal Prep geeignet',
+    ], bewertung:4, cookidoo:false, camping:false, mealprep:true, notiz:'Meal Prep geeignet',
     anleitung:['Zwiebel und Möhren würfeln, in Olivenöl 5 Min andünsten.',
-      'Linsen, Brühe und Gewürze dazugeben.',
-      '25 Min köcheln bis Linsen weich sind.',
+      'Linsen, Brühe und Gewürze dazugeben.','25 Min köcheln bis Linsen weich sind.',
       'Halb pürieren, mit Salz und Zitrone abschmecken.'] },
 
   { id:'r8', name:'Joghurt mit Granola', kategorie:'Snack', mahlzeit:'Snack',
     zeit:5, portionen:1, kalorien:250, protein:10, kh:35, fett:7,
     pyramide:'Milch/Getreide', zutaten:[
-      {name:'Naturjoghurt',menge:'150g'},
-      {name:'Granola',menge:'40g'},
-      {name:'Honig',menge:'1 TL'},
-      {name:'Nüsse',menge:'1 Handvoll'}
-    ], bewertung:4, cookiedoo:false, notiz:'',
-    anleitung:['Joghurt in Schüssel geben.',
-      'Granola und Nüsse drüber streuen.',
-      'Mit Honig beträufeln und servieren.'] }
+      {name:'Naturjoghurt',menge:'150g'},{name:'Granola',menge:'40g'},
+      {name:'Honig',menge:'1 TL'},{name:'Nüsse',menge:'1 Handvoll'}
+    ], bewertung:4, cookidoo:false, camping:true, mealprep:true, notiz:'',
+    anleitung:['Joghurt in Schüssel geben.','Granola und Nüsse drüber streuen.',
+      'Mit Honig beträufeln und servieren.'] },
+
+  { id:'r9', name:'Campingbrot mit Aufschnitt', kategorie:'Frühstück', mahlzeit:'Frühstück',
+    zeit:5, portionen:2, kalorien:280, protein:14, kh:30, fett:10,
+    pyramide:'Getreide', zutaten:[
+      {name:'Vollkornbrot',menge:'4 Scheiben'},{name:'Frischkäse',menge:'60g'},
+      {name:'Aufschnitt (Pute)',menge:'80g'},{name:'Tomate',menge:'1 Stück'}
+    ], bewertung:4, cookidoo:false, camping:true, mealprep:false, notiz:'Ideal für unterwegs',
+    anleitung:['Brot mit Frischkäse bestreichen.',
+      'Aufschnitt und Tomatenscheiben darauflegen.',
+      'Mit Salz und Pfeffer würzen, servieren.'] },
+
+  { id:'r10', name:'Nudeln mit Tomatensauce', kategorie:'Hauptgericht', mahlzeit:'Abendessen',
+    zeit:20, portionen:2, kalorien:420, protein:14, kh:68, fett:8,
+    pyramide:'Getreide', zutaten:[
+      {name:'Vollkornnudeln',menge:'120g'},{name:'Tomaten (Dose)',menge:'1 Dose'},
+      {name:'Knoblauch',menge:'2 Zehen'},{name:'Basilikum',menge:'1 Bund'}
+    ], bewertung:4, cookidoo:true, camping:true, mealprep:true, notiz:'Camping-Klassiker',
+    anleitung:['Nudeln nach Packungsangabe kochen.',
+      'Knoblauch in Öl andünsten, Tomaten dazugeben.',
+      '10 Min köcheln, mit Basilikum und Salz würzen.',
+      'Sauce über Nudeln geben.'] },
+
+  { id:'r11', name:'Overnight Oats', kategorie:'Frühstück', mahlzeit:'Frühstück',
+    zeit:5, portionen:1, kalorien:340, protein:13, kh:52, fett:8,
+    pyramide:'Getreide', zutaten:[
+      {name:'Haferflocken',menge:'50g'},{name:'Naturjoghurt',menge:'150g'},
+      {name:'Milch',menge:'100ml'},{name:'Beeren (TK)',menge:'80g'}
+    ], bewertung:5, cookidoo:false, camping:false, mealprep:true, notiz:'Vorbereitung am Vorabend',
+    anleitung:['Haferflocken mit Joghurt und Milch mischen.',
+      'In Glas oder Box abfüllen.',
+      'Über Nacht im Kühlschrank ziehen lassen.',
+      'Morgens mit Beeren servieren.'] },
+
+  { id:'r12', name:'Campingsuppe', kategorie:'Suppe', mahlzeit:'Mittagessen',
+    zeit:10, portionen:1, kalorien:320, protein:10, kh:50, fett:7,
+    pyramide:'Getreide', zutaten:[
+      {name:'Instantnudeln',menge:'1 Packung'},{name:'Möhren',menge:'1 Stück'},
+      {name:'Erbsen (TK)',menge:'50g'},{name:'Gemüsebrühe',menge:'500ml'}
+    ], bewertung:3, cookidoo:false, camping:true, mealprep:false, notiz:'Einfach & schnell',
+    anleitung:['Brühe aufkochen.',
+      'Möhren würfeln, 5 Min in Brühe garen.',
+      'Nudeln und Erbsen dazugeben, 3 Min kochen.',
+      'Mit Salz und Pfeffer abschmecken.'] },
+
+  { id:'r13', name:'Freies Kochen', kategorie:'Sonstiges', mahlzeit:'ALLE',
+    zeit:0, portionen:1, kalorien:0, protein:0, kh:0, fett:0,
+    pyramide:'', zutaten:[], bewertung:0,
+    cookidoo:false, camping:false, mealprep:false, notiz:'Eigenes Gericht',
+    anleitung:[] },
+
+  { id:'r14', name:'Restaurant', kategorie:'Sonstiges', mahlzeit:'ALLE',
+    zeit:0, portionen:1, kalorien:0, protein:0, kh:0, fett:0,
+    pyramide:'', zutaten:[], bewertung:0,
+    cookidoo:false, camping:false, mealprep:false, notiz:'Auswärts essen',
+    anleitung:[] }
 ];
 
-const PYRAMIDE_BEDARF = [
-  { emoji:'🥦', name:'Gemüse',            ziel:'4 kg',   farbe:'#34c759' },
-  { emoji:'🍎', name:'Obst',              ziel:'1,5 kg', farbe:'#ff9500' },
-  { emoji:'🍞', name:'Brot & Getreide',   ziel:'1,5 kg + 1 kg Kartoffeln', farbe:'#ffcc00' },
-  { emoji:'🥛', name:'Milch & Milchprod.',ziel:'3 L + 300 g Käse', farbe:'#5ac8fa' },
-  { emoji:'🥩', name:'Fleisch & Fisch',   ziel:'400g + 250g + 3 Eier', farbe:'#ff6b35' },
-  { emoji:'🫒', name:'Öl & Nüsse',        ziel:'150 ml + 150 g', farbe:'#af52de' },
-  { emoji:'🍫', name:'Süßes',             ziel:'1 kl. Packung', farbe:'#a2845e' }
+// Wöchentlicher Bedarf laut Ernährungspyramide (DGE / Oviva)
+// ── Wochenbedarf: Standard-Ziele (einstellbar per localStorage) ──
+const WBED_DEFAULTS_KEY = 'ern_wbed_ziele_v1';
+const WBED_DEFAULTS = [
+  { id:'getraenke', name:'Getränke',           einheit:'ml', zielWoche:14000, farbe:'#5ac8fa',
+    beschreibung:'mind. 2 L/Tag', pyrKat:[] },
+  { id:'gemuese',   name:'Gemüse & Salat',     einheit:'g',  zielWoche:2800,  farbe:'#34c759',
+    beschreibung:'mind. 400–500 g/Tag', pyrKat:['gemüse'] },
+  { id:'obst',      name:'Obst',               einheit:'g',  zielWoche:1750,  farbe:'#ff9500',
+    beschreibung:'ca. 250 g/Tag', pyrKat:['obst'] },
+  { id:'getreide',  name:'Brot & Getreide',    einheit:'g',  zielWoche:1400,  farbe:'#ffcc00',
+    beschreibung:'3 Portionen/Tag, Vollkorn', pyrKat:['getreide'] },
+  { id:'milch',     name:'Milch & Milchprod.', einheit:'g',  zielWoche:2100,  farbe:'#007aff',
+    beschreibung:'3 Portionen/Tag', pyrKat:['milch'] },
+  { id:'protein',   name:'Fleisch, Fisch & Ei',einheit:'g',  zielWoche:700,   farbe:'#ff6b35',
+    beschreibung:'max. 300–600 g Fleisch/Woche', pyrKat:['fleisch','fisch','hülsen'] },
+  { id:'oel',       name:'Öl & Fette',         einheit:'ml', zielWoche:140,   farbe:'#af52de',
+    beschreibung:'2 EL/Tag', pyrKat:['öl'] },
+  { id:'nuesse',    name:'Nüsse & Samen',       einheit:'g',  zielWoche:125,   farbe:'#a2845e',
+    beschreibung:'4–5 Port. à 25 g/Woche', pyrKat:[] },
+  { id:'suesses',   name:'Genussmittel',        einheit:'g',  zielWoche:25,    farbe:'#636366',
+    beschreibung:'max. 25 g/Woche', pyrKat:[] }
 ];
 
-// ── Wochenplan Storage ────────────────────────────────────────
-const ERN_WP_KEY = 'ern_wochenplan_v1';
-const ERN_EK_KEY = 'ern_einkauf_v1';
-const ERN_CD_KEY = 'ern_cookiedoo_v1';
+function loadWbedZiele(){
+  try {
+    const saved = JSON.parse(localStorage.getItem(WBED_DEFAULTS_KEY)||'{}');
+    return WBED_DEFAULTS.map(d=>({ ...d, zielWoche: saved[d.id] ?? d.zielWoche }));
+  } catch(e){ return [...WBED_DEFAULTS]; }
+}
+function saveWbedZiel(id, val){
+  try {
+    const saved = JSON.parse(localStorage.getItem(WBED_DEFAULTS_KEY)||'{}');
+    saved[id] = val;
+    localStorage.setItem(WBED_DEFAULTS_KEY, JSON.stringify(saved));
+  } catch(e){}
+}
+
+// Leite Ist-Mengen aus Rezept-Zutaten des Wochenplans ab
+function calcWochenbedarfFromZutaten(){
+  const days = getErnWeekDays();
+  const rezeptIds = [];
+  days.forEach(d=>{
+    const dk=dateKey(d); const dp=getWpDay(dk);
+    ['fruehstueck','mittagessen','abendessen','snack'].forEach(sl=>{
+      if(dp[sl] && dp[sl]!=='r13' && dp[sl]!=='r14') rezeptIds.push(dp[sl]);
+    });
+  });
+
+  const sums = { getraenke:0, gemuese:0, obst:0, getreide:0, milch:0, protein:0, oel:0, nuesse:0, suesses:0 };
+
+  // Zutaten-basierte Zuordnung
+  const ZUTAT_KAT = {
+    gemuese:  ['brokkoli','paprika','zucchini','tomate','tomaten','gurke','möhren','spinat','salat',
+                'knoblauch','zwiebel','erbsen','kräuter','basilikum'],
+    obst:     ['banane','beeren','apfel','birne','orange','zitrone','avocado','mango'],
+    getreide: ['haferflocken','vollkornbrot','brot','nudeln','quinoa','reis','kartoffel','granola',
+                'getreideflocken','instantnudeln'],
+    milch:    ['milch','joghurt','käse','feta','quark','kefir','buttermilch','frischkäse'],
+    protein:  ['hähnchen','lachs','fisch','ei','linsen','kichererbsen','tofu','aufschnitt','pute',
+                'fleisch','wurst','bohnen','hülsenfrüchte'],
+    oel:      ['olivenöl','öl','butter'],
+    nuesse:   ['nüsse','mandeln','walnüsse','samen','nussmix'],
+  };
+
+  // Mengen-Parser: extrahiert Gramm/ml aus Mengentexten
+  function parseMenge(mengeStr){
+    if(!mengeStr) return 0;
+    const s = mengeStr.toLowerCase();
+    // Liter / ml
+    if(s.includes('liter') || s.includes(' l ') || s.match(/\d+[,.]?\d*\s*l$/)) {
+      const m = s.match(/(\d+[,.]?\d*)/); return m ? parseFloat(m[1].replace(',','.'))*1000 : 0;
+    }
+    if(s.includes('ml')) { const m=s.match(/(\d+)/); return m?parseInt(m[1]):0; }
+    // EL / TL
+    if(s.includes(' el') || s.includes('esslöffel')) { const m=s.match(/(\d+)/); return m?parseInt(m[1])*15:15; }
+    if(s.includes(' tl') || s.includes('teelöffel'))  { const m=s.match(/(\d+)/); return m?parseInt(m[1])*5:5; }
+    // Stück / Handvoll → Schätzung
+    if(s.includes('stück') || s.match(/^\d+\s*(stk|stück|st\.)/)) {
+      const m=s.match(/(\d+)/); const n=m?parseInt(m[1]):1;
+      // Schätzung nach Zutatname erfolgt nach Kategorie
+      return n * 100;
+    }
+    if(s.includes('handvoll') || s.includes('hand voll')) return 50;
+    if(s.includes('dose')) return 240;
+    if(s.includes('bund')) return 30;
+    if(s.includes('scheibe')) { const m=s.match(/(\d+)/); return m?parseInt(m[1])*30:30; }
+    if(s.includes('becher')) return 150;
+    if(s.includes('glas')) return 250;
+    // g / kg
+    if(s.includes('kg')) { const m=s.match(/(\d+[,.]?\d*)/); return m?parseFloat(m[1].replace(',','.'))*1000:0; }
+    const m=s.match(/(\d+)/);
+    return m ? parseInt(m[1]) : 50;
+  }
+
+  rezeptIds.forEach(id=>{
+    const r = REZEPTE.find(x=>x.id===id); if(!r) return;
+    // Wasserabschätzung: jede Mahlzeit → 400ml
+    sums.getraenke += 400;
+    r.zutaten.forEach(z=>{
+      const name = z.name.toLowerCase();
+      const menge = parseMenge(z.menge);
+      let zugeordnet = false;
+      for(const [kat, keys] of Object.entries(ZUTAT_KAT)){
+        if(keys.some(k => name.includes(k) || k.includes(name.split(' ')[0]))){
+          if(kat==='oel') sums.oel += menge;
+          else sums[kat] = (sums[kat]||0) + menge;
+          zugeordnet = true;
+          break;
+        }
+      }
+    });
+    // Pyramide-Kategorie als Fallback
+    const pyr = (r.pyramide||'').toLowerCase();
+    if(!sums.gemuese && pyr.includes('gemüse'))   sums.gemuese  += 200;
+    if(!sums.getreide && pyr.includes('getreide')) sums.getreide += 120;
+    if(!sums.milch && pyr.includes('milch'))       sums.milch    += 250;
+    if(!sums.protein && (pyr.includes('fleisch')||pyr.includes('fisch')||pyr.includes('hülsen'))) sums.protein += 150;
+  });
+  return sums;
+}
+
+// Lebensmittelliste aus Rezepten (aggregiert, mit Kategorien)
+function buildZutatenliste(){
+  const days = getErnWeekDays();
+  const rezeptIds = new Set();
+  days.forEach(d=>{
+    const dk=dateKey(d); const dp=getWpDay(dk);
+    ['fruehstueck','mittagessen','abendessen','snack'].forEach(sl=>{
+      if(dp[sl] && dp[sl]!=='r13' && dp[sl]!=='r14') rezeptIds.add(dp[sl]);
+    });
+  });
+
+  const zMap = {}; // name→{mengen, rezepte}
+  rezeptIds.forEach(id=>{
+    const r=REZEPTE.find(x=>x.id===id); if(!r) return;
+    r.zutaten.forEach(z=>{
+      const key = z.name.toLowerCase().trim();
+      if(!zMap[key]) zMap[key]={ name:z.name, mengen:[], rezepte:[] };
+      zMap[key].mengen.push(z.menge);
+      if(!zMap[key].rezepte.includes(r.name)) zMap[key].rezepte.push(r.name);
+    });
+  });
+  return Object.values(zMap).sort((a,b)=>a.name.localeCompare(b.name));
+}
+
+// ── Wochenbedarf rendern ──────────────────────────────────────
+function renderWochenbedarf(){
+  const ziele = loadWbedZiele();
+  const sums  = calcWochenbedarfFromZutaten();
+
+  // Teil 1: Fortschrittsbalken mit einstellbaren Zielen
+  const bedarfHtml = ziele.map(p=>{
+    const ist = sums[p.id] || 0;
+    const pct = p.zielWoche > 0 ? Math.min(100, Math.round(ist / p.zielWoche * 100)) : 0;
+    const istFmt  = p.einheit==='ml' ? (ist>=1000?(ist/1000).toFixed(1)+' L':Math.round(ist)+' ml')
+                  : Math.round(ist)+'g';
+    const zielFmt = p.einheit==='ml' ? (p.zielWoche>=1000?(p.zielWoche/1000).toFixed(1)+' L':p.zielWoche+' ml')
+                  : (p.zielWoche>=1000?(p.zielWoche/1000).toFixed(1)+' kg':p.zielWoche+'g');
+    const farbe = pct>=100 ? '#34c759' : pct>=60 ? p.farbe : '#ff9500';
+    return `<div class="wbed-row">
+      <div class="wbed-info">
+        <div class="wbed-name">${p.name}</div>
+        <div class="wbed-tgt">${p.beschreibung}</div>
+      </div>
+      <div class="wbed-track">
+        <div class="wbed-bar-bg">
+          <div class="wbed-bar-fill" style="width:${pct}%;background:${farbe};"></div>
+        </div>
+        <div style="font-size:10px;color:var(--text-sec);margin-top:2px;">${istFmt} / ${zielFmt}</div>
+      </div>
+      <div class="wbed-pct" style="color:${farbe};">${pct}%</div>
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:6px;">
+        <input type="number" value="${p.zielWoche}" min="0" max="99999"
+          style="width:70px;font-size:12px;padding:4px 6px;border-radius:6px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);text-align:right;"
+          title="Ziel ${p.einheit}/Woche"
+          onchange="saveWbedZiel('${p.id}',parseInt(this.value)||0);renderWochenbedarf();">
+        <span style="font-size:10px;color:var(--text-sec);">${p.einheit}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Teil 2: Lebensmittelliste aus Rezepten
+  const zutaten = buildZutatenliste();
+  const zutatHtml = zutaten.length
+    ? zutaten.map(z=>`
+      <div style="display:flex;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--sep);gap:10px;font-size:13px;">
+        <span style="flex:1;font-weight:500;">${z.name}</span>
+        <span style="color:var(--text-sec);font-size:12px;">${z.mengen.join(' + ')}</span>
+        <span style="font-size:10px;color:var(--brand);background:var(--brand-soft);padding:1px 6px;border-radius:5px;white-space:nowrap;">${z.rezepte.join(', ')}</span>
+      </div>`).join('')
+    : `<div style="padding:14px 0;text-align:center;color:var(--text-ter);font-size:13px;">Noch keine Rezepte im Plan.</div>`;
+
+  document.getElementById('wochenbedarf-grid').innerHTML = `
+    <div style="padding:6px 0 2px;">
+      ${bedarfHtml}
+    </div>
+    <div style="padding:14px 16px 6px 0;margin-top:4px;border-top:1px solid var(--sep);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:0.5px;">Lebensmittel aus dem Wochenplan</div>
+        <button onclick="importZutatenAlsFavoriten()" style="font-size:12px;font-weight:600;background:var(--brand-soft);color:var(--brand);border:none;border-radius:7px;padding:5px 11px;cursor:pointer;">→ Favoriten</button>
+      </div>
+      ${zutatHtml}
+    </div>`;
+}
+const ERN_WP_KEY  = 'ern_wochenplan_v1';
+const ERN_EK_KEY  = 'ern_einkauf_v1';
+const ERN_CD_KEY  = 'ern_cookiedoo_v1';
+const ERN_FAV_KEY = 'ern_favoriten_v1';
+const ERN_RTYPES_KEY = 'ern_rtypes_v1'; // Rezept-Typ Overrides (cookidoo/camping/mealprep)
 
 function loadWochenplan(){
   try { return JSON.parse(localStorage.getItem(ERN_WP_KEY)) || {}; } catch(e){ return {}; }
@@ -2957,21 +3299,28 @@ function loadEinkauf(){ try { return JSON.parse(localStorage.getItem(ERN_EK_KEY)
 function saveEinkauf(e){ localStorage.setItem(ERN_EK_KEY, JSON.stringify(e)); }
 function loadCookiedoo(){ try { return JSON.parse(localStorage.getItem(ERN_CD_KEY))||{}; } catch(e){ return {}; } }
 function saveCookiedoo(d){ localStorage.setItem(ERN_CD_KEY, JSON.stringify(d)); }
+function loadFavoriten(){ try { return JSON.parse(localStorage.getItem(ERN_FAV_KEY))||[]; } catch(e){ return []; } }
+function saveFavoriten(f){ localStorage.setItem(ERN_FAV_KEY, JSON.stringify(f)); }
+function loadRezeptTypen(){ try { return JSON.parse(localStorage.getItem(ERN_RTYPES_KEY))||{}; } catch(e){ return {}; } }
+function saveRezeptTypen(d){ localStorage.setItem(ERN_RTYPES_KEY, JSON.stringify(d)); }
 
 // ── Sub-tab switch ────────────────────────────────────────────
 function switchErnTab(name){
-  ['wochenplan','einkauf','rezepte'].forEach(t=>{
-    document.getElementById('esub-'+t).classList.toggle('active', t===name);
-    document.getElementById('esub-panel-'+t).style.display = t===name ? '' : 'none';
+  ['wochenplan','wochenbedarf','favoriten','einkauf','rezepte'].forEach(t=>{
+    const btn = document.getElementById('esub-'+t);
+    const panel = document.getElementById('esub-panel-'+t);
+    if(btn) btn.classList.toggle('active', t===name);
+    if(panel) panel.style.display = t===name ? '' : 'none';
   });
-  if(name==='einkauf')  renderEinkauf();
-  if(name==='rezepte')  renderRezepte();
+  if(name==='einkauf')       renderEinkauf();
+  if(name==='rezepte')       renderRezepte();
+  if(name==='wochenbedarf')  renderWochenbedarf();
+  if(name==='favoriten')     renderFavoriten();
 }
 
 // ── Main render entry ─────────────────────────────────────────
 function renderErnaehrung(){
   renderWochenplanGrid();
-  renderPyramide();
 }
 
 // ── Week days helper (syncs with planung) ─────────────────────
@@ -2990,6 +3339,21 @@ function fmtDateDE(d){
 const WOCHENTAGE_DE = ['So','Mo','Di','Mi','Do','Fr','Sa'];
 const WOCHENTAGE_FULL = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 
+// ── Rezept-Typ Kürzel (nur Text, kein Emoji) ─────────────────
+function rezeptTypKuerzel(r){
+  const rx = getRezeptMitTypen(r);
+  const k = [];
+  if(rx.cookidoo) k.push('CD');
+  if(rx.camping)  k.push('CAMP');
+  if(rx.mealprep) k.push('MP');
+  if(!k.length) return '';
+  const COL = {CD:'var(--brand)',CAMP:'#ff6b35',MP:'var(--green-dark)'};
+  const BG  = {CD:'rgba(233,30,140,0.11)',CAMP:'rgba(255,107,53,0.11)',MP:'rgba(52,199,89,0.11)'};
+  return k.map(tag=>`<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:3px;background:${BG[tag]||'var(--sep)'};color:${COL[tag]||'var(--text-sec)'}">${tag}</span>`).join('');
+}
+// Alias für Kompatibilität
+function rezeptTypBadges(r){ return rezeptTypKuerzel(r); }
+
 // ── Wochenplan Grid ───────────────────────────────────────────
 function renderWochenplanGrid(){
   const days = getErnWeekDays();
@@ -3004,33 +3368,65 @@ function renderWochenplanGrid(){
     const dk = dateKey(d);
     const dow = d.getDay();
     const tagName = WOCHENTAGE_FULL[dow];
-    const tagShort = WOCHENTAGE_DE[dow];
     const datumStr = fmtDateDE(d);
     const dayData = getWpDay(dk);
     const dayType = getDayType(dk);
     const dt = DAY_TYPES[dayType] || {};
     const isToday = (i===0);
+    const isCamping = dayType === 'CAMPING';
+    const isOffice  = dayType === 'O';   // MealPrep bei Office (O), nicht HO
 
-    // Kalorien summieren
     const kcal = ['fruehstueck','mittagessen','abendessen','snack'].reduce((s,sl)=>{
       const r=REZEPTE.find(r=>r.id===dayData[sl]);
       return s+(r?r.kalorien:0);
     },0);
 
     const slotHtml = slots.map(sl=>{
-      const options = REZEPTE
-        .filter(r=>r.mahlzeit===sl.filter || (sl.key==='snack'&&r.mahlzeit==='Beilage'))
-        .map(r=>`<option value="${r.id}"${dayData[sl.key]===r.id?' selected':''}>${r.name}</option>`)
-        .join('');
+      // Office: Frühstück+Mittag → MealPrep bevorzugt
+      const isMealPrepSlot = isOffice && (sl.key==='fruehstueck'||sl.key==='mittagessen');
+
+      let filteredRezepte = REZEPTE.filter(r=>{
+        if(r.mahlzeit==='ALLE') return false;
+        const match = r.mahlzeit===sl.filter || (sl.key==='snack'&&r.mahlzeit==='Beilage');
+        if(!match) return false;
+        const rx = getRezeptMitTypen(r);
+        if(isCamping)      return rx.camping;
+        if(isMealPrepSlot) return rx.mealprep;
+        return true;
+      });
+
+      if(filteredRezepte.length === 0){
+        filteredRezepte = REZEPTE.filter(r=>{
+          if(r.mahlzeit==='ALLE') return false;
+          return r.mahlzeit===sl.filter || (sl.key==='snack'&&r.mahlzeit==='Beilage');
+        });
+      }
+
+      const options = filteredRezepte.map(r=>{
+        const rx = getRezeptMitTypen(r);
+        const k = [rx.cookidoo?'CD':'', rx.camping?'CAMP':'', rx.mealprep?'MP':''].filter(Boolean).join('/');
+        return `<option value="${r.id}"${dayData[sl.key]===r.id?' selected':''}>${r.name}</option>`;
+      }).join('');
+
+      const freeOpts = `
+        <option value="r13"${dayData[sl.key]==='r13'?' selected':''}>Freies Kochen</option>
+        <option value="r14"${dayData[sl.key]==='r14'?' selected':''}>Restaurant</option>`;
+
       const hasR = !!dayData[sl.key];
+      const selRezept = hasR ? getRezeptMitTypen(REZEPTE.find(r=>r.id===dayData[sl.key])||{}) : null;
+      const kuerzelHtml = selRezept ? rezeptTypKuerzel(selRezept) : '';
+
       return `<div class="meal-row">
         <span class="meal-icon">${sl.icon}</span>
         <span class="meal-label">${sl.label}</span>
         <select class="meal-select" onchange="ernUpdateMeal('${dk}','${sl.key}',this.value)">
           <option value="">– wählen –</option>
           ${options}
+          <optgroup label="Sonstiges">${freeOpts}</optgroup>
         </select>
-        ${hasR?`<button class="meal-recipe-btn" onclick="showRezept('${dayData[sl.key]}')" title="Rezept anzeigen">📖</button>`:''}
+        ${kuerzelHtml}
+        ${hasR && dayData[sl.key]!=='r13' && dayData[sl.key]!=='r14'
+          ? `<button class="meal-recipe-btn" onclick="showRezept('${dayData[sl.key]}')" title="Rezept anzeigen">📖</button>`:''}
       </div>`;
     }).join('');
 
@@ -3052,41 +3448,106 @@ function renderWochenplanGrid(){
 function ernUpdateMeal(dk, slot, val){
   setWpMeal(dk, slot, val);
   renderWochenplanGrid();
-  // Einkauf neu berechnen falls Panel sichtbar
+  // Panels live aktualisieren wenn sichtbar
   if(document.getElementById('esub-panel-einkauf').style.display !== 'none') renderEinkauf();
+  if(document.getElementById('esub-panel-wochenbedarf') && document.getElementById('esub-panel-wochenbedarf').style.display !== 'none') renderWochenbedarf();
 }
 
 function generateWochenplan(){
   const days = getErnWeekDays();
   const byMahlzeit = m => REZEPTE.filter(r=>r.mahlzeit===m);
+  const byCamping  = m => REZEPTE.filter(r=>r.mahlzeit===m && getRezeptMitTypen(r).camping);
+  const byMealPrep = m => REZEPTE.filter(r=>r.mahlzeit===m && getRezeptMitTypen(r).mealprep);
   const pick = arr => arr.length ? arr[Math.floor(Math.random()*arr.length)].id : '';
   days.forEach(d=>{
     const dk = dateKey(d);
-    setWpMeal(dk,'fruehstueck', pick(byMahlzeit('Frühstück')));
-    setWpMeal(dk,'mittagessen', pick(byMahlzeit('Mittagessen')));
-    setWpMeal(dk,'abendessen',  pick(byMahlzeit('Abendessen')));
-    setWpMeal(dk,'snack',       pick(byMahlzeit('Snack')));
+    const dtype = getDayType(dk);
+    const isCamping = dtype==='CAMPING';
+    const isOffice  = dtype==='O';
+    const fru = isCamping ? byCamping('Frühstück')  : isOffice ? byMealPrep('Frühstück')  : byMahlzeit('Frühstück');
+    const mit = isCamping ? byCamping('Mittagessen') : isOffice ? byMealPrep('Mittagessen'): byMahlzeit('Mittagessen');
+    const abe = isCamping ? byCamping('Abendessen')  : byMahlzeit('Abendessen');
+    const sna = isCamping ? byCamping('Snack')       : byMahlzeit('Snack');
+    setWpMeal(dk,'fruehstueck', pick(fru.length?fru:byMahlzeit('Frühstück')));
+    setWpMeal(dk,'mittagessen', pick(mit.length?mit:byMahlzeit('Mittagessen')));
+    setWpMeal(dk,'abendessen',  pick(abe.length?abe:byMahlzeit('Abendessen')));
+    setWpMeal(dk,'snack',       pick(sna.length?sna:byMahlzeit('Snack')));
   });
   renderWochenplanGrid();
-  renderPyramide();
+  if(document.getElementById('esub-panel-wochenbedarf').style.display!=='none') renderWochenbedarf();
   showToast('Wochenplan generiert!','✨');
 }
 
-// ── Pyramide ──────────────────────────────────────────────────
-function renderPyramide(){
-  const html = PYRAMIDE_BEDARF.map(p=>`
-    <div class="pyr-row">
-      <span class="pyr-emoji">${p.emoji}</span>
-      <div class="pyr-info">
-        <div class="pyr-name">${p.name}</div>
-        <div class="pyr-tgt">Ziel: ${p.ziel}</div>
-      </div>
-      <span class="pyr-amount">${p.ziel.split(' ')[0]}</span>
-    </div>`).join('');
-  document.getElementById('pyramide-budget').innerHTML = html;
+// ── Favoriten ─────────────────────────────────────────────────
+const SEASON_COLORS = {
+  'ganzjährig': { bg:'rgba(118,118,128,0.12)', color:'var(--text-sec)' },
+  'Frühling':   { bg:'rgba(52,199,89,0.14)',   color:'#248a3d' },
+  'Sommer':     { bg:'rgba(255,149,0,0.14)',   color:'var(--orange)' },
+  'Herbst':     { bg:'rgba(255,107,53,0.14)',  color:'#ff6b35' },
+  'Winter':     { bg:'rgba(90,200,250,0.14)',  color:'#007aff' },
+};
+const SEASON_ICONS = {
+  'ganzjährig':'🗓','Frühling':'🌸','Sommer':'☀️','Herbst':'🍂','Winter':'❄️'
+};
+const KAT_ICONS = {
+  '🥦 Gemüse':'🥦','🍎 Obst':'🍎','🍞 Getreide':'🍞','🥛 Milch':'🥛',
+  '🥩 Protein':'🥩','🫒 Öl & Nüsse':'🫒','🌿 Kräuter':'🌿','🍫 Sonstiges':'🍫'
+};
+
+function renderFavoriten(){
+  const favs = loadFavoriten();
+  const el = document.getElementById('favoriten-list');
+  if(!favs.length){
+    el.innerHTML = `<div style="padding:20px 16px;text-align:center;color:var(--text-ter);font-size:14px;">
+      Noch keine Favoriten. Füge Lebensmittel hinzu oder übernimm sie aus dem Bedarf-Tab.
+    </div>`;
+    return;
+  }
+  // Gruppieren nach Kategorie
+  const byKat = {};
+  favs.forEach((f,idx)=>{
+    if(!byKat[f.kategorie]) byKat[f.kategorie]=[];
+    byKat[f.kategorie].push({...f, idx});
+  });
+  el.innerHTML = Object.entries(byKat).map(([kat,items])=>`
+    <div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:0.6px;">${kat}</div>
+    ${items.map(f=>{
+      const sc = SEASON_COLORS[f.saison]||SEASON_COLORS['ganzjährig'];
+      const si = SEASON_ICONS[f.saison]||'🗓';
+      return `<div class="fav-item">
+        <span class="fav-emoji">${KAT_ICONS[f.kategorie]||'🍽'}</span>
+        <div class="fav-info">
+          <div class="fav-name">${f.name}</div>
+          <div class="fav-meta">${f.kategorie}</div>
+        </div>
+        <span class="fav-season" style="background:${sc.bg};color:${sc.color};">${si} ${f.saison}</span>
+        <button class="fav-del" onclick="deleteFavorit(${f.idx})" title="Entfernen">×</button>
+      </div>`;
+    }).join('')}`
+  ).join('');
 }
 
-// ── Einkaufsliste (aus Wochenplan-Rezepten ableiten) ──────────
+function addFavorit(){
+  const nameEl = document.getElementById('fav-name-input');
+  const katEl  = document.getElementById('fav-kat-input');
+  const seasEl = document.getElementById('fav-season-input');
+  const name = nameEl.value.trim();
+  if(!name){ showToast('Bitte einen Namen eingeben','⚠️'); return; }
+  const favs = loadFavoriten();
+  favs.push({ name, kategorie: katEl.value, saison: seasEl.value });
+  saveFavoriten(favs);
+  nameEl.value='';
+  renderFavoriten();
+  showToast(name+' hinzugefügt','⭐');
+}
+
+function deleteFavorit(idx){
+  const favs = loadFavoriten();
+  favs.splice(idx,1);
+  saveFavoriten(favs);
+  renderFavoriten();
+  showToast('Favorit entfernt','🗑️');
+}
 function buildEinkaufListe(){
   const days = getErnWeekDays();
   // Sammle alle Zutaten aus geplanten Rezepten
@@ -3097,15 +3558,24 @@ function buildEinkaufListe(){
     ['fruehstueck','mittagessen','abendessen','snack'].forEach(sl=>{ if(dp[sl]) rezeptIds.add(dp[sl]); });
   });
 
-  // Zutaten aus gewählten Rezepten aggregieren
+  // Zutaten aus gewählten Rezepten aggregieren – für 2 Personen einkaufen
   const zutatenMap = {}; // name -> { menge, rezepte[] }
+
+  function verdoppleMenge(mengeStr){
+    if(!mengeStr) return mengeStr;
+    return mengeStr.replace(/(\d+[,.]?\d*)/, m=>{
+      const n = parseFloat(m.replace(',','.')); const d = n*2;
+      return d%1===0 ? String(d) : d.toFixed(1).replace('.',',');
+    });
+  }
+
   rezeptIds.forEach(id=>{
-    const r = REZEPTE.find(x=>x.id===id);
-    if(!r) return;
+    const r = getRezeptMitTypen(REZEPTE.find(x=>x.id===id)||{});
+    if(!r || !r.zutaten) return;
     r.zutaten.forEach(z=>{
       const key = z.name.toLowerCase();
       if(!zutatenMap[key]) zutatenMap[key]={ name:z.name, mengen:[], rezepte:[] };
-      zutatenMap[key].mengen.push(z.menge);
+      zutatenMap[key].mengen.push(verdoppleMenge(z.menge));
       if(!zutatenMap[key].rezepte.includes(r.name)) zutatenMap[key].rezepte.push(r.name);
     });
   });
@@ -3210,31 +3680,47 @@ function resetEinkauf(){
 
 // ── Rezeptbuch ────────────────────────────────────────────────
 let ernFilter = 'Alle';
+let ernTypFilter = ''; // 'cookidoo' | 'camping' | 'mealprep' | ''
 
 function renderRezepte(){
-  // Filter-Chips
-  const typen = ['Alle','Frühstück','Mittagessen','Abendessen','Snack'];
-  document.getElementById('rezept-filter-row').innerHTML = typen.map(t=>
-    `<button class="ern-chip ${ernFilter===t?'active':''}" onclick="setErnFilter('${t}')">${t}</button>`
-  ).join('');
+  // Alle Filter in einer Zeile mit Umbruch, keine Emojis
+  const typen = ['Alle','Frühstück','Mittagessen','Abendessen','Snack','Beilage'];
+  const filterEl = document.getElementById('rezept-filter-row');
+  filterEl.className = 'ern-filter-row';
+  filterEl.innerHTML =
+    typen.map(t=>
+      `<button class="ern-chip ${ernFilter===t?'active':''}" onclick="setErnFilter('${t}')">${t}</button>`
+    ).join('')
+    + `<span style="width:1px;height:20px;background:var(--sep);display:inline-block;vertical-align:middle;margin:0 2px;"></span>`
+    + `<button class="ern-chip ${ernTypFilter==='cookidoo'?'active':''}" onclick="setErnTypFilter('cookidoo')" style="${ernTypFilter==='cookidoo'?'':'border-color:var(--brand);color:var(--brand);'}">Cookidoo</button>`
+    + `<button class="ern-chip ${ernTypFilter==='camping'?'active':''}"  onclick="setErnTypFilter('camping')"  style="${ernTypFilter==='camping'?'':'border-color:#ff6b35;color:#ff6b35;'}">Camping</button>`
+    + `<button class="ern-chip ${ernTypFilter==='mealprep'?'active':''}" onclick="setErnTypFilter('mealprep')" style="${ernTypFilter==='mealprep'?'':'border-color:var(--green-dark);color:var(--green-dark);'}">Meal Prep</button>`;
 
-  const filtered = ernFilter==='Alle' ? REZEPTE : REZEPTE.filter(r=>r.mahlzeit===ernFilter);
-  const cd = loadCookiedoo();
+  let filtered = ernFilter==='Alle' ? REZEPTE : REZEPTE.filter(r=>r.mahlzeit===ernFilter);
+  filtered = filtered.filter(r=>r.mahlzeit!=='ALLE');
+  if(ernTypFilter){
+    filtered = filtered.filter(r=>getRezeptMitTypen(r)[ernTypFilter]);
+  }
 
   const badgeClass = m=>({
     'Frühstück':'badge-fruehstueck','Mittagessen':'badge-mittagessen',
     'Abendessen':'badge-abendessen','Snack':'badge-snack','Beilage':'badge-beilage'
   }[m]||'');
 
-  const html = filtered.map(r=>`
-    <div class="rezept-card" onclick="showRezept('${r.id}')">
-      <div class="rezept-info">
-        <div class="rezept-name">${r.name}</div>
-        <div class="rezept-meta">⏱ ${r.zeit} Min &nbsp;·&nbsp; ${r.kalorien} kcal &nbsp;·&nbsp; 💪 ${r.protein}g Protein</div>
+  const html = filtered.map(r=>{
+    const rx = getRezeptMitTypen(r);
+    const kuerzel = [rx.cookidoo?'CD':'', rx.camping?'CAMP':'', rx.mealprep?'MP':''].filter(Boolean).join(' · ');
+    return `
+    <div class="rezept-card">
+      <div class="rezept-info" onclick="showRezept('${r.id}')" style="cursor:pointer;">
+        <div class="rezept-name">${r.name}${rezeptTypKuerzel(rx)}</div>
+        <div class="rezept-meta">⏱ ${r.zeit} Min &nbsp;·&nbsp; ${r.kalorien} kcal &nbsp;·&nbsp; 💪 ${r.protein}g P</div>
       </div>
       <span class="rezept-badge ${badgeClass(r.mahlzeit)}">${r.mahlzeit}</span>
-      <span style="color:var(--text-ter);font-size:18px;">›</span>
-    </div>`).join('');
+      <button onclick="editRezept('${r.id}')" style="background:none;border:none;cursor:pointer;font-size:14px;padding:4px 6px;color:var(--text-ter);" title="Bearbeiten">✎</button>
+      <span onclick="showRezept('${r.id}')" style="color:var(--text-ter);font-size:18px;cursor:pointer;">›</span>
+    </div>`;
+  }).join('');
 
   document.getElementById('rezepte-list').innerHTML = html || `<div style="padding:20px 0;text-align:center;color:var(--text-ter);">Keine Rezepte in dieser Kategorie.</div>`;
 }
@@ -3244,12 +3730,135 @@ function setErnFilter(f){
   renderRezepte();
 }
 
+function setErnTypFilter(f){
+  ernTypFilter = ernTypFilter===f ? '' : f;
+  renderRezepte();
+}
+
+// Globaler Zutatenspeicher für das Edit-Modal
+let _editZutaten = [];
+let _editRezeptId = '';
+
+// ── Rezept bearbeiten (inline Edit-Modal) ─────────────────────
+function editRezept(id){
+  const rBase = REZEPTE.find(x=>x.id===id);
+  if(!rBase) return;
+  const r = getRezeptMitTypen(rBase);
+  _editRezeptId = id;
+  const ov = loadRezeptTypen()[id] || {};
+  _editZutaten = (ov.zutaten || r.zutaten || []).map(z=>({name:z.name, menge:z.menge}));
+  _renderEditModal(r);
+  document.getElementById('rezept-modal').style.display = 'block';
+}
+
+function _renderEditModal(r){
+  const id = _editRezeptId;
+  const zRows = _editZutaten.map((z,i)=>`
+    <div style="display:flex;gap:5px;align-items:center;margin-bottom:5px;">
+      <input type="text" value="${(z.name||'').replace(/"/g,'&quot;')}" placeholder="Zutat"
+        style="flex:2;font-size:12px;padding:4px 6px;border-radius:6px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);"
+        oninput="_editZutaten[${i}].name=this.value">
+      <input type="text" value="${(z.menge||'').replace(/"/g,'&quot;')}" placeholder="Menge"
+        style="flex:1;font-size:12px;padding:4px 6px;border-radius:6px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);"
+        oninput="_editZutaten[${i}].menge=this.value">
+      <button onclick="_editZutaten.splice(${i},1);_renderEditModal(getRezeptMitTypen(REZEPTE.find(x=>x.id===\'${id}\')))"
+        style="background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:2px 5px;line-height:1;">×</button>
+    </div>`).join('');
+
+  document.getElementById('rezept-modal-inner').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div style="flex:1;font-size:16px;font-weight:700;">✎ Rezept bearbeiten</div>
+      <button onclick="closeRezeptModal()" style="border:none;background:var(--sep);border-radius:50%;width:30px;height:30px;font-size:18px;cursor:pointer;color:var(--text-sec);line-height:1;">×</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div><div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:3px;">NAME</div>
+        <input type="text" id="edit-name" value="${r.name}" style="width:100%;" maxlength="60"></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:3px;">MAHLZEIT</div>
+        <select id="edit-mahlzeit" style="width:100%;">
+          ${['Frühstück','Mittagessen','Abendessen','Snack','Beilage'].map(m=>`<option${r.mahlzeit===m?' selected':''}>${m}</option>`).join('')}
+        </select></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:3px;">KCAL (1 P.)</div>
+        <input type="number" id="edit-kcal" value="${r.kalorien}" style="width:100%;" min="0" max="5000"></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:3px;">PROTEIN g</div>
+        <input type="number" id="edit-protein" value="${r.protein}" style="width:100%;" min="0" max="300"></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:3px;">KH g</div>
+        <input type="number" id="edit-kh" value="${r.kh}" style="width:100%;" min="0" max="500"></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:3px;">FETT g</div>
+        <input type="number" id="edit-fett" value="${r.fett}" style="width:100%;" min="0" max="300"></div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:5px;">ZUTATEN (1 Person)</div>
+    <div id="edit-zutaten-wrap">${zRows}</div>
+    <button onclick="_editZutaten.push({name:'',menge:''});_renderEditModal(getRezeptMitTypen(REZEPTE.find(x=>x.id==='${id}')))"
+      style="width:100%;margin:4px 0 10px;background:rgba(118,118,128,0.09);border:1.5px dashed var(--border-mid);border-radius:8px;padding:6px;font-size:13px;font-weight:600;color:var(--text-sec);cursor:pointer;">+ Zutat</button>
+    <div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:5px;">KENNZEICHNUNG</div>
+    <div style="display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+        <input type="checkbox" id="edit-cd" ${r.cookidoo?'checked':''} style="accent-color:var(--brand);width:15px;height:15px;"> Cookidoo</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+        <input type="checkbox" id="edit-camp" ${r.camping?'checked':''} style="accent-color:#ff6b35;width:15px;height:15px;"> Camping</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+        <input type="checkbox" id="edit-mp" ${r.mealprep?'checked':''} style="accent-color:var(--green);width:15px;height:15px;"> Meal Prep</label>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:3px;">NOTIZ</div>
+    <input type="text" id="edit-notiz" value="${r.notiz||''}" style="width:100%;margin-bottom:12px;" maxlength="120" placeholder="Kurze Notiz…">
+    <div style="display:flex;gap:8px;">
+      <button onclick="saveRezeptEdit('${id}')" style="flex:1;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">Speichern</button>
+      <button onclick="closeRezeptModal()" style="flex:1;background:var(--sep);color:var(--text-primary);border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">Abbrechen</button>
+    </div>
+  `;
+}
+
+function saveRezeptEdit(id){
+  const overrides = loadRezeptTypen();
+  if(!overrides[id]) overrides[id]={};
+  overrides[id].cookidoo = document.getElementById('edit-cd').checked;
+  overrides[id].camping  = document.getElementById('edit-camp').checked;
+  overrides[id].mealprep = document.getElementById('edit-mp').checked;
+  overrides[id].name     = document.getElementById('edit-name').value.trim() || undefined;
+  overrides[id].mahlzeit = document.getElementById('edit-mahlzeit').value;
+  overrides[id].kalorien = parseInt(document.getElementById('edit-kcal').value)||0;
+  overrides[id].protein  = parseInt(document.getElementById('edit-protein').value)||0;
+  overrides[id].kh       = parseInt(document.getElementById('edit-kh').value)||0;
+  overrides[id].fett     = parseInt(document.getElementById('edit-fett').value)||0;
+  overrides[id].notiz    = document.getElementById('edit-notiz').value.trim();
+  overrides[id].zutaten  = _editZutaten.filter(z=>z.name.trim());
+  saveRezeptTypen(overrides);
+  closeRezeptModal();
+  renderRezepte();
+  showToast('Rezept aktualisiert','✓');
+}
+
+// getRezeptMitTypen – immer 1 Person, mit Zutaten-/Nährwert-Overrides
+function getRezeptMitTypen(r){
+  if(!r || !r.id) return r||{};
+  const overrides = loadRezeptTypen();
+  const ov = overrides[r.id] || {};
+  const n = r.portionen && r.portionen > 1 ? r.portionen : 1;
+  const scaled = v => (ov[v.split('.')[0]] !== undefined) ? ov[v.split('.')[0]] : (r[v.split('.')[0]] && n>1 ? Math.round(r[v.split('.')[0]]/n) : r[v.split('.')[0]]);
+  return {
+    ...r,
+    portionen: 1,
+    cookidoo: ov.cookidoo ?? r.cookidoo,
+    camping:  ov.camping  ?? r.camping,
+    mealprep: ov.mealprep ?? r.mealprep,
+    name:     ov.name     || r.name,
+    mahlzeit: ov.mahlzeit || r.mahlzeit,
+    kalorien: ov.kalorien !== undefined ? ov.kalorien : (n>1 ? Math.round((r.kalorien||0)/n) : (r.kalorien||0)),
+    protein:  ov.protein  !== undefined ? ov.protein  : (n>1 ? Math.round((r.protein ||0)/n) : (r.protein ||0)),
+    kh:       ov.kh       !== undefined ? ov.kh       : (n>1 ? Math.round((r.kh      ||0)/n) : (r.kh      ||0)),
+    fett:     ov.fett     !== undefined ? ov.fett     : (n>1 ? Math.round((r.fett    ||0)/n) : (r.fett    ||0)),
+    notiz:    ov.notiz    !== undefined ? ov.notiz    : r.notiz,
+    zutaten:  ov.zutaten  || r.zutaten || [],
+  };
+}
+
 // ── Rezept Modal ──────────────────────────────────────────────
 function showRezept(id){
-  const r = REZEPTE.find(x=>x.id===id);
-  if(!r) return;
+  const rBase = REZEPTE.find(x=>x.id===id);
+  if(!rBase) return;
+  const r = getRezeptMitTypen(rBase);
   const cd = loadCookiedoo();
-  const isCd = !!cd[id];
+  const isCd = !!cd[id]; // Legacy-Cookiedoo-Flag
 
   const zutatenHtml = r.zutaten.map(z=>
     `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--sep);font-size:13px;">
@@ -3262,13 +3871,20 @@ function showRezept(id){
        <div>${s}</div>
      </div>`).join('');
 
+  const typBadges = [
+    r.cookidoo ? `<span class="rtyp-badge rtyp-cookidoo">CD – Cookidoo</span>`  : '',
+    r.camping  ? `<span class="rtyp-badge rtyp-camping">CAMP – Camping</span>`    : '',
+    r.mealprep ? `<span class="rtyp-badge rtyp-mealprep">MP – Meal Prep</span>` : '',
+  ].filter(Boolean).join(' ');
+
   document.getElementById('rezept-modal-inner').innerHTML = `
     <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;">
       <div style="flex:1;">
         <div style="font-size:18px;font-weight:700;line-height:1.2;">${r.name}</div>
         <div style="font-size:12px;color:var(--text-sec);margin-top:4px;">
-          ${r.kategorie} &nbsp;·&nbsp; ⏱ ${r.zeit} Min &nbsp;·&nbsp; 👥 ${r.portionen} Port.
+          ${r.kategorie} &nbsp;·&nbsp; ⏱ ${r.zeit} Min &nbsp;·&nbsp; 1 Person
         </div>
+        ${typBadges ? `<div class="rtyp-badges" style="margin-top:6px;">${typBadges}</div>` : ''}
         ${r.notiz?`<div style="font-size:12px;color:var(--brand);margin-top:4px;font-style:italic;">💡 ${r.notiz}</div>`:''}
       </div>
       <button onclick="closeRezeptModal()" style="border:none;background:var(--sep);border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;color:var(--text-sec);flex-shrink:0;line-height:1;">×</button>
@@ -3281,36 +3897,84 @@ function showRezept(id){
       <div class="nw-cell"><div class="nw-val" style="color:var(--purple)">${r.fett}g</div><div class="nw-lbl">Fett</div></div>
     </div>
 
-    <div style="font-size:13px;font-weight:700;margin:10px 0 6px;">🛒 Zutaten</div>
-    <div style="border-top:1px solid var(--sep);">${zutatenHtml}</div>
+    ${r.zutaten.length ? `<div style="font-size:13px;font-weight:700;margin:10px 0 6px;">🛒 Zutaten</div>
+    <div style="border-top:1px solid var(--sep);">${zutatenHtml}</div>` : ''}
 
-    <div style="font-size:13px;font-weight:700;margin:14px 0 6px;">👩‍🍳 Kochanleitung</div>
-    <div class="kochanl">${stepsHtml}</div>
+    ${r.anleitung.length ? `<div style="font-size:13px;font-weight:700;margin:14px 0 6px;">👩‍🍳 Kochanleitung</div>
+    <div class="kochanl">${stepsHtml}</div>` : ''}
 
-    <div class="cookiedoo-row" style="margin-top:14px;">
-      <input type="checkbox" class="cookiedoo-cb" id="cd-cb-${id}" ${isCd?'checked':''}
-        onchange="toggleCookiedoo('${id}',this.checked)"
-        onclick="event.stopPropagation()">
-      <label for="cd-cb-${id}" onclick="event.stopPropagation()">
-        🔗 Rezept ist auf Cookiedoo verfügbar
+    <div style="margin-top:14px;padding:10px 12px;background:rgba(118,118,128,0.07);border-radius:10px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;">📌 Kennzeichnung</div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px;font-size:13px;">
+        <input type="checkbox" id="cb-cookidoo-${id}" ${r.cookidoo?'checked':''} onchange="saveRezeptTyp('${id}','cookidoo',this.checked)" style="accent-color:var(--brand);width:16px;height:16px;">
+        <span>CD – Cookidoo-Rezept</span>
       </label>
-      ${isCd?`<span style="font-size:11px;color:var(--brand);opacity:.7;">Original in App öffnen ›</span>`:''}
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px;font-size:13px;">
+        <input type="checkbox" id="cb-camping-${id}" ${r.camping?'checked':''} onchange="saveRezeptTyp('${id}','camping',this.checked)" style="accent-color:#ff6b35;width:16px;height:16px;">
+        <span>CAMP – Camping-geeignet</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;">
+        <input type="checkbox" id="cb-mealprep-${id}" ${r.mealprep?'checked':''} onchange="saveRezeptTyp('${id}','mealprep',this.checked)" style="accent-color:var(--green);width:16px;height:16px;">
+        <span>MP – Meal Prep geeignet</span>
+      </label>
     </div>
   `;
 
   document.getElementById('rezept-modal').style.display = 'block';
 }
 
-function toggleCookiedoo(id, checked){
-  const cd = loadCookiedoo();
-  if(checked) cd[id]=true; else delete cd[id];
-  saveCookiedoo(cd);
+function saveRezeptTyp(id, typ, val){
+  const overrides = loadRezeptTypen();
+  if(!overrides[id]) overrides[id]={};
+  overrides[id][typ] = val;
+  saveRezeptTypen(overrides);
+  // Badge in Modal live aktualisieren (simpel: Modal neu rendern wenn gewünscht)
 }
 
 function closeRezeptModal(event){
   if(event && event.target !== document.getElementById('rezept-modal')) return;
   document.getElementById('rezept-modal').style.display = 'none';
 }
+
+// ── Zutaten als Favoriten übernehmen ─────────────────────────
+function importZutatenAlsFavoriten(){
+  const zutaten = buildZutatenliste();
+  if(!zutaten.length){
+    showToast('Keine Zutaten im Wochenplan','⚠️'); return;
+  }
+  const favs = loadFavoriten();
+  let added = 0;
+  // Zutat-Kategorie-Zuordnung (vereinfacht)
+  const ZUKAT = {
+    brokkoli:'🥦 Gemüse', paprika:'🥦 Gemüse', zucchini:'🥦 Gemüse', tomate:'🥦 Gemüse',
+    gurke:'🥦 Gemüse', möhren:'🥦 Gemüse', spinat:'🥦 Gemüse', zwiebel:'🥦 Gemüse',
+    knoblauch:'🌿 Kräuter', basilikum:'🌿 Kräuter', kräuter:'🌿 Kräuter',
+    banane:'🍎 Obst', beeren:'🍎 Obst', avocado:'🍎 Obst', zitrone:'🍎 Obst',
+    haferflocken:'🍞 Getreide', vollkornbrot:'🍞 Getreide', brot:'🍞 Getreide',
+    nudeln:'🍞 Getreide', quinoa:'🍞 Getreide', reis:'🍞 Getreide', granola:'🍞 Getreide',
+    milch:'🥛 Milch', joghurt:'🥛 Milch', käse:'🥛 Milch', feta:'🥛 Milch', frischkäse:'🥛 Milch',
+    hähnchen:'🥩 Protein', lachs:'🥩 Protein', linsen:'🥩 Protein', kichererbsen:'🥩 Protein',
+    eier:'🥩 Protein', ei:'🥩 Protein', erbsen:'🥩 Protein',
+    olivenöl:'🫒 Öl & Nüsse', nüsse:'🫒 Öl & Nüsse', honig:'🍫 Sonstiges',
+  };
+  function guessKat(name){
+    const n = name.toLowerCase();
+    for(const [key,kat] of Object.entries(ZUKAT)){ if(n.includes(key)) return kat; }
+    return '🍫 Sonstiges';
+  }
+  zutaten.forEach(z=>{
+    const already = favs.some(f=>f.name.toLowerCase()===z.name.toLowerCase());
+    if(!already){
+      favs.push({ name: z.name, kategorie: guessKat(z.name), saison:'ganzjährig' });
+      added++;
+    }
+  });
+  saveFavoriten(favs);
+  showToast(added+' Lebensmittel übernommen','⭐');
+  // Zu Favoriten wechseln
+  switchErnTab('favoriten');
+}
+
 
 // ── Init ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', ()=>{
