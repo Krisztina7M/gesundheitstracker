@@ -1517,30 +1517,10 @@
       <div class="card">
         <div class="card-header">
           <div class="card-icon" style="background:rgba(255,149,0,0.12);color:var(--orange);font-size:18px;width:34px;height:34px;">⭐</div>
-          <div class="card-title">Favoriten</div>
+          <div class="card-title">Lieblingslebensmittel</div>
+          <button onclick="syncFavoritenAusRezepten()" style="margin-left:auto;background:var(--brand-soft);color:var(--brand);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;">↻ Aus Rezepten</button>
         </div>
         <div id="favoriten-list"></div>
-        <div class="fav-add-row">
-          <input type="text" id="fav-name-input" placeholder="Lebensmittel hinzufügen…" maxlength="60">
-          <select id="fav-kat-input" style="width:auto;min-width:110px;">
-            <option value="🥦 Gemüse">🥦 Gemüse</option>
-            <option value="🍎 Obst">🍎 Obst</option>
-            <option value="🍞 Getreide">🍞 Getreide</option>
-            <option value="🥛 Milch">🥛 Milch</option>
-            <option value="🥩 Protein">🥩 Protein</option>
-            <option value="🫒 Öl & Nüsse">🫒 Öl & Nüsse</option>
-            <option value="🌿 Kräuter">🌿 Kräuter</option>
-            <option value="🍫 Sonstiges">🍫 Sonstiges</option>
-          </select>
-          <select id="fav-season-input" style="width:auto;min-width:100px;">
-            <option value="ganzjährig">🗓 Ganzjährig</option>
-            <option value="Frühling">🌸 Frühling</option>
-            <option value="Sommer">☀️ Sommer</option>
-            <option value="Herbst">🍂 Herbst</option>
-            <option value="Winter">❄️ Winter</option>
-          </select>
-          <button class="fav-add-btn" onclick="addFavorit()">+ Hinzufügen</button>
-        </div>
       </div>
     </div>
 
@@ -1551,6 +1531,10 @@
           <div class="card-icon" style="background:var(--brand-soft);color:var(--brand);font-size:18px;width:34px;height:34px;">🛒</div>
           <div class="card-title">Einkaufsliste</div>
           <span style="font-size:11px;font-weight:600;color:var(--text-sec);background:rgba(0,122,255,0.1);padding:3px 8px;border-radius:8px;">2 Personen</span>
+          <select id="einkauf-rezept-filter" onchange="renderEinkauf()"
+            style="font-size:12px;padding:4px 8px;border-radius:8px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);max-width:130px;">
+            <option value="">Alle Rezepte</option>
+          </select>
           <button onclick="resetEinkauf()" style="margin-left:auto;background:var(--sep);color:var(--text-sec);border:none;border-radius:8px;padding:6px 13px;font-size:13px;font-weight:600;cursor:pointer;">↺ Reset</button>
         </div>
         <div class="ern-panel-inner" id="einkauf-list"></div>
@@ -3173,7 +3157,7 @@ function calcWochenbedarfFromZutaten(){
   }
 
   rezeptIds.forEach(id=>{
-    const r = REZEPTE.find(x=>x.id===id); if(!r) return;
+    const r = getRezeptMitTypen(REZEPTE.find(x=>x.id===id)||{}); if(!r.id) return;
     // Wasserabschätzung: jede Mahlzeit → 400ml
     sums.getraenke += 400;
     r.zutaten.forEach(z=>{
@@ -3212,7 +3196,7 @@ function buildZutatenliste(){
 
   const zMap = {}; // name→{mengen, rezepte}
   rezeptIds.forEach(id=>{
-    const r=REZEPTE.find(x=>x.id===id); if(!r) return;
+    const r=getRezeptMitTypen(REZEPTE.find(x=>x.id===id)||{}); if(!r.id) return;
     r.zutaten.forEach(z=>{
       const key = z.name.toLowerCase().trim();
       if(!zMap[key]) zMap[key]={ name:z.name, mengen:[], rezepte:[] };
@@ -3259,28 +3243,8 @@ function renderWochenbedarf(){
     </div>`;
   }).join('');
 
-  // Teil 2: Lebensmittelliste aus Rezepten
-  const zutaten = buildZutatenliste();
-  const zutatHtml = zutaten.length
-    ? zutaten.map(z=>`
-      <div style="display:flex;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--sep);gap:10px;font-size:13px;">
-        <span style="flex:1;font-weight:500;">${z.name}</span>
-        <span style="color:var(--text-sec);font-size:12px;">${z.mengen.join(' + ')}</span>
-        <span style="font-size:10px;color:var(--brand);background:var(--brand-soft);padding:1px 6px;border-radius:5px;white-space:nowrap;">${z.rezepte.join(', ')}</span>
-      </div>`).join('')
-    : `<div style="padding:14px 0;text-align:center;color:var(--text-ter);font-size:13px;">Noch keine Rezepte im Plan.</div>`;
-
   document.getElementById('wochenbedarf-grid').innerHTML = `
-    <div style="padding:6px 0 2px;">
-      ${bedarfHtml}
-    </div>
-    <div style="padding:14px 16px 6px 0;margin-top:4px;border-top:1px solid var(--sep);">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:0.5px;">Lebensmittel aus dem Wochenplan</div>
-        <button onclick="importZutatenAlsFavoriten()" style="font-size:12px;font-weight:600;background:var(--brand-soft);color:var(--brand);border:none;border-radius:7px;padding:5px 11px;cursor:pointer;">→ Favoriten</button>
-      </div>
-      ${zutatHtml}
-    </div>`;
+    <div style="padding:6px 0 2px;">${bedarfHtml}</div>`;
 }
 const ERN_WP_KEY  = 'ern_wochenplan_v1';
 const ERN_EK_KEY  = 'ern_einkauf_v1';
@@ -3377,7 +3341,7 @@ function renderWochenplanGrid(){
     const isOffice  = dayType === 'O';   // MealPrep bei Office (O), nicht HO
 
     const kcal = ['fruehstueck','mittagessen','abendessen','snack'].reduce((s,sl)=>{
-      const r=REZEPTE.find(r=>r.id===dayData[sl]);
+      const rr=REZEPTE.find(r=>r.id===dayData[sl]); const r=rr?getRezeptMitTypen(rr):null;
       return s+(r?r.kalorien:0);
     },0);
 
@@ -3405,7 +3369,7 @@ function renderWochenplanGrid(){
       const options = filteredRezepte.map(r=>{
         const rx = getRezeptMitTypen(r);
         const k = [rx.cookidoo?'CD':'', rx.camping?'CAMP':'', rx.mealprep?'MP':''].filter(Boolean).join('/');
-        return `<option value="${r.id}"${dayData[sl.key]===r.id?' selected':''}>${r.name}</option>`;
+        return `<option value="${r.id}"${dayData[sl.key]===r.id?' selected':''}>${rx.name}</option>`;
       }).join('');
 
       const freeOpts = `
@@ -3494,51 +3458,234 @@ const KAT_ICONS = {
   '🥩 Protein':'🥩','🫒 Öl & Nüsse':'🫒','🌿 Kräuter':'🌿','🍫 Sonstiges':'🍫'
 };
 
+
+
+// ── Saisonalität & Kategorie-Datenbank ───────────────────────
+const LEBENSMITTEL_DB = [
+  // Gemüse
+  {name:'Brokkoli',       kat:'🥦 Gemüse',    monate:[3,4,5,9,10,11]},
+  {name:'Paprika',        kat:'🥦 Gemüse',    monate:[7,8,9,10]},
+  {name:'Zucchini',       kat:'🥦 Gemüse',    monate:[6,7,8,9]},
+  {name:'Tomate',         kat:'🥦 Gemüse',    monate:[6,7,8,9,10]},
+  {name:'Tomaten',        kat:'🥦 Gemüse',    monate:[6,7,8,9,10]},
+  {name:'Gurke',          kat:'🥦 Gemüse',    monate:[6,7,8,9]},
+  {name:'Möhren',         kat:'🥦 Gemüse',    monate:[0]},  // ganzjährig
+  {name:'Spinat',         kat:'🥦 Gemüse',    monate:[3,4,5,9,10]},
+  {name:'Salat',          kat:'🥦 Gemüse',    monate:[4,5,6,7,8,9]},
+  {name:'Knoblauch',      kat:'🌿 Kräuter',   monate:[6,7,8]},
+  {name:'Zwiebel',        kat:'🥦 Gemüse',    monate:[0]},
+  {name:'Rote Zwiebel',   kat:'🥦 Gemüse',    monate:[7,8,9]},
+  {name:'Erbsen',         kat:'🥦 Gemüse',    monate:[5,6,7]},
+  {name:'Basilikum',      kat:'🌿 Kräuter',   monate:[5,6,7,8,9]},
+  {name:'Kräuter',        kat:'🌿 Kräuter',   monate:[4,5,6,7,8,9]},
+  // Obst
+  {name:'Banane',         kat:'🍎 Obst',      monate:[0]},
+  {name:'Beeren',         kat:'🍎 Obst',      monate:[6,7,8]},
+  {name:'Avocado',        kat:'🍎 Obst',      monate:[0]},
+  {name:'Zitrone',        kat:'🍎 Obst',      monate:[0]},
+  {name:'Apfel',          kat:'🍎 Obst',      monate:[8,9,10,11]},
+  {name:'Äpfel',          kat:'🍎 Obst',      monate:[8,9,10,11]},
+  // Getreide
+  {name:'Haferflocken',   kat:'🍞 Getreide',  monate:[0]},
+  {name:'Vollkornbrot',   kat:'🍞 Getreide',  monate:[0]},
+  {name:'Brot',           kat:'🍞 Getreide',  monate:[0]},
+  {name:'Nudeln',         kat:'🍞 Getreide',  monate:[0]},
+  {name:'Quinoa',         kat:'🍞 Getreide',  monate:[0]},
+  {name:'Reis',           kat:'🍞 Getreide',  monate:[0]},
+  {name:'Granola',        kat:'🍞 Getreide',  monate:[0]},
+  {name:'Kartoffeln',     kat:'🍞 Getreide',  monate:[8,9,10,11,0,1]},
+  {name:'Instantnudeln',  kat:'🍞 Getreide',  monate:[0]},
+  // Milch
+  {name:'Milch',          kat:'🥛 Milch',     monate:[0]},
+  {name:'Naturjoghurt',   kat:'🥛 Milch',     monate:[0]},
+  {name:'Joghurt',        kat:'🥛 Milch',     monate:[0]},
+  {name:'Feta',           kat:'🥛 Milch',     monate:[0]},
+  {name:'Käse',           kat:'🥛 Milch',     monate:[0]},
+  {name:'Frischkäse',     kat:'🥛 Milch',     monate:[0]},
+  // Protein
+  {name:'Hähnchenbrust',  kat:'🥩 Protein',   monate:[0]},
+  {name:'Lachsfilet',     kat:'🥩 Protein',   monate:[0]},
+  {name:'Lachs',          kat:'🥩 Protein',   monate:[0]},
+  {name:'Ei',             kat:'🥩 Protein',   monate:[0]},
+  {name:'Eier',           kat:'🥩 Protein',   monate:[0]},
+  {name:'Rote Linsen',    kat:'🥩 Protein',   monate:[0]},
+  {name:'Linsen',         kat:'🥩 Protein',   monate:[0]},
+  {name:'Kichererbsen',   kat:'🥩 Protein',   monate:[0]},
+  {name:'Aufschnitt',     kat:'🥩 Protein',   monate:[0]},
+  // Öl & Nüsse
+  {name:'Olivenöl',       kat:'🫒 Öl & Nüsse',monate:[0]},
+  {name:'Nüsse',          kat:'🫒 Öl & Nüsse',monate:[9,10,11]},
+  {name:'Nussmix',        kat:'🫒 Öl & Nüsse',monate:[0]},
+  {name:'Honig',          kat:'🫒 Öl & Nüsse',monate:[0]},
+  // Sonstiges
+  {name:'Gemüsebrühe',    kat:'🍫 Sonstiges', monate:[0]},
+  {name:'Tomaten (Dose)', kat:'🍫 Sonstiges', monate:[0]},
+];
+
+const MONATE_KURZ = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+
+function getLebMittelInfo(name){
+  const n = name.toLowerCase();
+  const found = LEBENSMITTEL_DB.find(d=>d.name.toLowerCase()===n ||
+    n.includes(d.name.toLowerCase()) || d.name.toLowerCase().includes(n.split(' ')[0]));
+  if(!found) return {kat:'🍫 Sonstiges', monate:[0]};
+  return found;
+}
+
+function monateBeschreibung(monate){
+  if(!monate || monate.length===0 || monate[0]===0) return 'Ganzjährig';
+  return monate.map(m=>MONATE_KURZ[m]).join(', ');
+}
+
+// ── Nährwert-Datenbank (pro 100g / 100ml) ────────────────────
+const NAEHRWERT_DB = {
+  'haferflocken':    {kcal:370,p:13,k:59,f:7},
+  'milch':           {kcal:64, p:3, k:5, f:4},
+  'banane':          {kcal:89, p:1, k:23,f:0},
+  'beeren':          {kcal:57, p:1, k:14,f:0},
+  'hähnchenbrust':   {kcal:165,p:31,k:0, f:4},
+  'olivenöl':        {kcal:884,p:0, k:0, f:100},
+  'kräuter':         {kcal:40, p:3, k:5, f:1},
+  'quinoa':          {kcal:368,p:14,k:64,f:6},
+  'paprika':         {kcal:31, p:1, k:6, f:0},
+  'zucchini':        {kcal:17, p:1, k:3, f:0},
+  'kichererbsen':    {kcal:364,p:19,k:61,f:6},
+  'lachsfilet':      {kcal:208,p:20,k:0, f:13},
+  'brokkoli':        {kcal:34, p:3, k:7, f:0},
+  'zitrone':         {kcal:29, p:1, k:9, f:0},
+  'vollkornbrot':    {kcal:250,p:9, k:45,f:3},
+  'avocado':         {kcal:160,p:2, k:9, f:15},
+  'ei':              {kcal:155,p:13,k:1, f:11},
+  'tomate':          {kcal:18, p:1, k:4, f:0},
+  'rote linsen':     {kcal:353,p:26,k:60,f:2},
+  'möhren':          {kcal:41, p:1, k:10,f:0},
+  'zwiebel':         {kcal:40, p:1, k:9, f:0},
+  'gemüsebrühe':     {kcal:8,  p:0, k:2, f:0},
+  'naturjoghurt':    {kcal:61, p:3, k:5, f:3},
+  'granola':         {kcal:460,p:10,k:64,f:18},
+  'honig':           {kcal:304,p:0, k:82,f:0},
+  'nüsse':           {kcal:600,p:15,k:20,f:55},
+  'vollkornnudeln':  {kcal:352,p:13,k:67,f:3},
+  'tomaten':         {kcal:18, p:1, k:4, f:0},
+  'knoblauch':       {kcal:149,p:6, k:33,f:1},
+  'basilikum':       {kcal:22, p:3, k:3, f:1},
+  'feta':            {kcal:264,p:14,k:4, f:21},
+  'oliven':          {kcal:115,p:1, k:6, f:11},
+  'rote zwiebel':    {kcal:40, p:1, k:9, f:0},
+  'frischkäse':      {kcal:342,p:7, k:4, f:34},
+  'aufschnitt':      {kcal:107,p:18,k:2, f:3},
+  'instantnudeln':   {kcal:436,p:9, k:63,f:17},
+  'erbsen':          {kcal:81, p:5, k:14,f:0},
+};
+
+// Parst Mengentexte zu Gramm
+function mengeZuGramm(mengeStr, zutatName){
+  if(!mengeStr) return 100;
+  const s = mengeStr.toLowerCase();
+  const numMatch = s.match(/(\d+[,.]?\d*)/);
+  const n = numMatch ? parseFloat(numMatch[1].replace(',','.')) : 1;
+  if(s.includes('kg'))  return n*1000;
+  if(s.match(/\d+\s*g\b/)) return n;
+  if(s.includes('liter')||s.match(/\d+\s*l\b/)) return n*1000;
+  if(s.includes('ml'))  return n;
+  if(s.includes('el')||s.includes('esslöffel')) return n*15;
+  if(s.includes('tl')||s.includes('teelöffel')) return n*5;
+  if(s.includes('scheibe')) return n*30;
+  if(s.includes('dose')) return n*240;
+  if(s.includes('bund')) return n*50;
+  if(s.includes('handvoll')) return n*50;
+  if(s.includes('stück')||s.includes('stk')) {
+    // Schätzung nach Lebensmittel
+    const nl = zutatName.toLowerCase();
+    if(nl.includes('ei')) return n*60;
+    if(nl.includes('paprika')) return n*150;
+    if(nl.includes('zucchini')) return n*200;
+    if(nl.includes('banane')) return n*120;
+    if(nl.includes('tomate')) return n*100;
+    if(nl.includes('gurke')) return n*300;
+    if(nl.includes('avocado')) return n*150;
+    if(nl.includes('zitrone')) return n*100;
+    if(nl.includes('zwiebel')) return n*80;
+    return n*100;
+  }
+  return n>0 ? n*100 : 100; // Fallback
+}
+
+function berechneNaehrwerte(zutaten){
+  let kcal=0, p=0, k=0, f=0;
+  if(!zutaten || !zutaten.length) return {kcal,p,k,f};
+  zutaten.forEach(z=>{
+    const name = z.name.toLowerCase().trim();
+    const db = Object.entries(NAEHRWERT_DB).find(([key])=>name.includes(key)||key.includes(name.split(' ')[0]));
+    if(!db) return;
+    const [,nw] = db;
+    const g = mengeZuGramm(z.menge, z.name);
+    kcal += (nw.kcal * g / 100);
+    p    += (nw.p    * g / 100);
+    k    += (nw.k    * g / 100);
+    f    += (nw.f    * g / 100);
+  });
+  return {
+    kcal: Math.round(kcal),
+    p:    Math.round(p),
+    k:    Math.round(k),
+    f:    Math.round(f),
+  };
+}
+
+// ── Favoriten: aus allen Rezepten synchronisieren ─────────────
+function syncFavoritenAusRezepten(){
+  const favs = [];
+  // Alle Zutaten aus ALLEN Rezepten (nicht nur Wochenplan) sammeln
+  const seen = new Set();
+  REZEPTE.forEach(rBase=>{
+    const r = getRezeptMitTypen(rBase);
+    if(!r.zutaten || r.mahlzeit==='ALLE') return;
+    r.zutaten.forEach(z=>{
+      const key = z.name.toLowerCase().trim();
+      if(seen.has(key)) return;
+      seen.add(key);
+      const info = getLebMittelInfo(z.name);
+      favs.push({ name: z.name, kategorie: info.kat, monate: info.monate });
+    });
+  });
+  // Alphabetisch sortiert
+  favs.sort((a,b)=>a.name.localeCompare(b.name,'de'));
+  saveFavoriten(favs);
+  renderFavoriten();
+  showToast(favs.length+' Lebensmittel synchronisiert','⭐');
+}
+
 function renderFavoriten(){
   const favs = loadFavoriten();
   const el = document.getElementById('favoriten-list');
   if(!favs.length){
     el.innerHTML = `<div style="padding:20px 16px;text-align:center;color:var(--text-ter);font-size:14px;">
-      Noch keine Favoriten. Füge Lebensmittel hinzu oder übernimm sie aus dem Bedarf-Tab.
+      Noch keine Favoriten.<br>Klicke "↻ Aus Rezepten" um alle Zutaten zu synchronisieren.
     </div>`;
     return;
   }
   // Gruppieren nach Kategorie
   const byKat = {};
-  favs.forEach((f,idx)=>{
-    if(!byKat[f.kategorie]) byKat[f.kategorie]=[];
-    byKat[f.kategorie].push({...f, idx});
-  });
-  el.innerHTML = Object.entries(byKat).map(([kat,items])=>`
-    <div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:0.6px;">${kat}</div>
-    ${items.map(f=>{
-      const sc = SEASON_COLORS[f.saison]||SEASON_COLORS['ganzjährig'];
-      const si = SEASON_ICONS[f.saison]||'🗓';
+  favs.forEach((f,idx)=>{ if(!byKat[f.kategorie]) byKat[f.kategorie]=[]; byKat[f.kategorie].push({...f,idx}); });
+  const KAT_ORDER = ['🥦 Gemüse','🍎 Obst','🍞 Getreide','🥛 Milch','🥩 Protein','🫒 Öl & Nüsse','🌿 Kräuter','🍫 Sonstiges'];
+  const sortedKats = [...KAT_ORDER.filter(k=>byKat[k]), ...Object.keys(byKat).filter(k=>!KAT_ORDER.includes(k))];
+  el.innerHTML = sortedKats.map(kat=>`
+    <div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:0.6px;border-top:0.5px solid var(--sep);">${kat}</div>
+    ${byKat[kat].map(f=>{
+      const isGanzj = !f.monate || f.monate[0]===0;
+      const monStr  = isGanzj ? 'Ganzjährig' : monateBeschreibung(f.monate);
+      const monColor= isGanzj ? 'var(--text-ter)' : 'var(--green-dark)';
+      const monBg   = isGanzj ? 'rgba(118,118,128,0.1)' : 'rgba(52,199,89,0.1)';
       return `<div class="fav-item">
-        <span class="fav-emoji">${KAT_ICONS[f.kategorie]||'🍽'}</span>
         <div class="fav-info">
           <div class="fav-name">${f.name}</div>
-          <div class="fav-meta">${f.kategorie}</div>
         </div>
-        <span class="fav-season" style="background:${sc.bg};color:${sc.color};">${si} ${f.saison}</span>
+        <span class="fav-season" style="background:${monBg};color:${monColor};font-size:10px;">${monStr}</span>
         <button class="fav-del" onclick="deleteFavorit(${f.idx})" title="Entfernen">×</button>
       </div>`;
     }).join('')}`
   ).join('');
-}
-
-function addFavorit(){
-  const nameEl = document.getElementById('fav-name-input');
-  const katEl  = document.getElementById('fav-kat-input');
-  const seasEl = document.getElementById('fav-season-input');
-  const name = nameEl.value.trim();
-  if(!name){ showToast('Bitte einen Namen eingeben','⚠️'); return; }
-  const favs = loadFavoriten();
-  favs.push({ name, kategorie: katEl.value, saison: seasEl.value });
-  saveFavoriten(favs);
-  nameEl.value='';
-  renderFavoriten();
-  showToast(name+' hinzugefügt','⭐');
 }
 
 function deleteFavorit(idx){
@@ -3546,11 +3693,10 @@ function deleteFavorit(idx){
   favs.splice(idx,1);
   saveFavoriten(favs);
   renderFavoriten();
-  showToast('Favorit entfernt','🗑️');
 }
+
 function buildEinkaufListe(){
   const days = getErnWeekDays();
-  // Sammle alle Zutaten aus geplanten Rezepten
   const rezeptIds = new Set();
   days.forEach(d=>{
     const dk=dateKey(d);
@@ -3558,75 +3704,111 @@ function buildEinkaufListe(){
     ['fruehstueck','mittagessen','abendessen','snack'].forEach(sl=>{ if(dp[sl]) rezeptIds.add(dp[sl]); });
   });
 
-  // Zutaten aus gewählten Rezepten aggregieren – für 2 Personen einkaufen
-  const zutatenMap = {}; // name -> { menge, rezepte[] }
+  // Rezept-Filter aus Dropdown befüllen + auslesen
+  const filterEl = document.getElementById('einkauf-rezept-filter');
+  const filterRezept = filterEl ? filterEl.value : '';
+  if(filterEl){
+    // Dropdown nur einmal befüllen
+    const existingNames = new Set([...filterEl.options].map(o=>o.value).filter(Boolean));
+    rezeptIds.forEach(id=>{
+      const r = getRezeptMitTypen(REZEPTE.find(x=>x.id===id)||{});
+      if(r.name && r.mahlzeit!=='ALLE' && !existingNames.has(r.name)){
+        const o = document.createElement('option');
+        o.value = r.name; o.textContent = r.name;
+        filterEl.appendChild(o);
+      }
+    });
+  }
 
-  function verdoppleMenge(mengeStr){
-    if(!mengeStr) return mengeStr;
-    return mengeStr.replace(/(\d+[,.]?\d*)/, m=>{
-      const n = parseFloat(m.replace(',','.')); const d = n*2;
+  // Mengentext verdoppeln (×2 für 2 Personen)
+  function verdoppleMenge(str){
+    if(!str) return str;
+    return str.replace(/(\d+[,.]?\d*)/, m=>{
+      const n=parseFloat(m.replace(',','.')), d=n*2;
       return d%1===0 ? String(d) : d.toFixed(1).replace('.',',');
     });
   }
 
+  // Mengen intelligent addieren
+  function addiereMenuen(mengen){
+    if(mengen.length===1) return mengen[0];
+    // Parse: g / kg / ml / L
+    const parsed = mengen.map(str=>{
+      const s=(str||'').toLowerCase();
+      const n=s.match(/(\d+[,.]?\d*)/);
+      const v=n?parseFloat(n[1].replace(',','.')):0;
+      if(s.includes('kg'))  return {v:v*1000, u:'g'};
+      if(/\d\s*g\b/.test(s)) return {v, u:'g'};
+      if(s.includes('liter')||/\d\s*l\b/.test(s)) return {v:v*1000, u:'ml'};
+      if(s.includes('ml'))  return {v, u:'ml'};
+      if(s.includes('el')||s.includes('esslöffel')) return {v:v*15, u:'ml'};
+      if(s.includes('tl')||s.includes('teelöffel')) return {v:v*5,  u:'ml'};
+      return {v:0, u:'stk', orig:str};
+    });
+    const units = [...new Set(parsed.map(p=>p.u).filter(u=>u!=='stk'))];
+    if(units.length===1 && parsed.every(p=>p.v>0)){
+      const sum=parsed.reduce((s,p)=>s+p.v,0), u=units[0];
+      if(u==='g')  return sum>=1000 ? (sum/1000).toFixed(1).replace(/\.0$/,'')+'kg' : Math.round(sum)+'g';
+      if(u==='ml') return sum>=1000 ? (sum/1000).toFixed(1).replace(/\.0$/,'')+'L'  : Math.round(sum)+'ml';
+    }
+    return [...new Set(mengen)].join(' + ');
+  }
+
+  // Zutaten aggregieren
+  const zutatenMap = {};
   rezeptIds.forEach(id=>{
     const r = getRezeptMitTypen(REZEPTE.find(x=>x.id===id)||{});
     if(!r || !r.zutaten) return;
+    if(filterRezept && r.name !== filterRezept) return;
     r.zutaten.forEach(z=>{
       const key = z.name.toLowerCase();
-      if(!zutatenMap[key]) zutatenMap[key]={ name:z.name, mengen:[], rezepte:[] };
-      zutatenMap[key].mengen.push(verdoppleMenge(z.menge));
+      if(!zutatenMap[key]) zutatenMap[key]={ name:z.name, mengenRaw:[], rezepte:[] };
+      zutatenMap[key].mengenRaw.push(verdoppleMenge(z.menge));
       if(!zutatenMap[key].rezepte.includes(r.name)) zutatenMap[key].rezepte.push(r.name);
     });
   });
 
-  // Zusatz-Grundbedarf (Pyramide-Pflichtartikel die ggf. nicht in Rezepten sind)
+  // Pyramide-Extras
   const EXTRAS = [
-    { kat:'🥛 Milch & Milchprodukte', items:[ {name:'Milch',menge:'3 Liter'},{name:'Käse',menge:'300 g'} ] },
-    { kat:'🫒 Öl & Nüsse', items:[ {name:'Olivenöl',menge:'150 ml'},{name:'Nussmix',menge:'150 g'} ] },
-    { kat:'🍫 Süßes',      items:[ {name:'Zartbitterschokolade',menge:'1 Tafel'} ] }
+    { kat:'🥛 Milch & Milchprodukte', items:[{name:'Milch',menge:'3 Liter'},{name:'Käse',menge:'300 g'}] },
+    { kat:'🫒 Öl & Nüsse',            items:[{name:'Olivenöl',menge:'150 ml'},{name:'Nussmix',menge:'150 g'}] },
+    { kat:'🍫 Sonstiges',             items:[{name:'Zartbitterschokolade',menge:'1 Tafel'}] }
   ];
 
-  // Kategorisieren
   const CATS = {
-    '🥦 Gemüse':          ['brokkoli','paprika','zucchini','tomate','tomaten','gurke','möhren','spinat','salat','knoblauch','zwiebel','rote zwiebel'],
-    '🍎 Obst':            ['banane','beeren','äpfel','zitrone','avocado'],
-    '🍞 Brot & Getreide': ['haferflocken','vollkornbrot','quinoa','granola','kartoffeln'],
-    '🥛 Milch & Milchprodukte': ['milch','naturjoghurt','feta','käse','joghurt'],
-    '🥩 Protein':         ['hähnchenbrust','lachsfilet','lachs','eier','ei','rote linsen','linsen','kichererbsen'],
-    '🫒 Öl & Nüsse':      ['olivenöl','nüsse','nussmix','honig'],
-    '🍫 Sonstiges':       []
+    '🥦 Gemüse':                ['brokkoli','paprika','zucchini','tomate','tomaten','gurke','möhren','spinat','salat','knoblauch','zwiebel','rote zwiebel','erbsen'],
+    '🍎 Obst':                  ['banane','beeren','äpfel','zitrone','avocado'],
+    '🍞 Brot & Getreide':       ['haferflocken','vollkornbrot','quinoa','granola','kartoffeln','nudeln','instantnudeln','brot'],
+    '🥛 Milch & Milchprodukte': ['milch','naturjoghurt','feta','käse','joghurt','frischkäse'],
+    '🥩 Protein':               ['hähnchenbrust','lachsfilet','lachs','eier','ei','rote linsen','linsen','kichererbsen','aufschnitt'],
+    '🫒 Öl & Nüsse':            ['olivenöl','nüsse','nussmix','honig'],
+    '🍫 Sonstiges':             []
   };
-
   function getKat(name){
-    const n = name.toLowerCase();
-    for(const [kat, keys] of Object.entries(CATS)){
+    const n=name.toLowerCase();
+    for(const [kat,keys] of Object.entries(CATS)){
       if(keys.some(k=>n.includes(k)||k.includes(n))) return kat;
     }
     return '🍫 Sonstiges';
   }
 
-  // Rezept-Zutaten nach Kategorie
   const catMap = {};
   Object.values(zutatenMap).forEach(z=>{
-    const kat = getKat(z.name);
+    const kat=getKat(z.name);
     if(!catMap[kat]) catMap[kat]=[];
-    catMap[kat].push({ name:z.name, menge:z.mengen.join(', '), quelle:z.rezepte.join(', '), fromPlan:true });
+    catMap[kat].push({ name:z.name, menge:addiereMenuen(z.mengenRaw), quelle:z.rezepte.join(', '), fromPlan:true });
   });
-
-  // Extras hinzufügen falls Kategorie nicht schon belegt
   EXTRAS.forEach(ex=>{
     ex.items.forEach(item=>{
-      const kat = getKat(item.name);
+      const kat=getKat(item.name);
       if(!catMap[kat]) catMap[kat]=[];
-      const exists = catMap[kat].some(x=>x.name.toLowerCase()===item.name.toLowerCase());
+      const exists=catMap[kat].some(x=>x.name.toLowerCase()===item.name.toLowerCase());
       if(!exists) catMap[kat].push({name:item.name, menge:item.menge, quelle:'Pyramide', fromPlan:false});
     });
   });
 
-  // Sortierung: fixed Reihenfolge
-  const ORDER = ['🥦 Gemüse','🍎 Obst','🍞 Brot & Getreide','🥛 Milch & Milchprodukte','🥩 Protein','🫒 Öl & Nüsse','🍫 Sonstiges'];
-  return ORDER.filter(k=>catMap[k]&&catMap[k].length).map(k=>({ kat:k, items:catMap[k] }));
+  const ORDER=['🥦 Gemüse','🍎 Obst','🍞 Brot & Getreide','🥛 Milch & Milchprodukte','🥩 Protein','🫒 Öl & Nüsse','🍫 Sonstiges'];
+  return ORDER.filter(k=>catMap[k]&&catMap[k].length).map(k=>({kat:k, items:catMap[k]}));
 }
 
 function renderEinkauf(){
@@ -3674,6 +3856,8 @@ function toggleEinkauf(key, el){
 
 function resetEinkauf(){
   saveEinkauf({});
+  const fe = document.getElementById('einkauf-rezept-filter');
+  if(fe){ fe.value=''; while(fe.options.length>1) fe.remove(1); }
   renderEinkauf();
   showToast('Liste zurückgesetzt','🛒');
 }
@@ -3709,14 +3893,13 @@ function renderRezepte(){
 
   const html = filtered.map(r=>{
     const rx = getRezeptMitTypen(r);
-    const kuerzel = [rx.cookidoo?'CD':'', rx.camping?'CAMP':'', rx.mealprep?'MP':''].filter(Boolean).join(' · ');
     return `
     <div class="rezept-card">
       <div class="rezept-info" onclick="showRezept('${r.id}')" style="cursor:pointer;">
-        <div class="rezept-name">${r.name}${rezeptTypKuerzel(rx)}</div>
-        <div class="rezept-meta">⏱ ${r.zeit} Min &nbsp;·&nbsp; ${r.kalorien} kcal &nbsp;·&nbsp; 💪 ${r.protein}g P</div>
+        <div class="rezept-name">${rx.name}${rezeptTypKuerzel(rx)}</div>
+        <div class="rezept-meta">⏱ ${rx.zeit} Min &nbsp;·&nbsp; ${rx.kalorien} kcal &nbsp;·&nbsp; 💪 ${rx.protein}g P</div>
       </div>
-      <span class="rezept-badge ${badgeClass(r.mahlzeit)}">${r.mahlzeit}</span>
+      <span class="rezept-badge ${badgeClass(rx.mahlzeit)}">${rx.mahlzeit}</span>
       <button onclick="editRezept('${r.id}')" style="background:none;border:none;cursor:pointer;font-size:14px;padding:4px 6px;color:var(--text-ter);" title="Bearbeiten">✎</button>
       <span onclick="showRezept('${r.id}')" style="color:var(--text-ter);font-size:18px;cursor:pointer;">›</span>
     </div>`;
@@ -3737,6 +3920,7 @@ function setErnTypFilter(f){
 
 // Globaler Zutatenspeicher für das Edit-Modal
 let _editZutaten = [];
+let _editAnleitung = '';   // aktueller Anleitungstext im Edit-Modal
 let _editRezeptId = '';
 
 // ── Rezept bearbeiten (inline Edit-Modal) ─────────────────────
@@ -3746,13 +3930,17 @@ function editRezept(id){
   const r = getRezeptMitTypen(rBase);
   _editRezeptId = id;
   const ov = loadRezeptTypen()[id] || {};
-  _editZutaten = (ov.zutaten || r.zutaten || []).map(z=>({name:z.name, menge:z.menge}));
+  _editZutaten   = (ov.zutaten   || r.zutaten   || []).map(z=>({name:z.name, menge:z.menge}));
+  _editAnleitung = (ov.anleitung || r.anleitung || []).join('\n');
   _renderEditModal(r);
   document.getElementById('rezept-modal').style.display = 'block';
 }
 
 function _renderEditModal(r){
   const id = _editRezeptId;
+  // Textarea-Zustand vor dem Neurendern sichern (bei Zutaten-Änderungen)
+  const existingTextarea = document.getElementById('edit-anleitung');
+  if(existingTextarea) _editAnleitung = existingTextarea.value;
   const zRows = _editZutaten.map((z,i)=>`
     <div style="display:flex;gap:5px;align-items:center;margin-bottom:5px;">
       <input type="text" value="${(z.name||'').replace(/"/g,'&quot;')}" placeholder="Zutat"
@@ -3786,6 +3974,7 @@ function _renderEditModal(r){
       <div><div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:3px;">FETT g</div>
         <input type="number" id="edit-fett" value="${r.fett}" style="width:100%;" min="0" max="300"></div>
     </div>
+    <button onclick="liveBerechneNaehrwerte()" style="width:100%;margin-bottom:10px;background:rgba(52,199,89,0.1);border:1px solid rgba(52,199,89,0.3);border-radius:8px;padding:6px;font-size:12px;font-weight:600;color:var(--green-dark);cursor:pointer;">↻ Makros aus Zutaten berechnen</button>
     <div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:5px;">ZUTATEN (1 Person)</div>
     <div id="edit-zutaten-wrap">${zRows}</div>
     <button onclick="_editZutaten.push({name:'',menge:''});_renderEditModal(getRezeptMitTypen(REZEPTE.find(x=>x.id==='${id}')))"
@@ -3799,6 +3988,10 @@ function _renderEditModal(r){
       <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
         <input type="checkbox" id="edit-mp" ${r.mealprep?'checked':''} style="accent-color:var(--green);width:15px;height:15px;"> Meal Prep</label>
     </div>
+    <div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:5px;">KOCHANLEITUNG (1 Schritt pro Zeile)</div>
+    <textarea id="edit-anleitung" rows="4" style="width:100%;font-size:12px;padding:6px 8px;border-radius:6px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);resize:vertical;font-family:inherit;line-height:1.5;margin-bottom:10px;"
+      placeholder="Schritt 1&#10;Schritt 2&#10;…"
+      oninput="_editAnleitung=this.value">${_editAnleitung.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
     <div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:3px;">NOTIZ</div>
     <input type="text" id="edit-notiz" value="${r.notiz||''}" style="width:100%;margin-bottom:12px;" maxlength="120" placeholder="Kurze Notiz…">
     <div style="display:flex;gap:8px;">
@@ -3821,11 +4014,59 @@ function saveRezeptEdit(id){
   overrides[id].kh       = parseInt(document.getElementById('edit-kh').value)||0;
   overrides[id].fett     = parseInt(document.getElementById('edit-fett').value)||0;
   overrides[id].notiz    = document.getElementById('edit-notiz').value.trim();
-  overrides[id].zutaten  = _editZutaten.filter(z=>z.name.trim());
+  const cleanedZutaten = _editZutaten.filter(z=>z.name.trim());
+  overrides[id].zutaten = cleanedZutaten;
+  // Textarea-Zustand sichern
+  const anlEl = document.getElementById('edit-anleitung');
+  if(anlEl) _editAnleitung = anlEl.value;
+  overrides[id].anleitung = _editAnleitung.split('\n').map(s=>s.trim()).filter(Boolean);
+  // Makronährstoffe automatisch neu berechnen wenn Zutaten vorhanden
+  if(cleanedZutaten.length > 0){
+    const nw = berechneNaehrwerte(cleanedZutaten);
+    // Nur überschreiben wenn Felder leer geblieben (Nutzer kann manuell korrigieren)
+    const kcalEl = document.getElementById('edit-kcal');
+    const protEl = document.getElementById('edit-protein');
+    const khEl   = document.getElementById('edit-kh');
+    const fettEl = document.getElementById('edit-fett');
+    // Berechne und setze – zeige Toast zur Bestätigung
+    overrides[id].kalorien = parseInt(kcalEl?.value)||nw.kcal;
+    overrides[id].protein  = parseInt(protEl?.value)||nw.p;
+    overrides[id].kh       = parseInt(khEl?.value)||nw.k;
+    overrides[id].fett     = parseInt(fettEl?.value)||nw.f;
+    // Aktualisiere Felder im Modal sichtbar
+    if(kcalEl) kcalEl.value = overrides[id].kalorien;
+    if(protEl) protEl.value = overrides[id].protein;
+    if(khEl)   khEl.value   = overrides[id].kh;
+    if(fettEl) fettEl.value = overrides[id].fett;
+  }
   saveRezeptTypen(overrides);
   closeRezeptModal();
   renderRezepte();
-  showToast('Rezept aktualisiert','✓');
+  showToast('Rezept aktualisiert ✓ Makros neu berechnet','✓');
+}
+
+function liveBerechneNaehrwerte(){
+  if(!_editZutaten.length) return;
+  const nw = berechneNaehrwerte(_editZutaten);
+  const kcalEl = document.getElementById('edit-kcal');
+  const protEl = document.getElementById('edit-protein');
+  const khEl   = document.getElementById('edit-kh');
+  const fettEl = document.getElementById('edit-fett');
+  if(kcalEl) kcalEl.value = nw.kcal;
+  if(protEl) protEl.value = nw.p;
+  if(khEl)   khEl.value   = nw.k;
+  if(fettEl) fettEl.value = nw.f;
+}
+
+function liveBerechneNaehrwerte(){
+  if(!_editZutaten.length){ showToast('Erst Zutaten eingeben','⚠️'); return; }
+  const nw = berechneNaehrwerte(_editZutaten);
+  const f = id => document.getElementById(id);
+  if(f('edit-kcal'))    f('edit-kcal').value    = nw.kcal;
+  if(f('edit-protein')) f('edit-protein').value = nw.p;
+  if(f('edit-kh'))      f('edit-kh').value      = nw.k;
+  if(f('edit-fett'))    f('edit-fett').value     = nw.f;
+  showToast('Makros berechnet: '+nw.kcal+' kcal','✓');
 }
 
 // getRezeptMitTypen – immer 1 Person, mit Zutaten-/Nährwert-Overrides
@@ -3848,7 +4089,8 @@ function getRezeptMitTypen(r){
     kh:       ov.kh       !== undefined ? ov.kh       : (n>1 ? Math.round((r.kh      ||0)/n) : (r.kh      ||0)),
     fett:     ov.fett     !== undefined ? ov.fett     : (n>1 ? Math.round((r.fett    ||0)/n) : (r.fett    ||0)),
     notiz:    ov.notiz    !== undefined ? ov.notiz    : r.notiz,
-    zutaten:  ov.zutaten  || r.zutaten || [],
+    zutaten:  ov.zutaten  || r.zutaten  || [],
+    anleitung: ov.anleitung || r.anleitung || [],
   };
 }
 
