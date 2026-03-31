@@ -1085,8 +1085,8 @@
 
   /* ── Favoriten ── */
   .fav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 16px; border-bottom: 0.5px solid var(--sep);
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 16px; border-bottom: 0.5px solid var(--sep);
   }
   .fav-item:last-child { border-bottom: none; }
   .fav-emoji { font-size: 20px; flex-shrink: 0; }
@@ -1108,6 +1108,32 @@
     border-top: 0.5px solid var(--sep); flex-wrap: wrap;
   }
   .fav-add-row input[type="text"] { flex: 1; min-width: 120px; }
+
+  /* Saison-Kalenderleiste (12 Monatszellen) */
+  .fav-saison-bar {
+    display: flex; gap: 1px; flex-shrink: 0;
+  }
+  .fav-saison-cell {
+    width: 14px; height: 20px; border-radius: 2px;
+    font-size: 7px; font-weight: 700;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 2px;
+    background: var(--sep); color: var(--text-ter); flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .fav-saison-cell.active { color: #fff; }
+  .fav-saison-cell.heute-marker { outline: 1.5px solid var(--brand); outline-offset: -1px; border-radius: 2px; }
+
+  /* Monat-Filter-Chips */
+  .monat-chip {
+    padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;
+    border: 1.5px solid var(--border-mid); background: var(--bg);
+    color: var(--text-sec); cursor: pointer; transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .monat-chip.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .monat-chip.heute  { border-color: var(--brand); color: var(--brand); }
+  .monat-chip.heute.active { color: #fff; }
   .fav-add-row select { min-width: 110px; width: auto; }
   .fav-add-btn {
     background: var(--brand); color: #fff; border: none;
@@ -1156,7 +1182,7 @@
     <button class="seg-btn" onclick="switchTab('verlauf')">Verlauf</button>
     <button class="seg-btn" onclick="switchTab('planung')">Planung</button>
     <button class="seg-btn" onclick="switchTab('ernaehrung')">Ernährung</button>
-    <button class="seg-btn" onclick="switchTab('export')">Export</button>
+    <button class="seg-btn" onclick="switchTab('export')">Daten</button>
   </div>
 
   <!-- ═══════════════ TAB: TRACKING ═══════════════ -->
@@ -1522,8 +1548,9 @@
         <div class="card-header">
           <div class="card-icon" style="background:rgba(255,149,0,0.12);color:var(--orange);font-size:18px;width:34px;height:34px;">⭐</div>
           <div class="card-title">Lieblingslebensmittel</div>
-          <button onclick="syncFavoritenAusRezepten()" style="margin-left:auto;background:var(--brand-soft);color:var(--brand);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;">↻ Aus Rezepten</button>
         </div>
+        <!-- Monats-Filter -->
+        <div id="fav-monat-filter" style="display:flex;flex-wrap:wrap;gap:4px;padding:10px 16px;border-bottom:0.5px solid var(--sep);"></div>
         <div id="favoriten-list"></div>
       </div>
     </div>
@@ -1568,187 +1595,246 @@
 
   </div><!-- end tab-ernaehrung -->
 
-  <!-- ═══════════════ TAB: EXPORT ═══════════════ -->
+  <!-- ═══════════════ TAB: DATEN ═══════════════ -->
   <div class="tab-panel" id="tab-export">
 
-    <!-- Zielwerte -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon icon-green">🎯</div>
-        <div class="card-title">Zielwerte einstellen</div>
-      </div>
-      <div class="field-row">
-        <div class="field-icon">😴</div>
-        <div class="field-label">Schlaf<small>Ziel Stunden/Nacht</small></div>
-        <div class="field-right">
-          <input type="number" id="goal-schlaf" step="0.5" min="4" max="12" placeholder="8" oninput="saveGoals()">
-          <span class="unit">Std</span>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-icon">💧</div>
-        <div class="field-label">Trinken<small>Ziel Liter/Tag</small></div>
-        <div class="field-right">
-          <input type="number" id="goal-trinken" step="0.25" min="0.5" max="5" placeholder="2" oninput="saveGoals()">
-          <span class="unit">L</span>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-icon">👟</div>
-        <div class="field-label">Schritte<small>Ziel Schritte/Tag</small></div>
-        <div class="field-right">
-          <input type="number" id="goal-schritte" step="500" min="1000" max="50000" placeholder="10000" oninput="saveGoals()">
-          <span class="unit">Schr.</span>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-icon">⚖️</div>
-        <div class="field-label">Gewicht<small>Zielgewicht</small></div>
-        <div class="field-right">
-          <input type="number" id="goal-gewicht" step="0.1" min="30" max="300" placeholder="70" oninput="saveGoals()">
-          <span class="unit">kg</span>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-icon">📏</div>
-        <div class="field-label">Bauchumfang<small>Ziel Bauchumfang</small></div>
-        <div class="field-right">
-          <input type="number" id="goal-bauch" step="0.5" min="50" max="200" placeholder="80" oninput="saveGoals()">
-          <span class="unit">cm</span>
-        </div>
-      </div>
-      <div style="padding:8px 16px 4px;">
-        <div style="font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Wochenziele Sport (Minuten/Woche)</div>
-      </div>
-      <div class="field-row">
-        <div class="field-icon">🔵</div>
-        <div class="field-label">Ausdauer</div>
-        <div class="field-right">
-          <input type="number" id="goal-ausdauer" step="5" min="0" max="1000" placeholder="150" oninput="saveGoals()">
-          <span class="unit">Min</span>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-icon">🟠</div>
-        <div class="field-label">Kraft</div>
-        <div class="field-right">
-          <input type="number" id="goal-kraft" step="5" min="0" max="500" placeholder="45" oninput="saveGoals()">
-          <span class="unit">Min</span>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-icon">🟢</div>
-        <div class="field-label">Beweglichkeit</div>
-        <div class="field-right">
-          <input type="number" id="goal-beweglichkeit" step="5" min="0" max="500" placeholder="35" oninput="saveGoals()">
-          <span class="unit">Min</span>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-icon">🟣</div>
-        <div class="field-label">Entspannung</div>
-        <div class="field-right">
-          <input type="number" id="goal-entspannung" step="5" min="0" max="500" placeholder="35" oninput="saveGoals()">
-          <span class="unit">Min</span>
-        </div>
+    <!-- Sub-Navigation -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="ern-subnav">
+        <button class="ern-sub-btn active" onclick="switchDatenTab('ziele')"       id="dsub-ziele">Ziele</button>
+        <button class="ern-sub-btn"        onclick="switchDatenTab('import')"      id="dsub-import">Import</button>
+        <button class="ern-sub-btn"        onclick="switchDatenTab('exportcsv')"   id="dsub-exportcsv">Export</button>
+        <button class="ern-sub-btn"        onclick="switchDatenTab('benachrichtigung')" id="dsub-benachrichtigung">Erinnerung</button>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon icon-orange">🔔</div>
-        <div class="card-title">Tägliche Erinnerung</div>
-      </div>
-      <div class="field-row">
-        <div class="field-icon">⏰</div>
-        <div class="field-label">Erinnerungszeit<small>täglich wiederkehrend</small></div>
-        <div class="field-right">
-          <input type="time" id="reminder-time" value="20:00">
+    <!-- ── Ziele Panel ── -->
+    <div id="dsub-panel-ziele">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon icon-green">🎯</div>
+          <div class="card-title">Zielwerte einstellen</div>
         </div>
-      </div>
-      <div class="field-row" style="align-items:flex-start; padding-top:14px; padding-bottom:14px;">
-        <div class="field-icon">💬</div>
-        <div class="field-label">Erinnerungstext<small>wird in der Benachrichtigung angezeigt</small></div>
-        <div class="field-right" style="max-width:180px;">
-          <input type="text" id="reminder-text" maxlength="60" placeholder="Tracker ausfüllen!" style="width:180px;">
-        </div>
-      </div>
-      <div style="padding:0 16px 14px;">
-        <div id="reminder-status" style="font-size:13px;color:var(--text-sec);margin-bottom:10px;min-height:18px;"></div>
-        <div class="action-row" style="margin-top:0;">
-          <button class="btn btn-brand" id="reminder-btn" onclick="toggleReminder()">🔔 Erinnerung aktivieren</button>
-        </div>
-        <p style="font-size:12px;color:var(--text-ter);margin-top:10px;line-height:1.6;">
-          Benötigt Browser-Benachrichtigungen. Die Seite muss im Browser geöffnet sein, damit die Erinnerung funktioniert.
-        </p>
-      </div>
-    </div>
-
-    <!-- ── Rezept Import ── -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon" style="background:rgba(52,199,89,0.12);color:var(--green-dark);">📥</div>
-        <div class="card-title">Rezepte importieren (JSON)</div>
-      </div>
-      <div style="padding:14px 16px;">
-        <p style="font-size:13px;color:var(--text-sec);margin-bottom:12px;line-height:1.5;">
-          Importiere neue Rezepte per JSON-Datei oder direkt per Einfügen.<br>
-          <span style="font-size:11px;color:var(--text-ter);">Format: Array von Rezept-Objekten (siehe Vorlage unten)</span>
-        </p>
-
-        <!-- Datei-Upload -->
-        <div style="margin-bottom:12px;">
-          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:5px;">JSON-Datei wählen</label>
-          <input type="file" id="rezept-import-file" accept=".json"
-            style="font-size:13px;width:100%;padding:6px 0;"
-            onchange="importRezepteFile(this)">
-        </div>
-
-        <!-- Oder: Direkt einfügen -->
-        <div style="margin-bottom:12px;">
-          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:5px;">Oder JSON direkt einfügen</label>
-          <textarea id="rezept-import-text" rows="5"
-            style="width:100%;font-size:12px;padding:8px;border-radius:8px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);font-family:monospace;resize:vertical;"
-            placeholder='[{"id":"r20","name":"Mein Rezept","kategorie":"Hauptgericht","mahlzeit":"Abendessen","zeit":25,"portionen":1,"kalorien":400,"protein":30,"kh":35,"fett":12,"zutaten":[{"name":"Hähnchenbrust","menge":"150g"}],"anleitung":["Schritt 1","Schritt 2"],"cookidoo":false,"camping":false,"mealprep":false,"notiz":""}]'></textarea>
-        </div>
-
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-          <button onclick="importRezepteText()" style="flex:1;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;min-width:140px;">Importieren</button>
-          <button onclick="exportRezepteJSON()" style="flex:1;background:var(--brand-soft);color:var(--brand);border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;min-width:140px;">Vorlage exportieren</button>
-        </div>
-        <div id="rezept-import-status" style="font-size:13px;min-height:18px;"></div>
-
-        <!-- Info zur JSON-Struktur -->
-        <details style="margin-top:10px;">
-          <summary style="font-size:12px;font-weight:600;color:var(--text-sec);cursor:pointer;">JSON-Felder erklärt</summary>
-          <div style="font-size:11px;color:var(--text-sec);margin-top:8px;line-height:1.8;background:var(--bg);border-radius:8px;padding:10px;">
-            <b>id</b> – eindeutige ID, z.B. "r20" (Pflicht)<br>
-            <b>name</b> – Rezeptname (Pflicht)<br>
-            <b>mahlzeit</b> – Frühstück / Mittagessen / Abendessen / Snack / Beilage<br>
-            <b>kategorie</b> – z.B. Hauptgericht, Suppe, Salat<br>
-            <b>zeit</b> – Zubereitungszeit in Minuten<br>
-            <b>portionen</b> – Anzahl Portionen (wird auf 1 normiert)<br>
-            <b>kalorien / protein / kh / fett</b> – Nährwerte pro Portion<br>
-            <b>zutaten</b> – Array: [{name, menge}]<br>
-            <b>anleitung</b> – Array von Schritten als Strings<br>
-            <b>cookidoo / camping / mealprep</b> – true / false<br>
-            <b>notiz</b> – optionaler Hinweis
+        <div class="field-row">
+          <div class="field-icon">😴</div>
+          <div class="field-label">Schlaf<small>Ziel Stunden/Nacht</small></div>
+          <div class="field-right">
+            <input type="number" id="goal-schlaf" step="0.5" min="4" max="12" placeholder="8" oninput="saveGoals()">
+            <span class="unit">Std</span>
           </div>
-        </details>
+        </div>
+        <div class="field-row">
+          <div class="field-icon">💧</div>
+          <div class="field-label">Trinken<small>Ziel Liter/Tag</small></div>
+          <div class="field-right">
+            <input type="number" id="goal-trinken" step="0.25" min="0.5" max="5" placeholder="2" oninput="saveGoals()">
+            <span class="unit">L</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-icon">👟</div>
+          <div class="field-label">Schritte<small>Ziel Schritte/Tag</small></div>
+          <div class="field-right">
+            <input type="number" id="goal-schritte" step="500" min="1000" max="50000" placeholder="10000" oninput="saveGoals()">
+            <span class="unit">Schr.</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-icon">⚖️</div>
+          <div class="field-label">Gewicht<small>Zielgewicht</small></div>
+          <div class="field-right">
+            <input type="number" id="goal-gewicht" step="0.1" min="30" max="300" placeholder="70" oninput="saveGoals()">
+            <span class="unit">kg</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-icon">📏</div>
+          <div class="field-label">Bauchumfang<small>Ziel Bauchumfang</small></div>
+          <div class="field-right">
+            <input type="number" id="goal-bauch" step="0.5" min="50" max="200" placeholder="80" oninput="saveGoals()">
+            <span class="unit">cm</span>
+          </div>
+        </div>
+        <div style="padding:8px 16px 4px;">
+          <div style="font-size:12px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Wochenziele Sport (Minuten/Woche)</div>
+        </div>
+        <div class="field-row">
+          <div class="field-icon">🔵</div>
+          <div class="field-label">Ausdauer</div>
+          <div class="field-right">
+            <input type="number" id="goal-ausdauer" step="5" min="0" max="1000" placeholder="150" oninput="saveGoals()">
+            <span class="unit">Min</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-icon">🟠</div>
+          <div class="field-label">Kraft</div>
+          <div class="field-right">
+            <input type="number" id="goal-kraft" step="5" min="0" max="500" placeholder="45" oninput="saveGoals()">
+            <span class="unit">Min</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-icon">🟢</div>
+          <div class="field-label">Beweglichkeit</div>
+          <div class="field-right">
+            <input type="number" id="goal-beweglichkeit" step="5" min="0" max="500" placeholder="35" oninput="saveGoals()">
+            <span class="unit">Min</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-icon">🟣</div>
+          <div class="field-label">Entspannung</div>
+          <div class="field-right">
+            <input type="number" id="goal-entspannung" step="5" min="0" max="500" placeholder="35" oninput="saveGoals()">
+            <span class="unit">Min</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="info-box">
-      <strong>So funktioniert der Export:</strong><br>
-      1. CSV herunterladen<br>
-      2. Excel öffnen → Button „CSV Importieren" klicken<br>
-      3. Datei auswählen → Daten werden automatisch importiert ✅
+    <!-- ── Import Panel ── -->
+    <div id="dsub-panel-import" style="display:none;">
+
+      <!-- Rezept Import -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(52,199,89,0.12);color:var(--green-dark);">📖</div>
+          <div class="card-title">Rezepte importieren (JSON)</div>
+        </div>
+        <div style="padding:14px 16px;">
+          <p style="font-size:13px;color:var(--text-sec);margin-bottom:12px;line-height:1.5;">
+            Importiere neue Rezepte per JSON-Datei oder direkt per Einfügen.<br>
+            <span style="font-size:11px;color:var(--text-ter);">Format: Array von Rezept-Objekten</span>
+          </p>
+          <div style="margin-bottom:12px;">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:5px;">JSON-Datei wählen</label>
+            <input type="file" id="rezept-import-file" accept=".json"
+              style="font-size:13px;width:100%;padding:6px 0;"
+              onchange="importRezepteFile(this)">
+          </div>
+          <div style="margin-bottom:12px;">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:5px;">Oder JSON direkt einfügen</label>
+            <textarea id="rezept-import-text" rows="4"
+              style="width:100%;font-size:12px;padding:8px;border-radius:8px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);font-family:monospace;resize:vertical;"
+              placeholder='[{"id":"r20","name":"Mein Rezept","mahlzeit":"Abendessen","kalorien":400,...}]'></textarea>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            <button onclick="importRezepteText()" style="flex:1;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;min-width:130px;">Importieren</button>
+            <button onclick="exportRezepteJSON()" style="flex:1;background:var(--brand-soft);color:var(--brand);border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;min-width:130px;">Vorlage laden</button>
+          </div>
+          <div id="rezept-import-status" style="font-size:13px;min-height:18px;"></div>
+          <details style="margin-top:10px;">
+            <summary style="font-size:12px;font-weight:600;color:var(--text-sec);cursor:pointer;">JSON-Felder erklärt</summary>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:8px;line-height:1.8;background:var(--bg);border-radius:8px;padding:10px;">
+              <b>id</b> – eindeutige ID, z.B. "r20" (Pflicht)<br>
+              <b>name</b> – Rezeptname (Pflicht)<br>
+              <b>mahlzeit</b> – Frühstück / Mittagessen / Abendessen / Snack / Beilage<br>
+              <b>kategorie</b> – z.B. Hauptgericht, Suppe, Salat<br>
+              <b>zeit</b> – Zubereitungszeit in Minuten<br>
+              <b>portionen</b> – Anzahl Portionen (wird auf 1 normiert)<br>
+              <b>kalorien / protein / kh / fett</b> – Nährwerte pro Portion<br>
+              <b>zutaten</b> – Array: [{name, menge}]<br>
+              <b>anleitung</b> – Array von Schritten als Strings<br>
+              <b>cookidoo / camping / mealprep</b> – true / false<br>
+              <b>notiz</b> – optionaler Hinweis
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- Lebensmittel Import -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(0,122,255,0.12);color:var(--blue);">🥦</div>
+          <div class="card-title">Lebensmittel importieren (JSON)</div>
+        </div>
+        <div style="padding:14px 16px;">
+          <p style="font-size:13px;color:var(--text-sec);margin-bottom:12px;line-height:1.5;">
+            Importiere die <code style="font-size:11px;background:var(--bg);padding:1px 5px;border-radius:4px;">lebensmittel.json</code> mit Saisonalität und Nährwerten.<br>
+            <span style="font-size:11px;color:var(--text-ter);">Importierte Daten ersetzen die eingebaute Lebensmittel-Datenbank.</span>
+          </p>
+          <div style="margin-bottom:12px;">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:5px;">lebensmittel.json wählen</label>
+            <input type="file" id="lm-import-file" accept=".json"
+              style="font-size:13px;width:100%;padding:6px 0;"
+              onchange="importLebensmittelFile(this)">
+          </div>
+          <div style="margin-bottom:12px;">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:5px;">Oder JSON direkt einfügen</label>
+            <textarea id="lm-import-text" rows="4"
+              style="width:100%;font-size:12px;padding:8px;border-radius:8px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);font-family:monospace;resize:vertical;"
+              placeholder='[{"name":"Spinat","kat":"Gemüse","favorit":true,"saison":[3,4,5,9,10],"pyramide":"Gemüse","einheit":"g","kcal":23,"protein":2.9,"kh":0.8,"fett":0.4}]'></textarea>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            <button onclick="importLebensmittelText()" style="flex:1;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;min-width:130px;">Importieren</button>
+            <button onclick="exportLebensmittelJSON()" style="flex:1;background:var(--brand-soft);color:var(--brand);border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;min-width:130px;">Aktuelle laden</button>
+          </div>
+          <div id="lm-import-status" style="font-size:13px;min-height:18px;"></div>
+          <details style="margin-top:10px;">
+            <summary style="font-size:12px;font-weight:600;color:var(--text-sec);cursor:pointer;">JSON-Felder erklärt</summary>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:8px;line-height:1.8;background:var(--bg);border-radius:8px;padding:10px;">
+              <b>name</b> – Lebensmittelname (Pflicht)<br>
+              <b>kat</b> – Kategorie z.B. "Gemüse", "Obst", "Getreide"<br>
+              <b>favorit</b> – true / false<br>
+              <b>saison</b> – Array von Monaten als Zahlen (1=Jan … 12=Dez)<br>
+              <b>pyramide</b> – Ernährungspyramiden-Gruppe<br>
+              <b>einheit</b> – "g", "ml", "Stück" etc.<br>
+              <b>kcal / protein / kh / fett</b> – Nährwerte pro 100g/ml
+            </div>
+          </details>
+        </div>
+      </div>
+    </div><!-- end dsub-panel-import -->
+
+    <!-- ── Export Panel ── -->
+    <div id="dsub-panel-exportcsv" style="display:none;">
+      <div class="info-box">
+        <strong>So funktioniert der Export:</strong><br>
+        1. CSV herunterladen<br>
+        2. Excel öffnen → Button „CSV Importieren" klicken<br>
+        3. Datei auswählen → Daten werden automatisch importiert ✅
+      </div>
+      <div id="export-count"></div>
+      <div class="action-row">
+        <button class="btn btn-brand" onclick="exportCSV()">CSV herunterladen</button>
+        <button class="btn btn-danger" onclick="clearAll()">Alle Daten löschen</button>
+      </div>
     </div>
-    <div id="export-count"></div>
-    <div class="action-row">
-      <button class="btn btn-brand" onclick="exportCSV()">CSV herunterladen</button>
-      <button class="btn btn-danger" onclick="clearAll()">Alle Daten löschen</button>
+
+    <!-- ── Benachrichtigung Panel ── -->
+    <div id="dsub-panel-benachrichtigung" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon icon-orange">🔔</div>
+          <div class="card-title">Tägliche Erinnerung</div>
+        </div>
+        <div class="field-row">
+          <div class="field-icon">⏰</div>
+          <div class="field-label">Erinnerungszeit<small>täglich wiederkehrend</small></div>
+          <div class="field-right">
+            <input type="time" id="reminder-time" value="20:00">
+          </div>
+        </div>
+        <div class="field-row" style="align-items:flex-start; padding-top:14px; padding-bottom:14px;">
+          <div class="field-icon">💬</div>
+          <div class="field-label">Erinnerungstext<small>wird in der Benachrichtigung angezeigt</small></div>
+          <div class="field-right" style="max-width:180px;">
+            <input type="text" id="reminder-text" maxlength="60" placeholder="Tracker ausfüllen!" style="width:180px;">
+          </div>
+        </div>
+        <div style="padding:0 16px 14px;">
+          <div id="reminder-status" style="font-size:13px;color:var(--text-sec);margin-bottom:10px;min-height:18px;"></div>
+          <div class="action-row" style="margin-top:0;">
+            <button class="btn btn-brand" id="reminder-btn" onclick="toggleReminder()">🔔 Erinnerung aktivieren</button>
+          </div>
+          <p style="font-size:12px;color:var(--text-ter);margin-top:10px;line-height:1.6;">
+            Benötigt Browser-Benachrichtigungen. Die Seite muss im Browser geöffnet sein, damit die Erinnerung funktioniert.
+          </p>
+        </div>
+      </div>
     </div>
+
   </div>
 
 </div><!-- end app-wrap -->
@@ -1966,7 +2052,7 @@ function switchTab(name){
     document.getElementById('tab-'+t).classList.toggle('active', t===name);
   });
   if(name==='verlauf') { renderHistory(); renderVerlaufSportGoals(); }
-  if(name==='export'){ renderExportCount(); updateReminderUI(); loadGoalsUI(); }
+  if(name==='export'){ loadGoalsUI(); updateReminderUI(); }
   if(name==='planung') renderPlanung();
   if(name==='ernaehrung') renderErnaehrung();
 }
@@ -3140,9 +3226,7 @@ const WBED_DEFAULTS = [
   { id:'oel',       name:'Öl & Fette',         einheit:'ml', zielWoche:140,   farbe:'#af52de',
     beschreibung:'2 EL/Tag', pyrKat:['öl'] },
   { id:'nuesse',    name:'Nüsse & Samen',       einheit:'g',  zielWoche:125,   farbe:'#a2845e',
-    beschreibung:'4–5 Port. à 25 g/Woche', pyrKat:[] },
-  { id:'suesses',   name:'Genussmittel',        einheit:'g',  zielWoche:25,    farbe:'#636366',
-    beschreibung:'max. 25 g/Woche', pyrKat:[] }
+    beschreibung:'4–5 Port. à 25 g/Woche', pyrKat:[] }
 ];
 
 function loadWbedZiele(){
@@ -3674,11 +3758,27 @@ function mengeZuGramm(mengeStr, zutatName){
 function berechneNaehrwerte(zutaten){
   let kcal=0, p=0, k=0, f=0;
   if(!zutaten || !zutaten.length) return {kcal,p,k,f};
+  // Importierte Lebensmittelliste als primäre Quelle
+  const lmImport = getAktuelleLebensmittel ? getAktuelleLebensmittel() : [];
   zutaten.forEach(z=>{
-    const name = z.name.toLowerCase().trim();
-    const db = Object.entries(NAEHRWERT_DB).find(([key])=>name.includes(key)||key.includes(name.split(' ')[0]));
-    if(!db) return;
-    const [,nw] = db;
+    const name = (z.name||'').toLowerCase().trim();
+    if(!name) return;
+    // 1. Aus importierter LM-Liste suchen
+    let nw = null;
+    const lmFound = lmImport.find(lm=>
+      lm.name.toLowerCase()===name ||
+      name.includes(lm.name.toLowerCase()) ||
+      lm.name.toLowerCase().includes(name.split(' ')[0])
+    );
+    if(lmFound && lmFound.kcal != null){
+      nw = {kcal:lmFound.kcal, p:lmFound.protein||0, k:lmFound.kh||0, f:lmFound.fett||0};
+    }
+    // 2. Fallback: NAEHRWERT_DB
+    if(!nw){
+      const db = Object.entries(NAEHRWERT_DB).find(([key])=>name.includes(key)||key.includes(name.split(' ')[0]));
+      if(db) nw = {kcal:db[1].kcal, p:db[1].p, k:db[1].k, f:db[1].f};
+    }
+    if(!nw) return;
     const g = mengeZuGramm(z.menge, z.name);
     kcal += (nw.kcal * g / 100);
     p    += (nw.p    * g / 100);
@@ -3693,59 +3793,182 @@ function berechneNaehrwerte(zutaten){
   };
 }
 
-// ── Favoriten: aus allen Rezepten synchronisieren ─────────────
-function syncFavoritenAusRezepten(){
-  const favs = [];
-  // Alle Zutaten aus ALLEN Rezepten (nicht nur Wochenplan) sammeln
-  const seen = new Set();
-  REZEPTE.forEach(rBase=>{
-    const r = getRezeptMitTypen(rBase);
-    if(!r.zutaten || r.mahlzeit==='ALLE') return;
-    r.zutaten.forEach(z=>{
-      const key = z.name.toLowerCase().trim();
-      if(seen.has(key)) return;
-      seen.add(key);
-      const info = getLebMittelInfo(z.name);
-      favs.push({ name: z.name, kategorie: info.kat, monate: info.monate });
-    });
-  });
-  // Alphabetisch sortiert
-  favs.sort((a,b)=>a.name.localeCompare(b.name,'de'));
-  saveFavoriten(favs);
+// ── Favoriten: Wrapper-Button für Panel ──────────────────────
+function syncFavoritenAusLebensmittelBtn(){
+  const lm = getAktuelleLebensmittel();
+  syncFavoritenAusLebensmittel(lm);
+  showToast(lm.filter(x=>x.favorit!==false).length+' Lebensmittel synchronisiert','⭐');
   renderFavoriten();
-  showToast(favs.length+' Lebensmittel synchronisiert','⭐');
+}
+
+// Alias (Rückwärtskompatibilität)
+function syncFavoritenAusRezepten(){ syncFavoritenAusLebensmittelBtn(); }
+
+// ── Favoriten: Monat-Filter State ────────────────────────────
+let _favMonatFilter = null; // null = alle, 1-12 = Monat
+
+function renderFavMonatFilter(){
+  const el = document.getElementById('fav-monat-filter');
+  if(!el) return;
+  const heute = new Date().getMonth() + 1; // 1-12
+  const KURZ = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+  const LANG = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+
+  let html = `<button class="monat-chip${_favMonatFilter===null?' active':''}"
+    onclick="setFavMonatFilter(null)" style="margin-right:2px;">Alle</button>`;
+  for(let m=1;m<=12;m++){
+    const isHeute = m===heute;
+    const isAct   = _favMonatFilter===m;
+    html += `<button class="monat-chip${isAct?' active':''}${isHeute&&!isAct?' heute':''}"
+      onclick="setFavMonatFilter(${m})" title="${LANG[m-1]}">${KURZ[m-1]}</button>`;
+  }
+  el.innerHTML = html;
+}
+
+function setFavMonatFilter(m){
+  _favMonatFilter = m;
+  renderFavMonatFilter();
+  renderFavoriten();
+}
+
+// ── Farben je Kategorie ───────────────────────────────────────
+const KAT_COLORS = {
+  '🥦 Gemüse':      '#34c759',
+  '🍎 Obst':        '#ff9500',
+  '🍞 Getreide':    '#ffcc00',
+  '🥛 Milch':       '#5ac8fa',
+  '🥩 Protein':     '#ff6b35',
+  '🫒 Öl & Nüsse':  '#af52de',
+  '🌿 Kräuter':     '#30d158',
+  '🍫 Sonstiges':   '#a2845e',
+};
+
+function favKatColor(kat){
+  for(const [k,c] of Object.entries(KAT_COLORS)){
+    if(kat && kat.startsWith(k.split(' ')[0])) return c;
+    if(kat === k) return c;
+  }
+  return '#888';
+}
+
+// ── Saison-Kalenderleiste rendern ─────────────────────────────
+function renderSaisonBar(monate){
+  const heute = new Date().getMonth() + 1; // 1-12
+  const KURZ  = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+  // saison: leere Array oder [0] = ganzjährig; sonst Array von 1-12
+  const isGanzj = !monate || monate.length === 0 || (monate.length === 1 && monate[0] === 0);
+  const activeSet = isGanzj ? new Set([1,2,3,4,5,6,7,8,9,10,11,12]) : new Set(monate);
+
+  return '<div class="fav-saison-bar">' +
+    [1,2,3,4,5,6,7,8,9,10,11,12].map(m => {
+      const on = activeSet.has(m);
+      const col = on ? (isGanzj ? '#5ac8fa' : '#34c759') : '';
+      const bg  = on ? col : 'var(--sep)';
+      const txtCol = on ? '#fff' : 'var(--text-ter)';
+      const heiteClass = m === heute ? ' heute-marker' : '';
+      return `<div class="fav-saison-cell${on?' active':''}${heiteClass}"
+        style="background:${bg};color:${txtCol};">${KURZ[m-1]}</div>`;
+    }).join('') +
+  '</div>';
 }
 
 function renderFavoriten(){
-  const favs = loadFavoriten();
-  const el = document.getElementById('favoriten-list');
+  // Monat-Filter-Leiste rendern
+  renderFavMonatFilter();
+
+  let favs = loadFavoriten();
+
+  // Auto-Init: falls noch keine Favoriten → aus importierten LM laden
   if(!favs.length){
-    el.innerHTML = `<div style="padding:20px 16px;text-align:center;color:var(--text-ter);font-size:14px;">
-      Noch keine Favoriten.<br>Klicke "↻ Aus Rezepten" um alle Zutaten zu synchronisieren.
+    const lm = getAktuelleLebensmittel();
+    const hasFavs = lm.some(x=>x.favorit);
+    if(hasFavs){
+      syncFavoritenAusLebensmittel(lm);
+      favs = loadFavoriten();
+    }
+  }
+
+  const el = document.getElementById('favoriten-list');
+
+  if(!favs.length){
+    el.innerHTML = `<div style="padding:20px 16px;text-align:center;color:var(--text-ter);font-size:14px;line-height:1.6;">
+      Noch keine Favoriten.<br>
+      <span style="font-size:12px;">Importiere die <b>lebensmittel.json</b> unter<br>Daten → Import → Lebensmittel importieren.</span>
     </div>`;
     return;
   }
+
+  // Monatsfilter anwenden
+  const heute = new Date().getMonth() + 1;
+  let visible = favs.map((f,idx)=>({...f,idx}));
+  if(_favMonatFilter !== null){
+    visible = visible.filter(f=>{
+      const m = f.monate || [];
+      const isGanzj = m.length===0 || (m.length===1 && m[0]===0);
+      return isGanzj || m.includes(_favMonatFilter);
+    });
+  }
+
+  if(!visible.length){
+    el.innerHTML = `<div style="padding:16px;text-align:center;color:var(--text-ter);font-size:13px;">
+      Keine Lebensmittel für diesen Monat.</div>`;
+    return;
+  }
+
   // Gruppieren nach Kategorie
   const byKat = {};
-  favs.forEach((f,idx)=>{ if(!byKat[f.kategorie]) byKat[f.kategorie]=[]; byKat[f.kategorie].push({...f,idx}); });
+  visible.forEach(f=>{
+    const k = f.kategorie || '🍫 Sonstiges';
+    if(!byKat[k]) byKat[k]=[];
+    byKat[k].push(f);
+  });
   const KAT_ORDER = ['🥦 Gemüse','🍎 Obst','🍞 Getreide','🥛 Milch','🥩 Protein','🫒 Öl & Nüsse','🌿 Kräuter','🍫 Sonstiges'];
   const sortedKats = [...KAT_ORDER.filter(k=>byKat[k]), ...Object.keys(byKat).filter(k=>!KAT_ORDER.includes(k))];
-  el.innerHTML = sortedKats.map(kat=>`
-    <div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:0.6px;border-top:0.5px solid var(--sep);">${kat}</div>
-    ${byKat[kat].map(f=>{
-      const isGanzj = !f.monate || f.monate[0]===0;
-      const monStr  = isGanzj ? 'Ganzjährig' : monateBeschreibung(f.monate);
-      const monColor= isGanzj ? 'var(--text-ter)' : 'var(--green-dark)';
-      const monBg   = isGanzj ? 'rgba(118,118,128,0.1)' : 'rgba(52,199,89,0.1)';
+
+  // Heute aktiv?
+  const aktuelleAnzahl = visible.filter(f=>{
+    const m = f.monate||[];
+    const isG = m.length===0||(m.length===1&&m[0]===0);
+    return isG || m.includes(heute);
+  }).length;
+
+  const headerInfo = _favMonatFilter===null
+    ? `<div style="padding:8px 16px 4px;font-size:11px;color:var(--text-sec);">
+        ${visible.length} Lebensmittel · <span style="color:var(--green-dark);font-weight:600;">${aktuelleAnzahl} jetzt saisonal</span>
+       </div>`
+    : `<div style="padding:8px 16px 4px;font-size:11px;color:var(--text-sec);">
+        ${visible.length} Lebensmittel im gewählten Monat
+       </div>`;
+
+  el.innerHTML = headerInfo + sortedKats.map(kat=>{
+    const col = favKatColor(kat);
+    const items = byKat[kat].map(f=>{
+      const saisonBar = renderSaisonBar(f.monate);
+      const naehrwert = (f.kcal != null)
+        ? `<div style="font-size:10px;color:var(--text-ter);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span>${f.kcal} kcal</span>
+            ${f.protein != null ? `<span style="color:#ff6b35;">E ${f.protein}g</span>` : ''}
+            ${f.kh      != null ? `<span style="color:#ffcc00;">KH ${f.kh}g</span>` : ''}
+            ${f.fett    != null ? `<span style="color:#af52de;">F ${f.fett}g</span>` : ''}
+            <span style="color:var(--text-ter);">/ 100g</span>
+          </div>`
+        : '';
       return `<div class="fav-item">
         <div class="fav-info">
           <div class="fav-name">${f.name}</div>
+          ${naehrwert}
         </div>
-        <span class="fav-season" style="background:${monBg};color:${monColor};font-size:10px;">${monStr}</span>
+        ${saisonBar}
         <button class="fav-del" onclick="deleteFavorit(${f.idx})" title="Entfernen">×</button>
       </div>`;
-    }).join('')}`
-  ).join('');
+    }).join('');
+    return `<div>
+      <div style="padding:5px 16px 2px;font-size:10px;font-weight:700;color:${col};
+        text-transform:uppercase;letter-spacing:0.7px;border-top:0.5px solid var(--sep);
+        background:${col}11;">${kat}</div>
+      ${items}
+    </div>`;
+  }).join('');
 }
 
 function deleteFavorit(idx){
@@ -3998,18 +4221,27 @@ function editRezept(id){
 
 function _renderEditModal(r){
   const id = _editRezeptId;
-  // Textarea-Zustand vor dem Neurendern sichern (bei Zutaten-Änderungen)
   const existingTextarea = document.getElementById('edit-anleitung');
   if(existingTextarea) _editAnleitung = existingTextarea.value;
+
+  // Lebensmittelliste für Dropdown aufbauen
+  const lmListe = getAktuelleLebensmittel();
+  const lmNamen = lmListe.map(lm=>lm.name).sort((a,b)=>a.localeCompare(b,'de'));
+  function lmOptions(selected){
+    return lmNamen.map(n=>`<option value="${n.replace(/"/g,'&quot;')}"${n===selected?' selected':''}>${n}</option>`).join('');
+  }
+
   const zRows = _editZutaten.map((z,i)=>`
     <div style="display:flex;gap:5px;align-items:center;margin-bottom:5px;">
-      <input type="text" value="${(z.name||'').replace(/"/g,'&quot;')}" placeholder="Zutat"
-        style="flex:2;font-size:12px;padding:4px 6px;border-radius:6px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);"
-        oninput="_editZutaten[${i}].name=this.value">
-      <input type="text" value="${(z.menge||'').replace(/"/g,'&quot;')}" placeholder="Menge"
+      <select style="flex:2;font-size:12px;padding:4px 6px;border-radius:6px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);"
+        onchange="_editZutaten[${i}].name=this.value;_autoRecalcNaehrwerte()">
+        <option value="">– Lebensmittel –</option>
+        ${lmOptions(z.name)}
+      </select>
+      <input type="text" value="${(z.menge||'').replace(/"/g,'&quot;')}" placeholder="z.B. 150g"
         style="flex:1;font-size:12px;padding:4px 6px;border-radius:6px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);"
-        oninput="_editZutaten[${i}].menge=this.value">
-      <button onclick="_editZutaten.splice(${i},1);_renderEditModal(getRezeptMitTypen(REZEPTE.find(x=>x.id===\'${id}\')))"
+        oninput="_editZutaten[${i}].menge=this.value;_autoRecalcNaehrwerte()">
+      <button onclick="_editZutaten.splice(${i},1);_renderEditModal(getRezeptMitTypen(REZEPTE.find(x=>x.id===\'${id}\')));_autoRecalcNaehrwerte()"
         style="background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:2px 5px;line-height:1;">×</button>
     </div>`).join('');
 
@@ -4034,11 +4266,13 @@ function _renderEditModal(r){
       <div><div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:3px;">FETT g</div>
         <input type="number" id="edit-fett" value="${r.fett}" style="width:100%;" min="0" max="300"></div>
     </div>
-    <button onclick="liveBerechneNaehrwerte()" style="width:100%;margin-bottom:10px;background:rgba(52,199,89,0.1);border:1px solid rgba(52,199,89,0.3);border-radius:8px;padding:6px;font-size:12px;font-weight:600;color:var(--green-dark);cursor:pointer;">↻ Makros aus Zutaten berechnen</button>
-    <div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:5px;">ZUTATEN (1 Person)</div>
+    <div style="font-size:10px;color:var(--text-ter);margin-bottom:8px;padding:5px 8px;background:var(--sep);border-radius:6px;">
+      Makros werden bei Zutaten- und Mengenänderungen automatisch neu berechnet
+    </div>
+    <div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:5px;">ZUTATEN (1 Person) – nur aus Lebensmittelliste</div>
     <div id="edit-zutaten-wrap">${zRows}</div>
     <button onclick="_editZutaten.push({name:'',menge:''});_renderEditModal(getRezeptMitTypen(REZEPTE.find(x=>x.id==='${id}')))"
-      style="width:100%;margin:4px 0 10px;background:rgba(118,118,128,0.09);border:1.5px dashed var(--border-mid);border-radius:8px;padding:6px;font-size:13px;font-weight:600;color:var(--text-sec);cursor:pointer;">+ Zutat</button>
+      style="width:100%;margin:4px 0 10px;background:rgba(118,118,128,0.09);border:1.5px dashed var(--border-mid);border-radius:8px;padding:6px;font-size:13px;font-weight:600;color:var(--text-sec);cursor:pointer;">+ Zutat hinzufügen</button>
     <div style="font-size:10px;font-weight:700;color:var(--text-sec);margin-bottom:5px;">KENNZEICHNUNG</div>
     <div style="display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap;">
       <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
@@ -4060,6 +4294,20 @@ function _renderEditModal(r){
     </div>
   `;
 }
+
+// Auto-Neuberechnung Makros bei Zutatenänderung (live)
+function _autoRecalcNaehrwerte(){
+  const validZutaten = _editZutaten.filter(z=>z.name && z.name.trim() && z.menge && z.menge.trim());
+  if(!validZutaten.length) return;
+  const nw = berechneNaehrwerte(validZutaten);
+  const f = id => document.getElementById(id);
+  if(f('edit-kcal'))    f('edit-kcal').value    = nw.kcal;
+  if(f('edit-protein')) f('edit-protein').value = nw.p;
+  if(f('edit-kh'))      f('edit-kh').value      = nw.k;
+  if(f('edit-fett'))    f('edit-fett').value     = nw.f;
+}
+
+
 
 function saveRezeptEdit(id){
   const overrides = loadRezeptTypen();
@@ -4366,6 +4614,150 @@ function importRezepteText(){
   if(fi) fi.value = '';
   showToast(valid.length+' Rezepte importiert','✓');
 }
+
+// ── Daten-Tab Sub-Navigation ─────────────────────────────────
+function switchDatenTab(name){
+  ['ziele','import','exportcsv','benachrichtigung'].forEach(t=>{
+    const btn   = document.getElementById('dsub-'+t);
+    const panel = document.getElementById('dsub-panel-'+t);
+    if(btn)   btn.classList.toggle('active', t===name);
+    if(panel) panel.style.display = t===name ? '' : 'none';
+  });
+  if(name==='exportcsv') renderExportCount();
+}
+
+// ── Lebensmittel Import/Export ────────────────────────────────
+const LM_CUSTOM_KEY = 'ght_lebensmittel_v1';
+
+function loadCustomLebensmittel(){
+  try { return JSON.parse(localStorage.getItem(LM_CUSTOM_KEY))||null; } catch(e){ return null; }
+}
+function saveCustomLebensmittel(arr){ localStorage.setItem(LM_CUSTOM_KEY, JSON.stringify(arr)); }
+
+function getAktuelleLebensmittel(){
+  const custom = loadCustomLebensmittel();
+  return custom || LEBENSMITTEL_JSON_FALLBACK;
+}
+
+function importLebensmittelFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('lm-import-text').value = e.target.result;
+    importLebensmittelText();
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function importLebensmittelText(){
+  const statusEl = document.getElementById('lm-import-status');
+  const raw = document.getElementById('lm-import-text').value.trim();
+  if(!raw){ statusEl.textContent = '⚠️ Kein JSON eingegeben.'; statusEl.style.color='var(--orange)'; return; }
+  let parsed;
+  try { parsed = JSON.parse(raw); } catch(e){
+    statusEl.textContent = '✗ Ungültiges JSON: '+e.message;
+    statusEl.style.color = 'var(--red)'; return;
+  }
+  const arr = Array.isArray(parsed) ? parsed : [parsed];
+  const errors = [];
+  const valid = arr.filter((lm,i)=>{
+    if(!lm.name){ errors.push('Eintrag '+(i+1)+': name fehlt'); return false; }
+    return true;
+  });
+  if(!valid.length){
+    statusEl.textContent = '✗ Keine gültigen Einträge: '+errors.join(', ');
+    statusEl.style.color = 'var(--red)'; return;
+  }
+  // Normalisieren
+  const normalized = valid.map(lm=>({
+    name:     lm.name,
+    kat:      lm.kat   || 'Sonstiges',
+    favorit:  !!lm.favorit,
+    saison:   Array.isArray(lm.saison) ? lm.saison : [],
+    pyramide: lm.pyramide || '',
+    einheit:  lm.einheit  || 'g',
+    kcal:     lm.kcal    != null ? lm.kcal    : null,
+    protein:  lm.protein != null ? lm.protein : null,
+    kh:       lm.kh      != null ? lm.kh      : null,
+    fett:     lm.fett    != null ? lm.fett    : null,
+  }));
+  saveCustomLebensmittel(normalized);
+  // Favoriten neu syncen falls schon vorhanden
+  syncFavoritenAusLebensmittel(normalized);
+  let msg = '✓ '+valid.length+' Lebensmittel importiert';
+  if(errors.length) msg += ' ('+errors.length+' übersprungen)';
+  statusEl.textContent = msg;
+  statusEl.style.color = 'var(--green-dark)';
+  document.getElementById('lm-import-text').value = '';
+  const fi = document.getElementById('lm-import-file');
+  if(fi) fi.value = '';
+  showToast(valid.length+' Lebensmittel importiert','🥦');
+}
+
+function exportLebensmittelJSON(){
+  const lm = getAktuelleLebensmittel();
+  const json = JSON.stringify(lm, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'lebensmittel.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('lebensmittel.json heruntergeladen','📥');
+}
+
+// Sync Favoriten aus importierten Lebensmitteln
+function syncFavoritenAusLebensmittel(lmArr){
+  const favData = (lmArr || getAktuelleLebensmittel()).filter(lm=>lm.favorit);
+  const favs = favData.map(lm=>{
+    const katEmoji = lmKatToEmoji(lm.kat);
+    return { name: lm.name, kategorie: katEmoji, monate: lm.saison||[], kcal: lm.kcal, protein: lm.protein, kh: lm.kh, fett: lm.fett, einheit: lm.einheit };
+  });
+  favs.sort((a,b)=>a.name.localeCompare(b.name,'de'));
+  saveFavoriten(favs);
+  if(document.getElementById('esub-panel-favoriten') && document.getElementById('esub-panel-favoriten').style.display !== 'none'){
+    renderFavoriten();
+  }
+}
+
+function lmKatToEmoji(kat){
+  const map = {
+    'Gemüse':'🥦 Gemüse','Hülsenfrüchte':'🥩 Protein','Obst':'🍎 Obst',
+    'Getreide':'🍞 Getreide','Milch':'🥛 Milch','Fleisch':'🥩 Protein',
+    'Fisch':'🥩 Protein','Eier':'🥩 Protein','Öl':'🫒 Öl & Nüsse',
+    'Nüsse':'🫒 Öl & Nüsse','Sonstiges':'🍫 Sonstiges',
+  };
+  return map[kat] || ('🍫 '+kat);
+}
+
+// Beim Start Custom-Lebensmittel anwenden
+(function initLebensmittel(){
+  const custom = loadCustomLebensmittel();
+  if(custom && custom.length){
+    // LEBENSMITTEL_DB mit importierten Daten anreichern
+    custom.forEach(lm=>{
+      const existing = LEBENSMITTEL_DB.find(d=>d.name.toLowerCase()===lm.name.toLowerCase());
+      const kat = lmKatToEmoji(lm.kat);
+      if(existing){
+        existing.kat    = kat;
+        existing.monate = lm.saison || existing.monate;
+        if(lm.kcal    != null) existing.kcal    = lm.kcal;
+        if(lm.protein != null) existing.protein = lm.protein;
+        if(lm.kh      != null) existing.kh      = lm.kh;
+        if(lm.fett    != null) existing.fett     = lm.fett;
+      } else {
+        LEBENSMITTEL_DB.push({ name: lm.name, kat, monate: lm.saison||[0], kcal: lm.kcal, protein: lm.protein, kh: lm.kh, fett: lm.fett });
+      }
+    });
+  }
+})();
+
+// Fallback für exportLebensmittelJSON wenn keine Custom-Daten
+const LEBENSMITTEL_JSON_FALLBACK = LEBENSMITTEL_DB.map(lm=>({
+  name: lm.name, kat: (lm.kat||'').replace(/^[^\s]+\s/,''), favorit: false,
+  saison: lm.monate||[], pyramide: '', einheit: 'g',
+  kcal: lm.kcal||null, protein: lm.protein||null, kh: lm.kh||null, fett: lm.fett||null
+}));
 
 function exportRezepteJSON(){
   // Exportiere alle Rezepte als JSON-Vorlage (normalisiert für 1 Person)
