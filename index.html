@@ -936,12 +936,16 @@
     text-align: right;
   }
   .einkauf-source {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--brand);
     background: var(--brand-soft);
-    padding: 1px 6px;
+    padding: 3px 8px;
     border-radius: 6px;
     white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
   }
 
   /* Rezeptbuch */
@@ -1531,11 +1535,13 @@
           <div class="card-icon" style="background:var(--brand-soft);color:var(--brand);font-size:18px;width:34px;height:34px;">🛒</div>
           <div class="card-title">Einkaufsliste</div>
           <span style="font-size:11px;font-weight:600;color:var(--text-sec);background:rgba(0,122,255,0.1);padding:3px 8px;border-radius:8px;">2 Personen</span>
+          <button onclick="resetEinkauf()" style="margin-left:auto;background:var(--sep);color:var(--text-sec);border:none;border-radius:8px;padding:6px 13px;font-size:13px;font-weight:600;cursor:pointer;">↺ Reset</button>
+        </div>
+        <div style="padding:10px 16px 6px;border-bottom:0.5px solid var(--sep);">
           <select id="einkauf-rezept-filter" onchange="renderEinkauf()"
-            style="font-size:12px;padding:4px 8px;border-radius:8px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);max-width:130px;">
+            style="width:100%;font-size:14px;padding:7px 10px;border-radius:var(--radius-el);border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);height:36px;font-family:inherit;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;">
             <option value="">Alle Rezepte</option>
           </select>
-          <button onclick="resetEinkauf()" style="margin-left:auto;background:var(--sep);color:var(--text-sec);border:none;border-radius:8px;padding:6px 13px;font-size:13px;font-weight:600;cursor:pointer;">↺ Reset</button>
         </div>
         <div class="ern-panel-inner" id="einkauf-list"></div>
       </div>
@@ -1675,6 +1681,60 @@
         <p style="font-size:12px;color:var(--text-ter);margin-top:10px;line-height:1.6;">
           Benötigt Browser-Benachrichtigungen. Die Seite muss im Browser geöffnet sein, damit die Erinnerung funktioniert.
         </p>
+      </div>
+    </div>
+
+    <!-- ── Rezept Import ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(52,199,89,0.12);color:var(--green-dark);">📥</div>
+        <div class="card-title">Rezepte importieren (JSON)</div>
+      </div>
+      <div style="padding:14px 16px;">
+        <p style="font-size:13px;color:var(--text-sec);margin-bottom:12px;line-height:1.5;">
+          Importiere neue Rezepte per JSON-Datei oder direkt per Einfügen.<br>
+          <span style="font-size:11px;color:var(--text-ter);">Format: Array von Rezept-Objekten (siehe Vorlage unten)</span>
+        </p>
+
+        <!-- Datei-Upload -->
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:5px;">JSON-Datei wählen</label>
+          <input type="file" id="rezept-import-file" accept=".json"
+            style="font-size:13px;width:100%;padding:6px 0;"
+            onchange="importRezepteFile(this)">
+        </div>
+
+        <!-- Oder: Direkt einfügen -->
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:5px;">Oder JSON direkt einfügen</label>
+          <textarea id="rezept-import-text" rows="5"
+            style="width:100%;font-size:12px;padding:8px;border-radius:8px;border:1px solid var(--border-mid);background:var(--bg);color:var(--text-primary);font-family:monospace;resize:vertical;"
+            placeholder='[{"id":"r20","name":"Mein Rezept","kategorie":"Hauptgericht","mahlzeit":"Abendessen","zeit":25,"portionen":1,"kalorien":400,"protein":30,"kh":35,"fett":12,"zutaten":[{"name":"Hähnchenbrust","menge":"150g"}],"anleitung":["Schritt 1","Schritt 2"],"cookidoo":false,"camping":false,"mealprep":false,"notiz":""}]'></textarea>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <button onclick="importRezepteText()" style="flex:1;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;min-width:140px;">Importieren</button>
+          <button onclick="exportRezepteJSON()" style="flex:1;background:var(--brand-soft);color:var(--brand);border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;min-width:140px;">Vorlage exportieren</button>
+        </div>
+        <div id="rezept-import-status" style="font-size:13px;min-height:18px;"></div>
+
+        <!-- Info zur JSON-Struktur -->
+        <details style="margin-top:10px;">
+          <summary style="font-size:12px;font-weight:600;color:var(--text-sec);cursor:pointer;">JSON-Felder erklärt</summary>
+          <div style="font-size:11px;color:var(--text-sec);margin-top:8px;line-height:1.8;background:var(--bg);border-radius:8px;padding:10px;">
+            <b>id</b> – eindeutige ID, z.B. "r20" (Pflicht)<br>
+            <b>name</b> – Rezeptname (Pflicht)<br>
+            <b>mahlzeit</b> – Frühstück / Mittagessen / Abendessen / Snack / Beilage<br>
+            <b>kategorie</b> – z.B. Hauptgericht, Suppe, Salat<br>
+            <b>zeit</b> – Zubereitungszeit in Minuten<br>
+            <b>portionen</b> – Anzahl Portionen (wird auf 1 normiert)<br>
+            <b>kalorien / protein / kh / fett</b> – Nährwerte pro Portion<br>
+            <b>zutaten</b> – Array: [{name, menge}]<br>
+            <b>anleitung</b> – Array von Schritten als Strings<br>
+            <b>cookidoo / camping / mealprep</b> – true / false<br>
+            <b>notiz</b> – optionaler Hinweis
+          </div>
+        </details>
       </div>
     </div>
 
@@ -4216,6 +4276,128 @@ function importZutatenAlsFavoriten(){
   // Zu Favoriten wechseln
   switchErnTab('favoriten');
 }
+
+
+// ── Rezept-Import / Export ────────────────────────────────────
+const ERN_CUSTOM_REZEPTE_KEY = 'ern_custom_rezepte_v1';
+
+function loadCustomRezepte(){
+  try { return JSON.parse(localStorage.getItem(ERN_CUSTOM_REZEPTE_KEY))||[]; } catch(e){ return []; }
+}
+function saveCustomRezepte(arr){ localStorage.setItem(ERN_CUSTOM_REZEPTE_KEY, JSON.stringify(arr)); }
+
+// Alle Rezepte = Basis + Custom (Custom überschreibt Basis bei gleicher ID)
+function getAlleRezepte(){
+  const custom = loadCustomRezepte();
+  const customIds = new Set(custom.map(r=>r.id));
+  return [...REZEPTE.filter(r=>!customIds.has(r.id)), ...custom];
+}
+
+function importRezepteFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('rezept-import-text').value = e.target.result;
+    importRezepteText();
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function importRezepteText(){
+  const statusEl = document.getElementById('rezept-import-status');
+  const raw = document.getElementById('rezept-import-text').value.trim();
+  if(!raw){ statusEl.textContent = '⚠️ Kein JSON eingegeben.'; statusEl.style.color='var(--orange)'; return; }
+  let parsed;
+  try { parsed = JSON.parse(raw); } catch(e){
+    statusEl.textContent = '✗ Ungültiges JSON: '+e.message;
+    statusEl.style.color = 'var(--red)'; return;
+  }
+  const arr = Array.isArray(parsed) ? parsed : [parsed];
+  const errors = [];
+  const valid = arr.filter((r,i)=>{
+    if(!r.id)   { errors.push('Eintrag '+(i+1)+': id fehlt'); return false; }
+    if(!r.name) { errors.push('Eintrag '+(i+1)+': name fehlt'); return false; }
+    return true;
+  });
+  if(!valid.length){
+    statusEl.textContent = '✗ Keine gültigen Rezepte: '+errors.join(', ');
+    statusEl.style.color = 'var(--red)'; return;
+  }
+  // Normalisieren: Pflichtfelder setzen falls fehlen
+  const normalized = valid.map(r=>({
+    id:        r.id,
+    name:      r.name,
+    kategorie: r.kategorie || 'Sonstiges',
+    mahlzeit:  r.mahlzeit  || 'Sonstiges',
+    zeit:      parseInt(r.zeit)||20,
+    portionen: parseInt(r.portionen)||1,
+    kalorien:  parseInt(r.kalorien)||0,
+    protein:   parseInt(r.protein)||0,
+    kh:        parseInt(r.kh)||0,
+    fett:      parseInt(r.fett)||0,
+    zutaten:   Array.isArray(r.zutaten)   ? r.zutaten   : [],
+    anleitung: Array.isArray(r.anleitung) ? r.anleitung : [],
+    cookidoo:  !!r.cookidoo,
+    camping:   !!r.camping,
+    mealprep:  !!r.mealprep,
+    notiz:     r.notiz || '',
+    pyramide:  r.pyramide || '',
+    bewertung: r.bewertung || 0,
+  }));
+  // Bestehende Custom-Rezepte mergen
+  const existing = loadCustomRezepte();
+  const existingMap = Object.fromEntries(existing.map(r=>[r.id,r]));
+  normalized.forEach(r=>{ existingMap[r.id]=r; });
+  const merged = Object.values(existingMap);
+  saveCustomRezepte(merged);
+  // REZEPTE-Array live aktualisieren (für diese Session)
+  normalized.forEach(r=>{
+    const idx = REZEPTE.findIndex(x=>x.id===r.id);
+    if(idx>=0) REZEPTE[idx]=r; else REZEPTE.push(r);
+  });
+  // Status anzeigen
+  let msg = '✓ '+valid.length+' Rezept'+(valid.length!==1?'e':'')+' importiert';
+  if(errors.length) msg += ' ('+errors.length+' übersprungen)';
+  statusEl.textContent = msg;
+  statusEl.style.color = 'var(--green-dark)';
+  document.getElementById('rezept-import-text').value = '';
+  const fi = document.getElementById('rezept-import-file');
+  if(fi) fi.value = '';
+  showToast(valid.length+' Rezepte importiert','✓');
+}
+
+function exportRezepteJSON(){
+  // Exportiere alle Rezepte als JSON-Vorlage (normalisiert für 1 Person)
+  const alle = REZEPTE.filter(r=>r.mahlzeit!=='ALLE').map(r=>{
+    const rx = getRezeptMitTypen(r);
+    return {
+      id: rx.id, name: rx.name, kategorie: rx.kategorie,
+      mahlzeit: rx.mahlzeit, zeit: rx.zeit, portionen: 1,
+      kalorien: rx.kalorien, protein: rx.protein, kh: rx.kh, fett: rx.fett,
+      zutaten: rx.zutaten, anleitung: rx.anleitung,
+      cookidoo: rx.cookidoo, camping: rx.camping, mealprep: rx.mealprep,
+      notiz: rx.notiz||''
+    };
+  });
+  const json = JSON.stringify(alle, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'rezepte_vorlage.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Vorlage heruntergeladen','📥');
+}
+
+// Beim Start: Custom-Rezepte in REZEPTE laden
+(function loadCustomOnStart(){
+  const custom = loadCustomRezepte();
+  if(!custom.length) return;
+  const customIds = new Set(custom.map(r=>r.id));
+  // Basis-Rezepte die überschrieben werden entfernen
+  for(let i=REZEPTE.length-1;i>=0;i--){ if(customIds.has(REZEPTE[i].id)) REZEPTE.splice(i,1); }
+  REZEPTE.push(...custom);
+})();
 
 
 // ── Init ──────────────────────────────────────────────────────
