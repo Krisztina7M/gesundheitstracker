@@ -727,14 +727,14 @@
     transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
     font-size: 14px; background: transparent;
   }
-  .habit-item.done .habit-check { background: var(--green); border-color: var(--green); transform: scale(1.1); }
+  .habit-item.done .habit-check { background: var(--brand); border-color: var(--brand); transform: scale(1.1); }
   .habit-info { flex: 1; min-width: 0; }
   .habit-name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
   .habit-streak { font-size: 11px; color: var(--text-ter); margin-top: 2px; }
-  .habit-item.done .habit-name { color: var(--green-dark); }
+  .habit-item.done .habit-name { color: var(--brand-dark); }
 
   @media (prefers-color-scheme: dark) {
-    .habit-item.done .habit-name { color: var(--green); }
+    .habit-item.done .habit-name { color: var(--brand); }
   }
 
   /* ── Responsive ── */
@@ -1401,7 +1401,7 @@
         <div class="field-icon">📅</div>
         <div class="field-label">Datum</div>
         <div class="field-right">
-          <input type="date" id="datum">
+          <input type="date" id="datum" onchange="prefillFromLastEntry()">
         </div>
       </div>
       <div class="field-row">
@@ -1483,7 +1483,7 @@
         <div class="field-label">Schritte</div>
         <div class="field-right">
           <span id="thumb-schritte" class="goal-thumb" title="Ziel-Indikator"></span>
-          <input type="number" id="schritte" step="100" min="0" max="100000" placeholder="0" oninput="updateThumb('schritte')">
+          <input type="text" inputmode="numeric" id="schritte" placeholder="0" oninput="formatSchritte(this);updateThumb('schritte')" style="text-align:right;width:82px;">
           <span class="unit">Schr.</span>
         </div>
       </div>
@@ -1537,6 +1537,15 @@
           </select>
         </div>
       </div>
+    </div>
+
+    <!-- Sport-Einheiten des Tages -->
+    <div class="card" id="sport-einheiten-card" style="display:none;margin-bottom:0;">
+      <div class="card-header">
+        <div class="card-icon icon-orange">📋</div>
+        <div class="card-title">Sport heute</div>
+      </div>
+      <div id="sport-einheiten-list"></div>
     </div>
 
     <!-- Zonen Visualizer -->
@@ -1633,9 +1642,12 @@
       </div>
     </div>
 
-    <div class="action-row">
-      <button class="btn btn-primary" onclick="saveEntry()">Speichern</button>
-      <button class="btn btn-neutral" onclick="resetForm()">Zurücksetzen</button>
+    <div class="action-row" style="flex-direction:column;gap:8px;">
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="saveEntry()" style="flex:1;">Speichern</button>
+        <button class="btn btn-neutral" onclick="addSportEinheit()" style="flex:1;">🏃 Sport hinzufügen</button>
+      </div>
+      <button class="btn btn-neutral" onclick="resetForm()" style="width:100%;opacity:0.7;font-size:14px;padding:10px;">↺ Zurücksetzen</button>
     </div>
 
   </div><!-- end tab-tracking -->
@@ -2392,6 +2404,24 @@ function updateZones(){
   } else { mr.innerHTML = ''; }
 }
 
+// ── Schritte: Tausenderpunkt-Formatierung ────────────────────
+function formatSchritte(el){
+  // Rohe Zahl extrahieren (Punkte entfernen)
+  const raw = el.value.replace(/\./g,'').replace(/\D/g,'');
+  if(raw===''){el.value='';return;}
+  const num = parseInt(raw,10);
+  if(isNaN(num)){el.value='';return;}
+  // Mit Tausenderpunkten formatieren
+  el.value = num.toLocaleString('de-DE');
+}
+
+function schritteRaw(){
+  // Gibt den numerischen Rohwert des Schritte-Feldes zurück
+  const el = document.getElementById('schritte');
+  if(!el||el.value==='') return '';
+  return parseInt(el.value.replace(/\./g,'').replace(/\D/g,''),10)||'';
+}
+
 // ── Mood ─────────────────────────────────────────────────────
 let moodVal = 7;
 const MOOD_LABELS = {1:'Sehr schlecht',2:'Schlecht',3:'Nicht gut',4:'Mäßig',5:'Ok',
@@ -2440,10 +2470,27 @@ function fmtDate(d){
 function saveEntry(){
   const datum = document.getElementById('datum').value;
   if(!datum){ showToast('Bitte Datum auswählen','⚠️'); return; }
-  const sport = document.getElementById('sport').value;
-  const ints  = document.getElementById('intensitaet').value;
-  const mins  = parseInt(document.getElementById('aktivitaet').value)||0;
-  const zones = (sport && mins>0) ? calcZones(sport, ints||'Mittel') : null;
+
+  const entries = getEntries();
+  const idx     = entries.findIndex(e=>e.datum===datum);
+  const existing = idx>=0 ? entries[idx] : {};
+
+  // Sport-Einheiten aus bestehenden Eintrag übernehmen (werden via addSportEinheit gepflegt)
+  const sportEinheiten = existing.sportEinheiten || [];
+
+  // Zonen aus allen Sport-Einheiten summieren
+  let zonenSumme = null;
+  let aktivSumme = 0;
+  sportEinheiten.forEach(se => {
+    aktivSumme += se.aktivitaet || 0;
+    if(se.zonen){
+      if(!zonenSumme) zonenSumme = {am:0,km:0,bm:0,em:0};
+      zonenSumme.am += se.zonen.am||0;
+      zonenSumme.km += se.zonen.km||0;
+      zonenSumme.bm += se.zonen.bm||0;
+      zonenSumme.em += se.zonen.em||0;
+    }
+  });
 
   const entry = {
     datum,
@@ -2451,26 +2498,102 @@ function saveEntry(){
     bauch:       document.getElementById('bauch').value||'',
     schlaf:      document.getElementById('schlaf-direct').value !== '' ? sliderVal('slider-schlaf') : '',
     trinken:     document.getElementById('trinken-direct').value !== '' ? sliderVal('slider-trinken') : '',
-    schritte:    document.getElementById('schritte').value||'',
-    aktivitaet:  mins||'',
-    sport, intensitaet: ints,
+    schritte:    schritteRaw(),
+    aktivitaet:  aktivSumme || '',
+    sport:       sportEinheiten.length ? sportEinheiten.map(s=>s.sport).filter(Boolean).join(', ') : '',
+    intensitaet: sportEinheiten.length ? sportEinheiten.map(s=>s.intensitaet).filter(Boolean).join(', ') : '',
     wohlbefinden: moodVal,
     notizen:     document.getElementById('notizen').value,
-    habits: {...habitState},
-    zonen: zones ? {
+    habits:      {...habitState},
+    sportEinheiten,
+    zonen: zonenSumme,
+  };
+
+  if(idx>=0){ entries[idx]=entry; showToast(fmtDate(datum)+' aktualisiert'); }
+  else { entries.unshift(entry); showToast(fmtDate(datum)+' gespeichert'); }
+  saveEntries(entries);
+}
+
+// ── Sport-Einheit hinzufügen ──────────────────────────────────
+function addSportEinheit(){
+  const datum = document.getElementById('datum').value;
+  if(!datum){ showToast('Bitte Datum auswählen','⚠️'); return; }
+  const sport = document.getElementById('sport').value;
+  const ints  = document.getElementById('intensitaet').value;
+  const mins  = parseInt(document.getElementById('aktivitaet').value)||0;
+  if(!sport){ showToast('Bitte Sportart wählen','⚠️'); return; }
+  if(mins<=0){ showToast('Bitte Aktivitätszeit eingeben','⚠️'); return; }
+
+  const zones = calcZones(sport, ints||'Mittel');
+  const einheit = {
+    sport, intensitaet: ints, aktivitaet: mins,
+    zonen: {
       ap: zones.a, kp: zones.k, bp: zones.b, ep: zones.e,
       am: Math.round(zones.a/100*mins),
       km: Math.round(zones.k/100*mins),
       bm: Math.round(zones.b/100*mins),
       em: Math.round(zones.e/100*mins),
-    } : null,
+    }
   };
 
+  // Einheit in existierenden oder neuen Eintrag speichern
   const entries = getEntries();
   const idx = entries.findIndex(e=>e.datum===datum);
-  if(idx>=0){ entries[idx]=entry; showToast(fmtDate(datum)+' aktualisiert'); }
-  else { entries.unshift(entry); showToast(fmtDate(datum)+' gespeichert'); }
+  if(idx>=0){
+    if(!entries[idx].sportEinheiten) entries[idx].sportEinheiten = [];
+    entries[idx].sportEinheiten.push(einheit);
+  } else {
+    entries.unshift({ datum, sportEinheiten:[einheit] });
+  }
   saveEntries(entries);
+
+  // Sport-Felder zurücksetzen, Liste neu rendern
+  document.getElementById('aktivitaet').value = '';
+  document.getElementById('sport').value      = '';
+  document.getElementById('intensitaet').value= '';
+  document.getElementById('zone-card').classList.remove('visible');
+  updateThumbAktivitaet();
+  renderSportEinheiten(datum);
+  showToast(sport+' hinzugefügt ✓','🏃');
+}
+
+// ── Sport-Einheiten-Liste rendern ─────────────────────────────
+function renderSportEinheiten(datum){
+  const card    = document.getElementById('sport-einheiten-card');
+  const list    = document.getElementById('sport-einheiten-list');
+  if(!card||!list) return;
+  const entries = getEntries();
+  const entry   = entries.find(e=>e.datum===datum);
+  const einheiten = entry?.sportEinheiten || [];
+  if(!einheiten.length){ card.style.display='none'; return; }
+  card.style.display = '';
+  const ZONE_COLS = {am:'#34c759',km:'#ff9500',bm:'#af52de',em:'#5856d6'};
+  const ZONE_LBL  = {am:'Ausdauer',km:'Kraft',bm:'Bewegl.',em:'Entsp.'};
+  list.innerHTML = einheiten.map((se,i)=>{
+    const chips = se.zonen ? Object.entries(ZONE_COLS)
+      .filter(([k])=>se.zonen[k]>0)
+      .map(([k,col])=>`<span style="font-size:11px;padding:2px 7px;border-radius:8px;background:${col}22;color:${col};font-weight:600;">${ZONE_LBL[k]} ${se.zonen[k]}'</span>`)
+      .join('') : '';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:0.5px solid var(--sep);">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:15px;font-weight:500;">${se.sport}${se.intensitaet?' · '+se.intensitaet:''} · ${se.aktivitaet} Min</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">${chips}</div>
+      </div>
+      <button onclick="deleteSportEinheit('${datum}',${i})"
+        style="border:none;background:none;color:var(--text-ter);font-size:18px;cursor:pointer;padding:2px 4px;line-height:1;">×</button>
+    </div>`;
+  }).join('');
+}
+
+// ── Sport-Einheit löschen ─────────────────────────────────────
+function deleteSportEinheit(datum, idx){
+  const entries = getEntries();
+  const eIdx    = entries.findIndex(e=>e.datum===datum);
+  if(eIdx<0) return;
+  entries[eIdx].sportEinheiten.splice(idx,1);
+  saveEntries(entries);
+  renderSportEinheiten(datum);
+  showToast('Sport-Einheit entfernt','🗑️');
 }
 
 // ── Reset ─────────────────────────────────────────────────────
@@ -2501,6 +2624,7 @@ function resetForm(){
   renderHabits();
   ['gewicht','bauch','schlaf','trinken','schritte'].forEach(k => updateThumb(k));
   updateThumbAktivitaet();
+  prefillFromLastEntry();
 }
 
 // ── Render History ────────────────────────────────────────────
@@ -3345,6 +3469,14 @@ function getThumbEmoji(value, goal, lowerIsBetter) {
 }
 
 function updateThumb(field) {
+  // Schritte: Tausenderpunkt-formatierter Text → Rohzahl
+  if(field==='schritte'){
+    const raw = schritteRaw();
+    const goal = loadGoals().schritte;
+    const thumbEl = document.getElementById('thumb-schritte');
+    if(thumbEl) thumbEl.textContent = getThumbEmoji(raw, goal, false);
+    return;
+  }
   const el = document.getElementById('thumb-' + field);
   if (!el) return;
   const g = loadGoals();
@@ -5688,6 +5820,61 @@ function jzvLoadGoals(){
   return loadGoals();
 }
 
+// ── Prefill aus letztem Eintrag ───────────────────────────────
+function prefillFromLastEntry(){
+  const datum   = document.getElementById('datum').value;
+  const entries = getEntries();
+  // Aktuellen Eintrag für dieses Datum finden (für Sport-Liste)
+  const cur = entries.find(e=>e.datum===datum);
+  // Letzten Eintrag VOR diesem Datum für Vorbelegung
+  const prev = entries.find(e=>e.datum < datum);
+  const src  = cur || prev;
+  if(!src) return;
+
+  // Felder befüllen – nur wenn noch leer
+  function setIfEmpty(id, val){
+    const el = document.getElementById(id);
+    if(el && el.value==='' && val!=null && val!=='') el.value = val;
+  }
+  function setSliderIfEmpty(sliderId, directId, outId, val){
+    const el = document.getElementById(directId);
+    if(el && el.value==='' && val!=null && val!==''){
+      el.value = val;
+      directInputSlider(sliderId, directId,
+        parseFloat(document.getElementById(sliderId).dataset.min),
+        parseFloat(document.getElementById(sliderId).dataset.max),
+        parseFloat(document.getElementById(sliderId).dataset.step),
+        outId);
+    }
+  }
+
+  setIfEmpty('gewicht',  src.gewicht);
+  setIfEmpty('bauch',    src.bauch);
+  setSliderIfEmpty('slider-schlaf',  'schlaf-direct',  'schlaf-v',  src.schlaf);
+  setSliderIfEmpty('slider-trinken', 'trinken-direct', 'trinken-v', src.trinken);
+  // Schritte mit Tausenderpunkt-Formatierung setzen
+  if(document.getElementById('schritte').value==='' && src.schritte!=null && src.schritte!==''){
+    const num = parseInt(String(src.schritte).replace(/\./g,''),10);
+    if(!isNaN(num)) document.getElementById('schritte').value = num.toLocaleString('de-DE');
+  }
+  setIfEmpty('notizen',  src.notizen);
+
+  // Stimmung nur aus aktuellem Eintrag übernehmen
+  if(cur && cur.wohlbefinden) setMood(cur.wohlbefinden);
+
+  // Habits aus aktuellem Eintrag laden (falls Datum schon existiert)
+  if(cur && cur.habits){
+    habitState = {...cur.habits};
+    renderHabits();
+  }
+
+  // Thumbs aktualisieren
+  ['gewicht','bauch','schlaf','trinken','schritte'].forEach(k => updateThumb(k));
+
+  // Sport-Einheiten des aktuellen Tages anzeigen
+  renderSportEinheiten(datum);
+}
+
 // ── Init ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('datum').value = today();
@@ -5706,6 +5893,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     startReminderLoop();
   }
   updateReminderUI();
+  // Letzten Eintrag vorbefüllen
+  prefillFromLastEntry();
 });
 </script>
 </body>
