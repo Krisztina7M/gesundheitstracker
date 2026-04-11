@@ -1155,6 +1155,209 @@
     font-size: 10px; padding: 2px 6px; border-radius: 6px;
     background: rgba(90,200,250,0.15); color: #007aff; font-weight: 600;
   }
+
+  /* ══════════════════════════════════════════════
+     JAHRESZIELE – Verlauf-Visualisierung
+     ══════════════════════════════════════════════ */
+
+  /* Banner */
+  .jzv-banner {
+    background: linear-gradient(135deg, var(--brand) 0%, #c0186e 100%);
+    border-radius: var(--radius-card);
+    padding: 18px 16px 14px;
+    color: white; margin-bottom: 16px;
+    position: relative; overflow: hidden;
+  }
+  .jzv-banner::before { content:''; position:absolute; top:-28px; right:-28px; width:100px; height:100px; background:rgba(255,255,255,0.08); border-radius:50%; }
+  .jzv-banner::after  { content:''; position:absolute; bottom:-18px; right:44px; width:68px; height:68px; background:rgba(255,255,255,0.06); border-radius:50%; }
+  .jzv-banner-top  { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+  .jzv-banner-lhs  { }
+  .jzv-banner-sub  { font-size:12px; opacity:.85; margin-bottom:2px; }
+  .jzv-banner-year { font-size:26px; font-weight:700; line-height:1; }
+  .jzv-badge       { background:rgba(255,255,255,0.2); border-radius:20px; padding:3px 10px; font-size:12px; font-weight:600; white-space:nowrap; }
+  .jzv-bar-wrap    { background:rgba(255,255,255,0.25); border-radius:4px; height:6px; margin-bottom:5px; overflow:hidden; }
+  .jzv-bar-fill    { height:100%; background:white; border-radius:4px; transition:width .8s ease; }
+  .jzv-banner-stats { display:flex; gap:12px; font-size:11px; opacity:.8; flex-wrap:wrap; }
+
+  /* Donut-Ringe */
+  .jzv-rings-grid { display:grid; grid-template-columns:repeat(2,1fr); }
+  .jzv-ring-cell  {
+    padding:14px 12px; display:flex; flex-direction:column; align-items:center; gap:6px;
+    border-right:0.5px solid var(--sep); border-bottom:0.5px solid var(--sep);
+  }
+  .jzv-ring-cell:nth-child(2n) { border-right:none; }
+  .jzv-ring-cell:nth-last-child(-n+2) { border-bottom:none; }
+  .jzv-ring-svg   { width:68px; height:68px; }
+  .jzv-ring-val   { font-size:14px; font-weight:700; }
+  .jzv-ring-lbl   { font-size:11px; color:var(--text-sec); text-align:center; line-height:1.3; }
+
+  /* Fortschrittsbalken-Ziele */
+  .jzv-goal-row   {
+    display:flex; align-items:center; gap:12px;
+    padding:11px 16px; border-bottom:0.5px solid var(--sep);
+  }
+  .jzv-goal-row:last-child { border-bottom:none; }
+  .jzv-goal-icon  { font-size:18px; width:24px; text-align:center; flex-shrink:0; }
+  .jzv-goal-info  { flex:1; min-width:0; }
+  .jzv-goal-name  { font-size:var(--fs-label); font-weight:500; }
+  .jzv-goal-sub   { font-size:var(--fs-label-sm); color:var(--text-sec); margin-top:1px; }
+  .jzv-goal-bar-wrap { background:var(--bg); border-radius:4px; height:5px; margin-top:5px; overflow:hidden; }
+  .jzv-goal-bar-fill { height:100%; border-radius:4px; transition:width .8s ease; }
+  .jzv-goal-right { text-align:right; flex-shrink:0; min-width:46px; }
+  .jzv-goal-pct   { font-size:var(--fs-label); font-weight:700; }
+  .jzv-goal-detail{ font-size:var(--fs-label-sm); color:var(--text-sec); }
+  .jzv-goal-check { font-size:16px; color:var(--green); }
+
+  /* Monats-Balken */
+  .jzv-month-grid { display:grid; grid-template-columns:repeat(12,1fr); gap:3px; padding:12px 16px 6px; }
+  .jzv-month-col  { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .jzv-month-bar-wrap { width:100%; height:56px; background:var(--bg); border-radius:4px; display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden; }
+  .jzv-month-bar-fill { width:100%; border-radius:4px 4px 0 0; transition:height .8s ease; }
+  .jzv-month-name { font-size:9px; color:var(--text-ter); font-weight:500; }
+  .jzv-month-name.cur { color:var(--brand); font-weight:700; }
+  .jzv-chart-legend { display:flex; justify-content:space-between; padding:2px 16px 12px; font-size:10px; color:var(--text-ter); }
+
+  /* Metric-Seg */
+  .jzv-seg { display:flex; background:var(--bg); border-radius:8px; padding:2px; gap:0; }
+  .jzv-seg-btn {
+    border:none; background:transparent; border-radius:6px;
+    font-size:12px; font-weight:500; padding:5px 10px; cursor:pointer;
+    color:var(--text-sec); transition:all .2s; font-family:inherit;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .jzv-seg-btn.active { background:var(--card-bg); color:var(--text-primary); box-shadow:0 1px 3px rgba(0,0,0,0.12); }
+
+  /* Habit-Dots */
+  .jzv-habit-section { padding:12px 16px 4px; }
+  .jzv-habit-row     { margin-bottom:12px; }
+  .jzv-habit-hdr     { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+  .jzv-habit-name    { font-size:14px; font-weight:500; }
+  .jzv-habit-meta    { font-size:11px; color:var(--text-sec); }
+  .jzv-dots          { display:flex; flex-wrap:wrap; gap:2px; }
+  .jzv-dot           { width:8px; height:8px; border-radius:2px; background:var(--bg); flex-shrink:0; }
+  .jzv-dot.done      { background:var(--brand); }
+
+  /* Highlights */
+  .jzv-hi-grid  { display:grid; grid-template-columns:repeat(3,1fr); }
+  .jzv-hi-cell  { padding:14px 10px; text-align:center; border-right:0.5px solid var(--sep); }
+  .jzv-hi-cell:last-child { border-right:none; }
+  .jzv-hi-val   { font-size:19px; font-weight:700; }
+  .jzv-hi-lbl   { font-size:10px; color:var(--text-sec); margin-top:2px; line-height:1.3; }
+
+  /* ══════════════════════════════════════════════
+     JAHRESZIELE – Eingabe & Visualisierung
+     ══════════════════════════════════════════════ */
+
+  /* Jahresbanner */
+  .jz-banner {
+    background: linear-gradient(135deg, var(--brand) 0%, #c0186e 100%);
+    border-radius: var(--radius-card);
+    padding: 18px 16px;
+    color: white;
+    margin-bottom: 16px;
+    position: relative; overflow: hidden;
+  }
+  .jz-banner::before {
+    content:''; position:absolute; top:-24px; right:-24px;
+    width:96px; height:96px; background:rgba(255,255,255,0.08); border-radius:50%;
+  }
+  .jz-banner::after {
+    content:''; position:absolute; bottom:-16px; right:40px;
+    width:64px; height:64px; background:rgba(255,255,255,0.06); border-radius:50%;
+  }
+  .jz-banner-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+  .jz-banner-title { font-size:12px; opacity:.85; margin-bottom:2px; }
+  .jz-banner-year  { font-size:26px; font-weight:700; line-height:1; }
+  .jz-banner-badge { background:rgba(255,255,255,0.2); border-radius:20px; padding:3px 10px; font-size:12px; font-weight:600; white-space:nowrap; }
+  .jz-banner-bar-wrap { background:rgba(255,255,255,0.25); border-radius:4px; height:6px; margin-bottom:5px; overflow:hidden; }
+  .jz-banner-bar-fill { height:100%; background:white; border-radius:4px; }
+  .jz-banner-stats { display:flex; gap:14px; font-size:11px; opacity:.8; flex-wrap:wrap; }
+
+  /* Modus-Toggle */
+  .jz-mode-bar {
+    background: var(--card-bg);
+    border-radius: var(--radius-card);
+    padding: 3px; display:flex; gap:0;
+    margin-bottom:16px;
+    box-shadow: var(--shadow);
+  }
+  .jz-mode-btn {
+    flex:1; border:none; background:transparent;
+    border-radius: 12px; padding:8px 4px;
+    font-size:13px; font-weight:500; cursor:pointer;
+    color:var(--text-sec); transition:all .2s; font-family:inherit;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .jz-mode-btn.active { background:var(--brand); color:white; }
+
+  /* Kategorie-Card */
+  .jz-cat-header {
+    display:flex; align-items:center; gap:10px;
+    padding:12px 16px;
+    border-bottom:0.5px solid var(--sep);
+  }
+  .jz-cat-icon {
+    width:30px; height:30px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; flex-shrink:0;
+  }
+  .jz-cat-title { font-size:var(--fs-card-hd); font-weight:600; flex:1; }
+  .jz-cat-count { font-size:var(--fs-label-sm); color:var(--text-ter); }
+
+  /* Ziel-Eingabe-Zeile */
+  .jz-ziel-row {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:9px 16px;
+    border-bottom:0.5px solid var(--sep);
+  }
+  .jz-ziel-row:last-child { border-bottom:none; }
+  .jz-num {
+    width:20px; height:20px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; color:white;
+    flex-shrink:0; margin-top:9px;
+  }
+  .jz-textarea {
+    flex:1; border:none; background:transparent;
+    font-size:var(--fs-label); font-family:inherit;
+    color:var(--text-primary);
+    padding:7px 0; resize:none; outline:none;
+    line-height:1.4; min-height:34px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .jz-textarea::placeholder { color:var(--text-ter); }
+  .jz-clear {
+    border:none; background:transparent; color:var(--text-ter);
+    font-size:17px; cursor:pointer; padding:5px 0;
+    line-height:1; flex-shrink:0; margin-top:5px; width:22px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .jz-clear:hover { color:var(--text-sec); }
+
+  /* Read-Modus */
+  .jz-read-row {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:10px 16px;
+    border-bottom:0.5px solid var(--sep);
+  }
+  .jz-read-row:last-child { border-bottom:none; }
+  .jz-bullet { width:6px; height:6px; border-radius:3px; flex-shrink:0; margin-top:7px; }
+  .jz-read-text { font-size:var(--fs-label); color:var(--text-primary); line-height:1.4; flex:1; }
+  .jz-empty-hint { padding:14px 16px; font-size:13px; color:var(--text-ter); text-align:center; font-style:italic; }
+
+  /* Speichern-Button */
+  .jz-save-wrap { margin-bottom:16px; }
+  .jz-save-btn {
+    width:100%; background:var(--brand); color:white;
+    border:none; border-radius:var(--radius-card);
+    padding:14px; font-size:var(--fs-btn); font-weight:600;
+    cursor:pointer; font-family:inherit; transition:background .2s, transform .1s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .jz-save-btn:active { background:var(--brand-dark); transform:scale(.98); }
+
+  /* Timestamp */
+  .jz-timestamp { text-align:center; font-size:11px; color:var(--text-ter); padding:0 0 12px; }
 </style>
 </head>
 <body>
@@ -1440,6 +1643,79 @@
   <!-- ═══════════════ TAB: VERLAUF ═══════════════ -->
   <div class="tab-panel" id="tab-verlauf">
     <div id="stats-area"></div>
+
+    <!-- ── Jahresziele Visualisierung ── -->
+    <div id="jzv-section">
+
+      <!-- Jahresbanner -->
+      <div class="jzv-banner">
+        <div class="jzv-banner-top">
+          <div class="jzv-banner-lhs">
+            <div class="jzv-banner-sub">Jahresfortschritt</div>
+            <div class="jzv-banner-year" id="jzv-year">2026</div>
+          </div>
+          <div class="jzv-badge" id="jzv-pct-badge">–</div>
+        </div>
+        <div class="jzv-bar-wrap"><div class="jzv-bar-fill" id="jzv-bar" style="width:0%"></div></div>
+        <div class="jzv-banner-stats" id="jzv-stats">–</div>
+      </div>
+
+      <!-- Sport-Jahresziele (Donut-Ringe) -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-icon icon-green">🏃</div>
+          <div class="card-title">Sport-Jahresziele</div>
+        </div>
+        <div class="jzv-rings-grid" id="jzv-rings"></div>
+      </div>
+
+      <!-- Tagesschnitt-Ziele -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-icon icon-blue">📊</div>
+          <div class="card-title">Tagesschnitt-Ziele</div>
+        </div>
+        <div id="jzv-tages-goals"></div>
+      </div>
+
+      <!-- Monatsübersicht -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-icon icon-orange">📅</div>
+          <div class="card-title">Monatsübersicht</div>
+          <div class="jzv-seg" style="margin-left:auto;" id="jzv-metric-seg">
+            <button class="jzv-seg-btn active" onclick="jzvSetMetric('schritte',this)">Schritte</button>
+            <button class="jzv-seg-btn" onclick="jzvSetMetric('schlaf',this)">Schlaf</button>
+            <button class="jzv-seg-btn" onclick="jzvSetMetric('gewicht',this)">Gewicht</button>
+          </div>
+        </div>
+        <div class="jzv-month-grid" id="jzv-month-bars"></div>
+        <div class="jzv-chart-legend"><span>Jan</span><span id="jzv-chart-goal-label">Ziel</span><span>Dez</span></div>
+      </div>
+
+      <!-- Habit-Jahresbilanz -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--brand-soft);">🔥</div>
+          <div class="card-title">Habit-Jahresbilanz</div>
+        </div>
+        <div class="jzv-habit-section" id="jzv-habits"></div>
+      </div>
+
+      <!-- Jahres-Highlights -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(255,215,0,0.15);">🏆</div>
+          <div class="card-title">Jahres-Highlights</div>
+        </div>
+        <div class="jzv-hi-grid" id="jzv-highlights-top"></div>
+        <div style="border-top:0.5px solid var(--sep);">
+          <div class="jzv-hi-grid" id="jzv-highlights-bot"></div>
+        </div>
+      </div>
+
+    </div><!-- end jzv-section -->
+
     <!-- Sportziele letzte 7 Tage -->
     <div class="card" id="verlauf-sport-goals-card">
       <div class="card-header">
@@ -1602,6 +1878,7 @@
     <div class="card" style="padding:0;overflow:hidden;">
       <div class="ern-subnav">
         <button class="ern-sub-btn active" onclick="switchDatenTab('ziele')"       id="dsub-ziele">Ziele</button>
+        <button class="ern-sub-btn"        onclick="switchDatenTab('jahresziele')" id="dsub-jahresziele">Jahresziele</button>
         <button class="ern-sub-btn"        onclick="switchDatenTab('import')"      id="dsub-import">Import</button>
         <button class="ern-sub-btn"        onclick="switchDatenTab('exportcsv')"   id="dsub-exportcsv">Export</button>
         <button class="ern-sub-btn"        onclick="switchDatenTab('benachrichtigung')" id="dsub-benachrichtigung">Erinnerung</button>
@@ -1641,6 +1918,14 @@
         </div>
         <div class="field-row">
           <div class="field-icon">⚖️</div>
+          <div class="field-label">Gewicht<small>Startgewicht (Jahresbeginn)</small></div>
+          <div class="field-right">
+            <input type="number" id="goal-gewichtStart" step="0.1" min="30" max="300" placeholder="75" oninput="saveGoals()">
+            <span class="unit">kg</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-icon">🎯</div>
           <div class="field-label">Gewicht<small>Zielgewicht</small></div>
           <div class="field-right">
             <input type="number" id="goal-gewicht" step="0.1" min="30" max="300" placeholder="70" oninput="saveGoals()">
@@ -1692,6 +1977,92 @@
         </div>
       </div>
     </div>
+
+
+    <!-- ── Jahresziele Panel ── -->
+    <div id="dsub-panel-jahresziele" style="display:none;">
+
+      <!-- Jahresbanner -->
+      <div class="jz-banner" id="jz-banner">
+        <div class="jz-banner-top">
+          <div>
+            <div class="jz-banner-title">Jahresfortschritt</div>
+            <div class="jz-banner-year" id="jz-banner-year">2026</div>
+          </div>
+          <div class="jz-banner-badge" id="jz-banner-pct">–</div>
+        </div>
+        <div class="jz-banner-bar-wrap">
+          <div class="jz-banner-bar-fill" id="jz-banner-bar" style="width:0%"></div>
+        </div>
+        <div class="jz-banner-stats" id="jz-banner-stats">–</div>
+      </div>
+
+      <!-- Modus-Toggle -->
+      <div class="jz-mode-bar">
+        <button class="jz-mode-btn active" id="jz-btn-edit" onclick="jzSetMode('edit')">✏️ Bearbeiten</button>
+        <button class="jz-mode-btn"        id="jz-btn-read" onclick="jzSetMode('read')">👁 Ansicht</button>
+      </div>
+
+      <!-- Edit-Modus -->
+      <div id="jz-view-edit">
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="jz-cat-header">
+            <div class="jz-cat-icon" style="background:rgba(52,199,89,0.12)">💚</div>
+            <div class="jz-cat-title">Gesundheit</div>
+            <div class="jz-cat-count" id="jz-cnt-gesundheit">0 / 3</div>
+          </div>
+          <div id="jz-rows-gesundheit"></div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="jz-cat-header">
+            <div class="jz-cat-icon" style="background:rgba(255,59,48,0.12)">❤️</div>
+            <div class="jz-cat-title">Beziehungen</div>
+            <div class="jz-cat-count" id="jz-cnt-beziehungen">0 / 3</div>
+          </div>
+          <div id="jz-rows-beziehungen"></div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="jz-cat-header">
+            <div class="jz-cat-icon" style="background:rgba(255,149,0,0.12)">💰</div>
+            <div class="jz-cat-title">Finanzielle Situation</div>
+            <div class="jz-cat-count" id="jz-cnt-finanzen">0 / 3</div>
+          </div>
+          <div id="jz-rows-finanzen"></div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="jz-cat-header">
+            <div class="jz-cat-icon" style="background:rgba(88,86,214,0.12)">🌱</div>
+            <div class="jz-cat-title">Persönliche Entwicklung</div>
+            <div class="jz-cat-count" id="jz-cnt-persoenlich">0 / 3</div>
+          </div>
+          <div id="jz-rows-persoenlich"></div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="jz-cat-header">
+            <div class="jz-cat-icon" style="background:rgba(0,122,255,0.12)">💼</div>
+            <div class="jz-cat-title">Beruflicher Bereich</div>
+            <div class="jz-cat-count" id="jz-cnt-beruf">0 / 3</div>
+          </div>
+          <div id="jz-rows-beruf"></div>
+        </div>
+
+        <div class="jz-save-wrap">
+          <button class="jz-save-btn" onclick="jzSaveAll()">Ziele speichern ✓</button>
+        </div>
+
+      </div><!-- end jz-view-edit -->
+
+      <!-- Read-Modus -->
+      <div id="jz-view-read" style="display:none;">
+        <div id="jz-read-content"></div>
+      </div>
+
+    </div><!-- end dsub-panel-jahresziele -->
 
     <!-- ── Import Panel ── -->
     <div id="dsub-panel-import" style="display:none;">
@@ -2051,7 +2422,7 @@ function switchTab(name){
     document.querySelectorAll('.seg-btn')[i].classList.toggle('active', t===name);
     document.getElementById('tab-'+t).classList.toggle('active', t===name);
   });
-  if(name==='verlauf') { renderHistory(); renderVerlaufSportGoals(); }
+  if(name==='verlauf') { renderHistory(); renderVerlaufSportGoals(); jzvRender(); }
   if(name==='export'){ loadGoalsUI(); updateReminderUI(); }
   if(name==='planung') renderPlanung();
   if(name==='ernaehrung') renderErnaehrung();
@@ -2925,7 +3296,7 @@ function renderSportGoals() {
 // ── Zielwerte ─────────────────────────────────────────────────
 const GOALS_KEY = 'ght_goals_v1';
 const GOALS_DEFAULTS = {
-  schlaf: 8, trinken: 2, schritte: 10000, gewicht: null, bauch: null,
+  schlaf: 8, trinken: 2, schritte: 10000, gewicht: null, gewichtStart: null, bauch: null,
   ausdauer: 150, kraft: 45, beweglichkeit: 35, entspannung: 35
 };
 
@@ -2936,7 +3307,7 @@ function loadGoals() {
 
 function saveGoals() {
   const g = loadGoals();
-  ['schlaf','trinken','schritte','gewicht','bauch','ausdauer','kraft','beweglichkeit','entspannung'].forEach(k => {
+  ['schlaf','trinken','schritte','gewicht','gewichtStart','bauch','ausdauer','kraft','beweglichkeit','entspannung'].forEach(k => {
     const el = document.getElementById('goal-'+k);
     if (el) g[k] = el.value !== '' ? parseFloat(el.value) : null;
   });
@@ -2947,7 +3318,7 @@ function saveGoals() {
 
 function loadGoalsUI() {
   const g = loadGoals();
-  ['schlaf','trinken','schritte','gewicht','bauch','ausdauer','kraft','beweglichkeit','entspannung'].forEach(k => {
+  ['schlaf','trinken','schritte','gewicht','gewichtStart','bauch','ausdauer','kraft','beweglichkeit','entspannung'].forEach(k => {
     const el = document.getElementById('goal-'+k);
     if (el && g[k] != null) el.value = g[k];
   });
@@ -4617,14 +4988,195 @@ function importRezepteText(){
 
 // ── Daten-Tab Sub-Navigation ─────────────────────────────────
 function switchDatenTab(name){
-  ['ziele','import','exportcsv','benachrichtigung'].forEach(t=>{
+  ['ziele','jahresziele','import','exportcsv','benachrichtigung'].forEach(t=>{
     const btn   = document.getElementById('dsub-'+t);
     const panel = document.getElementById('dsub-panel-'+t);
     if(btn)   btn.classList.toggle('active', t===name);
     if(panel) panel.style.display = t===name ? '' : 'none';
   });
-  if(name==='exportcsv') renderExportCount();
+  if(name==='exportcsv')   renderExportCount();
+  if(name==='jahresziele') jzInit();
 }
+
+// ══════════════════════════════════════════════════════
+//  JAHRESZIELE – Eingabe & Visualisierung
+// ══════════════════════════════════════════════════════
+const JZ_KEY = 'ght_jahresziele_v1';
+
+const JZ_KATEGORIEN = [
+  { id:'gesundheit',  label:'Gesundheit',              emoji:'💚', color:'#34c759', ph:'z.B. Jeden Tag 8h schlafen' },
+  { id:'beziehungen', label:'Beziehungen',             emoji:'❤️', color:'#ff3b30', ph:'z.B. Monatliches Familientreffen' },
+  { id:'finanzen',    label:'Finanzielle Situation',   emoji:'💰', color:'#ff9500', ph:'z.B. 10% Einkommen sparen' },
+  { id:'persoenlich', label:'Persönliche Entwicklung', emoji:'🌱', color:'#5856d6', ph:'z.B. 1 Buch pro Monat lesen' },
+  { id:'beruf',       label:'Beruflicher Bereich',     emoji:'💼', color:'#007aff', ph:'z.B. Neue Fähigkeit erlernen' },
+];
+const JZ_MAX = 3;
+
+function jzLoadData(){ try { return JSON.parse(localStorage.getItem(JZ_KEY)||'{}'); } catch{ return {}; } }
+function jzSaveData(d){ localStorage.setItem(JZ_KEY, JSON.stringify(d)); }
+
+let jzMode = 'edit';
+
+function jzInit(){
+  jzUpdateBanner();
+  jzRenderEdit();
+  jzSetMode(jzMode);
+}
+
+// ── Jahresbanner ──────────────────────────────────────
+function jzUpdateBanner(){
+  const now   = new Date();
+  const jahr  = now.getFullYear();
+  const start = new Date(jahr, 0, 1);
+  const end   = new Date(jahr + 1, 0, 1);
+  const total = Math.round((end - start) / 86400000);
+  const gone  = Math.round((now - start) / 86400000);
+  const pct   = Math.round(gone / total * 100);
+  const kw    = (() => {
+    const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const y = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - y) / 86400000) + 1) / 7);
+  })();
+  document.getElementById('jz-banner-year').textContent = jahr;
+  document.getElementById('jz-banner-pct').textContent  = pct + ' % des Jahres';
+  document.getElementById('jz-banner-bar').style.width  = pct + '%';
+  document.getElementById('jz-banner-stats').innerHTML  =
+    `<span>📅 ${gone} Tage vergangen</span><span>${total - gone} Tage verbleibend</span><span>KW ${kw} / 52</span>`;
+}
+
+// ── Edit-Modus ────────────────────────────────────────
+function jzRenderEdit(){
+  const data = jzLoadData();
+  JZ_KATEGORIEN.forEach(kat => {
+    const container = document.getElementById('jz-rows-' + kat.id);
+    if(!container) return;
+    const ziele = data[kat.id] || [];
+    container.innerHTML = '';
+    for(let i = 0; i < JZ_MAX; i++){
+      const val = ziele[i] || '';
+      const row = document.createElement('div');
+      row.className = 'jz-ziel-row';
+      row.innerHTML = `
+        <div class="jz-num" style="background:${kat.color}">${i+1}</div>
+        <textarea class="jz-textarea" id="jz-input-${kat.id}-${i}"
+          placeholder="${i===0 ? kat.ph : 'Weiteres Ziel…'}"
+          rows="1"
+          oninput="jzAutoResize(this);jzUpdateCount('${kat.id}')"
+        >${jzEsc(val)}</textarea>
+        <button class="jz-clear" onclick="jzClearZiel('${kat.id}',${i})">×</button>`;
+      container.appendChild(row);
+    }
+    jzUpdateCount(kat.id);
+    // Auto-resize bestehende Werte
+    requestAnimationFrame(() => {
+      for(let i=0;i<JZ_MAX;i++){
+        const el = document.getElementById(`jz-input-${kat.id}-${i}`);
+        if(el && el.value) jzAutoResize(el);
+      }
+    });
+  });
+}
+
+function jzAutoResize(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+
+function jzClearZiel(katId, idx){
+  const el = document.getElementById(`jz-input-${katId}-${idx}`);
+  if(el){ el.value=''; jzAutoResize(el); jzUpdateCount(katId); }
+}
+
+function jzUpdateCount(katId){
+  let n = 0;
+  for(let i=0;i<JZ_MAX;i++){
+    const el = document.getElementById(`jz-input-${katId}-${i}`);
+    if(el && el.value.trim()) n++;
+  }
+  const cnt = document.getElementById('jz-cnt-'+katId);
+  if(cnt) cnt.textContent = n+' / '+JZ_MAX;
+}
+
+// ── Speichern ─────────────────────────────────────────
+function jzSaveAll(){
+  const data = jzLoadData();
+  JZ_KATEGORIEN.forEach(kat => {
+    data[kat.id] = [];
+    for(let i=0;i<JZ_MAX;i++){
+      const el = document.getElementById(`jz-input-${kat.id}-${i}`);
+      data[kat.id].push(el ? el.value.trim() : '');
+    }
+  });
+  data.jahr = new Date().getFullYear();
+  data.gespeichert = new Date().toISOString();
+  jzSaveData(data);
+  showToast('Jahresziele gespeichert','🎯');
+}
+
+// ── Modus-Toggle ──────────────────────────────────────
+function jzSetMode(mode){
+  jzMode = mode;
+  document.getElementById('jz-btn-edit').classList.toggle('active', mode==='edit');
+  document.getElementById('jz-btn-read').classList.toggle('active', mode==='read');
+  document.getElementById('jz-view-edit').style.display = mode==='edit' ? '' : 'none';
+  document.getElementById('jz-view-read').style.display = mode==='read' ? '' : 'none';
+  if(mode==='read') jzRenderRead();
+}
+
+// ── Read-Modus ────────────────────────────────────────
+function jzRenderRead(){
+  const data = jzLoadData();
+  const container = document.getElementById('jz-read-content');
+  container.innerHTML = '';
+
+  JZ_KATEGORIEN.forEach(kat => {
+    const ziele = (data[kat.id]||[]).filter(z=>z.trim());
+    const card  = document.createElement('div');
+    card.className = 'card';
+    card.style.marginBottom = '16px';
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className = 'jz-cat-header';
+    hdr.innerHTML = `
+      <div class="jz-cat-icon" style="background:${jzHexAlpha(kat.color,.12)}">${kat.emoji}</div>
+      <div class="jz-cat-title">${kat.label}</div>
+      <div class="jz-cat-count">${ziele.length} Ziel${ziele.length!==1?'e':''}</div>`;
+    card.appendChild(hdr);
+
+    if(!ziele.length){
+      const empty = document.createElement('div');
+      empty.className = 'jz-empty-hint';
+      empty.textContent = 'Noch keine Ziele erfasst';
+      card.appendChild(empty);
+    } else {
+      ziele.forEach(z => {
+        const row = document.createElement('div');
+        row.className = 'jz-read-row';
+        row.innerHTML = `
+          <div class="jz-bullet" style="background:${kat.color}"></div>
+          <div class="jz-read-text">${jzEscHtml(z)}</div>`;
+        card.appendChild(row);
+      });
+    }
+    container.appendChild(card);
+  });
+
+  if(data.gespeichert){
+    const ts = document.createElement('div');
+    ts.className = 'jz-timestamp';
+    ts.textContent = 'Gespeichert: ' + new Date(data.gespeichert).toLocaleString('de-DE',{
+      day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'
+    }) + ' Uhr';
+    container.appendChild(ts);
+  }
+}
+
+// ── Hilfsfunktionen ───────────────────────────────────
+function jzHexAlpha(hex, alpha){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+function jzEsc(str){ return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function jzEscHtml(str){ return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── Lebensmittel Import/Export ────────────────────────────────
 const LM_CUSTOM_KEY = 'ght_lebensmittel_v1';
@@ -4791,6 +5343,350 @@ function exportRezepteJSON(){
   REZEPTE.push(...custom);
 })();
 
+
+// ══════════════════════════════════════════════════════
+//  JAHRESZIELE VISUALISIERUNG (Verlauf-Tab)
+// ══════════════════════════════════════════════════════
+let jzvCurrentMetric = 'schritte';
+
+function jzvRender(){
+  jzvRenderBanner();
+  jzvRenderRings();
+  jzvRenderTagesZiele();
+  jzvRenderMonthBars(jzvCurrentMetric);
+  jzvRenderHabits();
+  jzvRenderHighlights();
+}
+
+// ── Jahresbanner ──────────────────────────────────────
+function jzvRenderBanner(){
+  const now   = new Date();
+  const jahr  = now.getFullYear();
+  const start = new Date(jahr, 0, 1);
+  const end   = new Date(jahr + 1, 0, 1);
+  const total = Math.round((end - start) / 86400000);
+  const gone  = Math.round((now - start) / 86400000);
+  const pct   = Math.round(gone / total * 100);
+  const kw    = (() => {
+    const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    const y = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    return Math.ceil((((d-y)/86400000)+1)/7);
+  })();
+  const el = id => document.getElementById(id);
+  if(el('jzv-year'))      el('jzv-year').textContent      = jahr;
+  if(el('jzv-pct-badge')) el('jzv-pct-badge').textContent = pct + ' % des Jahres';
+  if(el('jzv-bar'))       el('jzv-bar').style.width       = pct + '%';
+  if(el('jzv-stats'))     el('jzv-stats').innerHTML =
+    `<span>📅 ${gone} Tage vergangen</span><span>${total-gone} Tage verbleibend</span><span>KW ${kw} / 52</span>`;
+}
+
+// ── Sport-Donut-Ringe ─────────────────────────────────
+function jzvRenderRings(){
+  const container = document.getElementById('jzv-rings');
+  if(!container) return;
+  const goals   = jzvLoadGoals();
+  const entries = getEntries();
+  const jahr    = new Date().getFullYear();
+  const yearEntries = entries.filter(e => e.datum && e.datum.startsWith(jahr));
+
+  // Zonenanteile summieren
+  const sportMin = { ausdauer:0, kraft:0, beweglichkeit:0, entspannung:0 };
+  yearEntries.forEach(e => {
+    if(e.zonen){
+      sportMin.ausdauer    += (e.zonen.am||0);
+      sportMin.kraft       += (e.zonen.km||0);
+      sportMin.beweglichkeit += (e.zonen.bm||0);
+      sportMin.entspannung += (e.zonen.em||0);
+    }
+  });
+
+  // Wochenziele → Jahresziel (52 Wochen)
+  const wZiele = {
+    ausdauer:      (goals.ausdauer     || 150) * 52,
+    kraft:         (goals.kraft        || 45)  * 52,
+    beweglichkeit: (goals.beweglichkeit|| 35)  * 52,
+    entspannung:   (goals.entspannung  || 35)  * 52,
+  };
+
+  const zonen = [
+    { key:'ausdauer',    label:'Ausdauer',    color:'#34c759', emoji:'🔵' },
+    { key:'kraft',       label:'Kraft',       color:'#ff9500', emoji:'🟠' },
+    { key:'beweglichkeit',label:'Beweglichkeit',color:'#af52de',emoji:'🟢'},
+    { key:'entspannung', label:'Entspannung', color:'#5856d6', emoji:'🟣' },
+  ];
+
+  const r = 28, circ = 2 * Math.PI * r;
+  container.innerHTML = zonen.map(z => {
+    const ist   = sportMin[z.key] || 0;
+    const ziel  = wZiele[z.key]   || 1;
+    const pct   = Math.min(100, Math.round(ist / ziel * 100));
+    const offset = circ - (pct / 100) * circ;
+    const istFmt = ist >= 1000
+      ? (ist/60).toFixed(1).replace('.',',') + ' h'
+      : ist + ' min';
+    return `<div class="jzv-ring-cell">
+      <svg class="jzv-ring-svg" viewBox="0 0 68 68">
+        <circle cx="34" cy="34" r="${r}" fill="none" stroke="var(--bg)" stroke-width="7"/>
+        <circle cx="34" cy="34" r="${r}" fill="none" stroke="${z.color}" stroke-width="7"
+          stroke-linecap="round"
+          stroke-dasharray="${circ.toFixed(1)}"
+          stroke-dashoffset="${offset.toFixed(1)}"
+          transform="rotate(-90 34 34)"/>
+        <text x="34" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-primary)">${pct}%</text>
+      </svg>
+      <div class="jzv-ring-val" style="color:${z.color}">${istFmt}</div>
+      <div class="jzv-ring-lbl">${z.label}<br><span style="font-size:10px;color:var(--text-ter);">Ziel: ${Math.round(ziel/60)}h/Jahr</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Tagesschnitt-Ziele ────────────────────────────────
+function jzvRenderTagesZiele(){
+  const container = document.getElementById('jzv-tages-goals');
+  if(!container) return;
+  const goals   = jzvLoadGoals();
+  const entries = getEntries();
+  const jahr    = new Date().getFullYear();
+  const ye      = entries.filter(e => e.datum && e.datum.startsWith(jahr));
+
+  function avg(arr, key){
+    const vals = arr.map(e => parseFloat(e[key])).filter(v => !isNaN(v) && v > 0);
+    return vals.length ? vals.reduce((a,b)=>a+b,0) / vals.length : null;
+  }
+
+  const ziele = [
+    { icon:'⚖️', name:'Gewicht', key:'gewicht', ziel: goals.gewicht, start: goals.gewichtStart,
+      unit:'kg', dec:1, invert:true },
+    { icon:'👟', name:'Schritte / Tag', key:'schritte', ziel: goals.schritte || 10000,
+      unit:'Schr.', dec:0 },
+    { icon:'😴', name:'Schlaf / Nacht', key:'schlaf', ziel: goals.schlaf || 8,
+      unit:'Std', dec:1 },
+    { icon:'💧', name:'Trinken / Tag',  key:'trinken', ziel: goals.trinken || 2.5,
+      unit:'L', dec:1 },
+    { icon:'😊', name:'Wohlbefinden',  key:'wohlbefinden', ziel: 7,
+      unit:'/ 10', dec:1 },
+  ];
+
+  container.innerHTML = ziele.map(z => {
+    const ist = avg(ye, z.key);
+    if(ist == null || !z.ziel) return '';
+
+    let pct, erreicht = false;
+    if(z.invert && z.start){
+      // Gewicht: Fortschritt von Start zum Ziel
+      const gesamtWeg = Math.abs(z.start - z.ziel);
+      const geschafft = Math.max(0, z.invert ? z.start - ist : ist - z.start);
+      pct = gesamtWeg > 0 ? Math.min(100, Math.round(geschafft / gesamtWeg * 100)) : 100;
+      erreicht = ist <= z.ziel;
+    } else {
+      pct = Math.min(100, Math.round(ist / z.ziel * 100));
+      erreicht = ist >= z.ziel;
+    }
+
+    const color = pct >= 100 ? 'var(--green)'
+                : pct >= 70  ? 'var(--brand)'
+                : pct >= 40  ? 'var(--orange)'
+                : 'var(--red)';
+    const istFmt = z.dec === 0
+      ? Math.round(ist).toLocaleString('de-DE')
+      : ist.toLocaleString('de-DE', {minimumFractionDigits:z.dec, maximumFractionDigits:z.dec});
+    const zielFmt = z.dec === 0
+      ? z.ziel.toLocaleString('de-DE')
+      : z.ziel.toLocaleString('de-DE', {minimumFractionDigits:z.dec, maximumFractionDigits:z.dec});
+
+    return `<div class="jzv-goal-row">
+      <div class="jzv-goal-icon">${z.icon}</div>
+      <div class="jzv-goal-info">
+        <div class="jzv-goal-name">${z.name}</div>
+        <div class="jzv-goal-sub">Ø ${istFmt} ${z.unit} · Ziel: ${zielFmt} ${z.unit}</div>
+        <div class="jzv-goal-bar-wrap">
+          <div class="jzv-goal-bar-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+      </div>
+      <div class="jzv-goal-right">
+        ${erreicht
+          ? `<div class="jzv-goal-check">✓</div><div class="jzv-goal-detail">erreicht</div>`
+          : `<div class="jzv-goal-pct" style="color:${color}">${pct} %</div>`}
+      </div>
+    </div>`;
+  }).join('');
+
+  if(!container.innerHTML.trim())
+    container.innerHTML = '<div style="padding:14px 16px;font-size:13px;color:var(--text-ter);">Noch keine Daten für ' + new Date().getFullYear() + '.</div>';
+}
+
+// ── Monatsbalken ──────────────────────────────────────
+function jzvSetMetric(metric, btn){
+  jzvCurrentMetric = metric;
+  document.querySelectorAll('.jzv-seg-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  jzvRenderMonthBars(metric);
+}
+
+function jzvRenderMonthBars(metric){
+  const container = document.getElementById('jzv-month-bars');
+  const goalLabel = document.getElementById('jzv-chart-goal-label');
+  if(!container) return;
+  const entries = getEntries();
+  const jahr    = new Date().getFullYear();
+  const curMonth = new Date().getMonth(); // 0-based
+  const MONATE  = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+
+  // Monatsdurchschnitte berechnen
+  const monthData = Array.from({length:12}, (_, m) => {
+    const mStr = String(m+1).padStart(2,'0');
+    const prefix = `${jahr}-${mStr}`;
+    const me = entries.filter(e => e.datum && e.datum.startsWith(prefix));
+    if(!me.length) return null;
+    const vals = me.map(e => parseFloat(e[metric])).filter(v => !isNaN(v) && v > 0);
+    if(!vals.length) return null;
+    return vals.reduce((a,b)=>a+b,0) / vals.length;
+  });
+
+  const goals = jzvLoadGoals();
+  const goalVal = metric === 'schritte' ? (goals.schritte||10000)
+                : metric === 'schlaf'   ? (goals.schlaf||8)
+                : null;
+
+  // Max für Skalierung
+  const nonNull = monthData.filter(v=>v!=null);
+  const maxVal  = nonNull.length ? Math.max(...nonNull, goalVal||0) : goalVal||1;
+
+  if(goalLabel){
+    if(metric==='schritte') goalLabel.textContent = 'Ziel: ' + (goalVal||10000).toLocaleString('de-DE') + ' Schr.';
+    else if(metric==='schlaf') goalLabel.textContent = 'Ziel: ' + (goalVal||8) + ' Std';
+    else goalLabel.textContent = 'Durchschnitt';
+  }
+
+  container.innerHTML = MONATE.map((mon, m) => {
+    const val     = monthData[m];
+    const isCur   = m === curMonth;
+    const isFuture = m > curMonth;
+    const heightPct = (val != null && maxVal > 0) ? Math.round(val / maxVal * 100) : 0;
+    const barColor  = isCur   ? 'var(--brand)'
+                    : isFuture ? 'transparent'
+                    : val != null && goalVal && val >= goalVal ? 'var(--green)'
+                    : 'var(--brand-soft)';
+    const border = (isCur || (!isFuture && val != null)) ? `border:1px solid var(--brand);border-bottom:none;` : '';
+    return `<div class="jzv-month-col">
+      <div class="jzv-month-bar-wrap">
+        <div class="jzv-month-bar-fill" style="height:${heightPct}%;background:${barColor};${border}"></div>
+      </div>
+      <div class="jzv-month-name${isCur?' cur':''}">${mon}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Habit-Dots ────────────────────────────────────────
+function jzvRenderHabits(){
+  const container = document.getElementById('jzv-habits');
+  if(!container) return;
+  const entries  = getEntries();
+  const jahr     = new Date().getFullYear();
+  const start    = new Date(jahr, 0, 1);
+  const heute    = new Date();
+  const daysSoFar = Math.round((heute - start) / 86400000) + 1;
+
+  const HABITS = [
+    { key:'lesen',    label:'📚 Lesen' },
+    { key:'stricken', label:'🧶 Stricken' },
+    { key:'klavier',  label:'🎹 Klavier' },
+    { key:'ki',       label:'🤖 KI-Projekt' },
+  ];
+
+  // Set mit Tagen wo Habit done
+  function doneSet(key){
+    const s = new Set();
+    entries.forEach(e => {
+      if(e.datum && e.datum.startsWith(jahr) && e.habits && e.habits[key]) s.add(e.datum);
+    });
+    return s;
+  }
+
+  // Streak berechnen
+  function streak(key){
+    let n = 0, d = new Date(heute);
+    while(true){
+      const ds = d.toISOString().split('T')[0];
+      const entry = entries.find(e => e.datum === ds);
+      if(entry && entry.habits && entry.habits[key]){ n++; d.setDate(d.getDate()-1); }
+      else break;
+    }
+    return n;
+  }
+
+  container.innerHTML = HABITS.map(h => {
+    const done  = doneSet(h.key);
+    const count = done.size;
+    const str   = streak(h.key);
+    const dots  = Array.from({length: Math.min(daysSoFar, 180)}, (_, i) => {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      const ds = d.toISOString().split('T')[0];
+      return `<div class="jzv-dot${done.has(ds)?' done':''}"></div>`;
+    }).join('');
+    return `<div class="jzv-habit-row">
+      <div class="jzv-habit-hdr">
+        <span class="jzv-habit-name">${h.label}</span>
+        <span class="jzv-habit-meta">${count} / ${daysSoFar} Tagen${str>0?' · 🔥 '+str+' Streak':''}</span>
+      </div>
+      <div class="jzv-dots">${dots}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Highlights ────────────────────────────────────────
+function jzvRenderHighlights(){
+  const entries = getEntries();
+  const jahr    = new Date().getFullYear();
+  const ye      = entries.filter(e => e.datum && e.datum.startsWith(jahr));
+  const goals   = jzvLoadGoals();
+
+  function avg(key){ const v=ye.map(e=>parseFloat(e[key])).filter(v=>!isNaN(v)&&v>0); return v.length?v.reduce((a,b)=>a+b)/v.length:null; }
+  function sum(key){ return ye.map(e=>parseFloat(e[key])||0).reduce((a,b)=>a+b,0); }
+
+  const gewStart = goals.gewichtStart || null;
+  const gewJetzt = avg('gewicht');
+  const gewDiff  = (gewStart && gewJetzt) ? gewJetzt - gewStart : null;
+
+  const schrTotal = Math.round(sum('schritte'));
+  const sportTotal = ye.reduce((s,e) => {
+    if(e.zonen) s += (e.zonen.am||0)+(e.zonen.km||0)+(e.zonen.bm||0)+(e.zonen.em||0);
+    return s;
+  }, 0);
+  const avgSchlaf = avg('schlaf');
+  const avgMood   = avg('wohlbefinden');
+  const kiCount   = ye.filter(e=>e.habits&&e.habits.ki).length;
+
+  const top = [
+    { val: gewDiff != null ? (gewDiff>0?'+':'')+gewDiff.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})+' kg' : '–', lbl:'Gewichts-<br>änderung', color: gewDiff<0?'var(--green)':gewDiff>0?'var(--orange)':'var(--text-primary)' },
+    { val: schrTotal>0 ? (schrTotal/1000).toLocaleString('de-DE',{minimumFractionDigits:0,maximumFractionDigits:1})+'k' : '–', lbl:'Schritte<br>gesamt', color:'var(--blue)' },
+    { val: kiCount || '–', lbl:'KI-Projekt<br>Tage', color:'var(--brand)' },
+  ];
+  const bot = [
+    { val: avgSchlaf ? avgSchlaf.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1}) : '–', lbl:'Ø Schlaf<br>Std', color:'var(--indigo,#5856d6)' },
+    { val: avgMood ? avgMood.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1}) : '–', lbl:'Ø Wohl-<br>befinden', color:'var(--teal)' },
+    { val: sportTotal>0 ? Math.round(sportTotal/60)+'h' : '–', lbl:'Sport<br>gesamt', color:'var(--purple)' },
+  ];
+
+  const render = (rows, id) => {
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = rows.map(r =>
+      `<div class="jzv-hi-cell">
+        <div class="jzv-hi-val" style="color:${r.color}">${r.val}</div>
+        <div class="jzv-hi-lbl">${r.lbl}</div>
+      </div>`
+    ).join('');
+  };
+  render(top, 'jzv-highlights-top');
+  render(bot, 'jzv-highlights-bot');
+}
+
+// ── Goals laden (nutzt bestehende loadGoals-Funktion) ─────────
+function jzvLoadGoals(){
+  return loadGoals();
+}
 
 // ── Init ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', ()=>{
